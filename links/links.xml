@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map>
+<Map background-color="transparent">
+  <Style name="color" filter-mode="first">
+	<Rule>
+	  <Filter>([color] = '20ff0000')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#0000ff" stroke-linecap="butt" clip="false" stroke-opacity="0.125" />
+	</Rule>
+	<Rule>
+	  <Filter>([color] = 'ff1e1eff')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff1e1e" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([color] = 'ff4949ff')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff4949" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([color] = 'ff6a6aff')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff6a6a" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([color] = 'ff53acff')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ffac53" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([color] = 'ff79ebff')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ffeb79" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([color] = 'ff7cff79')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#79ff7c" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([color] = 'ff0aff04')</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#04ff0a" stroke-linecap="butt" clip="false" />
+	</Rule>
+  </Style>
+  <Style name="shadow1">
+	<Rule>
+	  <LineSymbolizer stroke-width="5" stroke="#333333" stroke-linecap="round" stroke-opacity="0.5" />
+	</Rule>
+  </Style>
+  <Style name="shadow2">
+	<Rule>
+	  <LineSymbolizer stroke-width="7" stroke="#555555" stroke-linecap="round" stroke-opacity="0.2" />
+	</Rule>
+  </Style>
+  
+  <Layer name="layer">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>shadow2</StyleName>
+    <StyleName>shadow1</StyleName>
+    <StyleName>color</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">links.csv</Parameter>
+    </Datasource>
+  </Layer>
+<!--
+  <Layer name="Network List">
+    <StyleName>wep</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">../../htdocs/db/wep.kml</Parameter>
+	  <Parameter name="layer">Network List</Parameter>
+    </Datasource>
+  </Layer>
+  <Layer name="Network List">
+    <StyleName>open</StyleName>
+    <Datasource>
+      <Parameter name="type">ogr</Parameter>
+      <Parameter name="file">../../htdocs/db/open.kml</Parameter>
+	  <Parameter name="layer">Network List</Parameter>
+    </Datasource>
+  </Layer>
+-->
+
+</Map>
