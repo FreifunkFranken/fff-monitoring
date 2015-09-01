@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map>
+<Map background-color="transparent">
+  <Style name="routerpoint" filter-mode="first">
+	<Rule>
+	  <Filter>([status] = 'online')</Filter>
+	  <PointSymbolizer file="static/img/router_green.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'offline')</Filter>
+	  <PointSymbolizer file="static/img/router_red.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'unknown')</Filter>
+	  <PointSymbolizer file="static/img/router_yellow.svg" allow-overlap="true" />
+	</Rule>
+  </Style>
+  
+  <Layer name="layer">
+    <!-- Style order determines layering hierarchy -->
+    <!-- Labels go on top so they are listed second -->
+    <StyleName>routerpoint</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/routers.csv</Parameter>
+    </Datasource>
+  </Layer>
+</Map>
