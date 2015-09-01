@@ -16,6 +16,6 @@ csv.write("x,y,status\n")
 
 #for router in routers.find({"bootstrap_ip": {"$exists": True}}):
 for router in routers.find({}):
-	csv.write("%f,%f,%s\n" % (router["position"]["lng"], router["position"]["lat"], "online"))
+	csv.write("%f,%f,%s\n" % (router["position"]["lng"], router["position"]["lat"], router.get("status", "unknown")))
 
 csv.close()

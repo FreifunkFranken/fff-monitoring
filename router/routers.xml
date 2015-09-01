@@ -4,8 +4,16 @@
   <!--<Style name="routerpoint" filter-mode="first">-->
   <Style name="routerpoint">
 	<Rule>
-	  <!--<Filter>([color] = '20ff0000')</Filter>-->
+	  <Filter>([status] = 'online')</Filter>
 	  <PointSymbolizer file="green-dot.png" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'offline')</Filter>
+	  <PointSymbolizer file="red-dot.png" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'unknown')</Filter>
+	  <PointSymbolizer file="yellow-dot.png" allow-overlap="true" />
 	</Rule>
   </Style>
   
