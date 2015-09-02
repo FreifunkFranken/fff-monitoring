@@ -8,34 +8,22 @@ routers = db.routers
 
 with open("csv/routers.csv", "w") as csv:
 	csv.write("lng,lat,status\n")
-	for router in routers.find({
-		"position.lat": {"$exists": True},
-		"position.lng": {"$exists": True}}):
+	for router in routers.find({"position.coordinates": {"$exists": True}}):
 		csv.write("%f,%f,%s\n" % (
-			router["position"]["lng"],
-			router["position"]["lat"],
+			router["position"]["coordinates"][0],
+			router["position"]["coordinates"][1],
 			router.get("status", "unknown")
 		))
 
 with open("csv/links.csv", "w") as csv:
 	csv.write("WKT,quality\n")
-	for router in routers.find({
-		"position.lat": {"$exists": True},
-		"position.lng": {"$exists": True},
-		"neighbours": {"$exists": True}}):
+	for router in routers.find({"position.coordinates": {"$exists": True}, "neighbours": {"$exists": True}}):
 		for neighbour in router["neighbours"]:
-			if not "_id" in neighbour:
-				continue
-			neighbour_router = routers.find_one({
-				"_id": neighbour["_id"],
-				"position.lat": {"$exists": True},
-				"position.lng": {"$exists": True}
-			})
-			if neighbour_router:
+			if "position" in neighbour:
 				csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % (
-					router["position"]["lng"],
-					router["position"]["lat"],
-					neighbour_router["position"]["lng"],
-					neighbour_router["position"]["lat"],
+					router["position"]["coordinates"][0],
+					router["position"]["coordinates"][1],
+					neighbour["position"]["coordinates"][0],
+					neighbour["position"]["coordinates"][1],
 					neighbour["quality"]
 				))
