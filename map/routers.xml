@@ -4,6 +4,9 @@
   <Style name="routerpoint" filter-mode="first">
 	<Rule>
 	  <Filter>([status] = 'online')</Filter>
+	  <!-- For directed antenna
+		<PointSymbolizer file="static/img/router_direct_green.svg" allow-overlap="true" transform="rotate(45)" />
+	  -->
 	  <PointSymbolizer file="static/img/router_green.svg" allow-overlap="true" />
 	</Rule>
 	<Rule>

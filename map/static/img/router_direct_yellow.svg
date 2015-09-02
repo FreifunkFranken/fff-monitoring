@@ -57,7 +57,7 @@
      id="layer1"
      transform="translate(0,-1038.3621)">
     <circle
-       style="fill:#2fa034;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffea12;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4690-2"
        r="6.6121397"
        cy="1045.3621"
@@ -69,7 +69,7 @@
        cy="1045.3611"
        r="5.464994" />
     <circle
-       style="fill:#2fa034;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffea12;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4690-2-0"
        r="4.3582368"
        cy="1045.3621"
@@ -81,7 +81,7 @@
        cy="1045.3621"
        r="3.4499073" />
     <circle
-       style="fill:#2fa034;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffea12;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4690-2-0-6"
        r="2.5210376"
        cy="1045.3621"
@@ -93,7 +93,7 @@
        cy="1045.3621"
        r="1.6245422" />
     <path
-       style="fill:#2fa034;fill-opacity:1"
+       style="fill:#ffea12;fill-opacity:1"
        id="path4134"
        sodipodi:type="arc"
        sodipodi:cx="7.0023694"
