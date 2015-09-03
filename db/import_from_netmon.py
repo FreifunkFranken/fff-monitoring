@@ -19,7 +19,7 @@ CONFIG = {
 db.routers.create_index([("position", "2dsphere")])
 
 
-tree = lxml.etree.fromstring(requests.get("https://netmon.freifunk-franken.de/api/rest/routerlist", params={"limit": 1000}).content)
+tree = lxml.etree.fromstring(requests.get("https://netmon.freifunk-franken.de/api/rest/routerlist", params={"limit": 5000}).content)
 
 for r in tree.xpath("/netmon_response/routerlist/router"):
 	user_netmon_id = int(r.xpath("user_id/text()")[0])
