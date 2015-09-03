@@ -53,7 +53,7 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 		}
 		
 		# define hood
-		router["hood"] = hoods.hood_by_pos(router["position"])["name"]
+		router["hood"] = hoods.hood_by_pos(*router["position"]["coordinates"])["name"]
 
 		# try to get comment
 		router["position"]["comment"] = r.xpath("location/text()")[0]

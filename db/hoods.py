@@ -53,11 +53,11 @@ db.hoods.insert_many([
 }])
 """
 
-def km_distance(pos1, pos2):
-	lng1 = radians(pos1["lng"])
-	lat1 = radians(pos1["lat"])
-	lng2 = radians(pos2["coordinates"][0])
-	lat2 = radians(pos2["coordinates"][1])
+def km_distance(lng1, lat1, lng2, lat2):
+	lng1 = radians(lng1)
+	lat1 = radians(lat1)
+	lng2 = radians(lng2)
+	lat2 = radians(lat2)
 
 	dlng = lng2 - lng1
 	dlat = lat2 - lat1
@@ -72,12 +72,12 @@ def km_distance(pos1, pos2):
 
 	return distance
 
-def hood_by_pos(pos):
+def hood_by_pos(lng, lat):
 	current_hood_dist = 99999999
 	current_hood = db.hoods.find({"keyxchange_id": CONFIG["default_hood_id"]})
 
 	for hood in db.hoods.find({"position": {"$exists": True}}):
-		distance = km_distance(hood["position"], pos)
+		distance = km_distance(hood["position"]["lng"], hood["position"]["lat"], lng, lat)
 		if distance <= current_hood_dist:
 			current_hood_dist = distance
 			current_hood = hood
