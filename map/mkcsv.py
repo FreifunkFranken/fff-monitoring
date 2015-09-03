@@ -4,11 +4,10 @@ from pymongo import MongoClient
 client = MongoClient()
 
 db = client.freifunk
-routers = db.routers
 
 with open("csv/routers.csv", "w") as csv:
 	csv.write("lng,lat,status\n")
-	for router in routers.find({"position.coordinates": {"$exists": True}}):
+	for router in db.routers.find({"position.coordinates": {"$exists": True}}):
 		csv.write("%f,%f,%s\n" % (
 			router["position"]["coordinates"][0],
 			router["position"]["coordinates"][1],
@@ -17,7 +16,7 @@ with open("csv/routers.csv", "w") as csv:
 
 with open("csv/links.csv", "w") as csv:
 	csv.write("WKT,quality\n")
-	for router in routers.find({"position.coordinates": {"$exists": True}, "neighbours": {"$exists": True}}):
+	for router in db.routers.find({"position.coordinates": {"$exists": True}, "neighbours": {"$exists": True}}):
 		for neighbour in router["neighbours"]:
 			if "position" in neighbour:
 				csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % (
