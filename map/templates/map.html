@@ -56,10 +56,15 @@
 		var px_per_deg_lng = size_of_world_in_px / 360;
 		var px_per_deg_lat = size_of_world_in_px / 180;
 
-		ajax_get_request("{{ url_for('get_nearest_router') }}?lng=" + pos.latlng.lng + "&lat=" + pos.latlng.lat, function(router) {
+		// normalize longitude (user can shift map west/east and leave the [-180..180] range
+		var lng = mod(pos.latlng.lng, 360);
+		var lat = pos.latlng.lat;
+		if (lng > 180) { lng -= 360; }
+
+		ajax_get_request("{{ url_for('get_nearest_router') }}?lng=" + lng + "&lat=" + lat, function(router) {
 			// decide if router is close enough
-			var lng_delta = Math.abs(pos.latlng.lng - router.position.coordinates[0])
-			var lat_delta = Math.abs(pos.latlng.lat - router.position.coordinates[1])
+			var lng_delta = Math.abs(lng - router.position.coordinates[0])
+			var lat_delta = Math.abs(lat - router.position.coordinates[1])
 
 			// convert degree distances into px distances on the map
 			var x_delta_px = lng_delta * px_per_deg_lng;
@@ -129,6 +134,11 @@
 		}
 		xmlhttp.open("GET", url, true);
 		xmlhttp.send();
+	}
+
+	function mod(n, m) {
+		// use own modulo function (see http://stackoverflow.com/q/4467539)
+		return ((n % m) + m) % m;
 	}
 	</script>
 </body>
