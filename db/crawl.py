@@ -79,6 +79,7 @@ def crawl(router):
 				try:
 					neighbour_router = db.routers.find_one({"netifs.mac": neighbour["mac"]})
 					neighbour["_id"] = neighbour_router["_id"]
+					neighbour["hostname"] = neighbour_router["hostname"]
 					assert "coordinates" in neighbour_router["position"]
 					assert neighbour_router["position"]["coordinates"][0] != 0
 					assert neighbour_router["position"]["coordinates"][1] != 0
