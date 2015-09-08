@@ -2,7 +2,6 @@
 
 import lxml.etree
 import requests
-import hoods
 from pymongo import MongoClient
 client = MongoClient()
 
@@ -43,9 +42,6 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 		lat = float(r.xpath("latitude/text()")[0])
 		assert lng != 0
 		assert lat != 0
-		#router["position"]["lng"] = lng
-		#router["position"]["lat"] = lat
-		#router["loc"] = { "type": "Point", "coordinates": [ -73.88, 40.78 ], "comment": "foobar" }
 
 		router["position"] = {
 			"type": "Point",
@@ -53,7 +49,7 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 		}
 		
 		# define hood
-		router["hood"] = hoods.hood_by_pos(*router["position"]["coordinates"])["name"]
+		router["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
 
 		# try to get comment
 		router["position"]["comment"] = r.xpath("location/text()")[0]
