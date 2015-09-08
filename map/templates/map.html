@@ -39,9 +39,17 @@
 		maxNativeZoom: 19,
 		maxZoom: 22
 	}).addTo(map);
-	var links = new L.TileLayer('{{ tileurls.links }}/{z}/{x}/{y}.png', {maxNativeZoom: 22, maxZoom: 22, attribution: "", maximumAge: 1000*3600*24*10}).addTo(map);
-	var routers = new L.TileLayer('{{ tileurls.routers }}/{z}/{x}/{y}.png', {maxNativeZoom: 22, maxZoom: 22, attribution: "", maximumAge: 1000*3600*24*10}).addTo(map);
-	layersControl = new L.Control.Layers({}, {"links": links, "routers": routers});
+
+	var overlay_config = {
+		maxNativeZoom: 22,
+		maxZoom: 22,
+		attribution: "",
+		maximumAge: 1000*3600*24*10
+	}
+	var links = new L.TileLayer('{{ tileurls.links }}/{z}/{x}/{y}.png', overlay_config).addTo(map);
+	var routers = new L.TileLayer('{{ tileurls.routers }}/{z}/{x}/{y}.png', overlay_config).addTo(map);
+	var hoods = new L.TileLayer('{{ tileurls.hoods }}/{z}/{x}/{y}.png', overlay_config);
+	layersControl = new L.Control.Layers({}, {"links": links, "routers": routers, "hoods": hoods});
 	map.addControl(layersControl);
 	//var marker = L.marker([49.47502, 10.99253]).addTo(map);
 

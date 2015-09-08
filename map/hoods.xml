@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map>
+<Map background-color="transparent">
+  <Style name="hoodpoint">
+	<Rule>
+	  <TextSymbolizer face-name="DejaVu Sans Book" size="12" fill="#1e42ff" halo-radius="2" text-transform="capitalize">[name]</TextSymbolizer>
+	</Rule>
+  </Style>
+  <Style name="hoodborder">
+	<Rule>
+	  <LineSymbolizer stroke-width="3" stroke="#1e42ff" stroke-linecap="butt" stroke-dasharray="6, 2" clip="false" />
+	</Rule>
+  </Style>
+  <Layer name="borders">
+    <StyleName>hoodborder</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/hoods.csv</Parameter>
+    </Datasource>
+  </Layer>
+  <Layer name="points">
+    <StyleName>hoodpoint</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/hood-points.csv</Parameter>
+    </Datasource>
+  </Layer>
+</Map>
