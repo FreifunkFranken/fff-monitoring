@@ -5,6 +5,7 @@ import requests
 import time
 import subprocess
 import gzip
+import datetime
 from queue import Queue
 from threading import Thread
 from pymongo import MongoClient
@@ -44,9 +45,32 @@ def crawl(router):
 			"status": tree.xpath("/data/system_data/status/text()")[0],
 			"has_wan_uplink": len(tree.xpath("/data/interface_data/fffVPN")) > 0,
 			"hostname": tree.xpath("/data/system_data/hostname/text()")[0],
-			"neighbours": [], # list of mongoDB ids (or mac if no corresponding id found)
+			"systemtime": datetime.datetime.fromtimestamp(int(tree.xpath("/data/system_data/local_time/text()")[0])),
+			"uptime": int(float(tree.xpath("/data/system_data/uptime/text()")[0])),
+			"neighbours": [],
 			"netifs": [],
+			"hardware": {
+				"chipset": tree.xpath("/data/system_data/chipset/text()")[0],
+				"cpu": tree.xpath("/data/system_data/cpu/text()")[0]
+			},
+			"software": {
+				"os": "%s (%s)" % (tree.xpath("/data/system_data/distname/text()")[0],
+				                   tree.xpath("/data/system_data/distversion/text()")[0]),
+				"batman_adv": tree.xpath("/data/system_data/batman_advanced_version/text()")[0],
+				"kernel": tree.xpath("/data/system_data/kernel_version/text()")[0],
+				"nodewatcher": tree.xpath("/data/system_data/nodewatcher_version/text()")[0],
+				#"fastd": tree.xpath("/data/system_data/fastd_version/text()")[0],
+				"firmware": tree.xpath("/data/system_data/firmware_version/text()")[0],
+				"firmware_rev": tree.xpath("/data/system_data/firmware_revision/text()")[0],
+			}
 		}
+
+		# get hardware.name by chipset
+		chipset = db.chipsets.find_one({"name": router_update["hardware"]["chipset"]})
+		if chipset:
+			router_update["hardware"]["name"] = chipset["hardware"]
+		else:
+			print("Unknown Chipset: %s" % router_update["hardware"]["chipset"])
 
 		for netif in tree.xpath("/data/interface_data/*"):
 			interface = {
@@ -90,7 +114,7 @@ def crawl(router):
 					pass
 				router_update["neighbours"].append(neighbour)
 
-		db.routers.update_one({"_id": router["_id"]}, {"$set": router_update})
+		db.routers.update_one({"_id": router["_id"]}, {"$set": router_update, "$currentDate": {"last_contact": True}})
 
 		#from pprint import pprint
 		#pprint(router)

@@ -2,6 +2,7 @@
 
 import lxml.etree
 import requests
+import datetime
 from pymongo import MongoClient
 client = MongoClient()
 
@@ -52,7 +53,9 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 		router["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
 
 		# try to get comment
-		router["position"]["comment"] = r.xpath("location/text()")[0]
+		position_comment = r.xpath("location/text()")[0]
+		if position_comment != "undefined":
+			router["position"]["comment"] = position_comment
 	except (IndexError, AssertionError):
 		pass
 
@@ -74,5 +77,7 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 				"name": CONFIG["crawl_netif"],
 				"ipv6_fe80_addr": netif_ip
 			}]
+
+		router["created"] = datetime.datetime.utcnow()
 
 		db.routers.insert_one(router)
