@@ -46,10 +46,9 @@
 		attribution: "",
 		maximumAge: 1000*3600*24*10
 	}
-	var links = new L.TileLayer('{{ tileurls.links }}/{z}/{x}/{y}.png', overlay_config).addTo(map);
-	var routers = new L.TileLayer('{{ tileurls.routers }}/{z}/{x}/{y}.png', overlay_config).addTo(map);
+	var links_and_routers = new L.TileLayer('{{ tileurls.links_and_routers }}/{z}/{x}/{y}.png', overlay_config).addTo(map);
 	var hoods = new L.TileLayer('{{ tileurls.hoods }}/{z}/{x}/{y}.png', overlay_config);
-	layersControl = new L.Control.Layers({}, {"Links": links, "Routers": routers, "Hoods": hoods});
+	layersControl = new L.Control.Layers({}, {"Links & Routers": links_and_routers, "Hoods": hoods});
 	map.addControl(layersControl);
 	//var marker = L.marker([49.47502, 10.99253]).addTo(map);
 

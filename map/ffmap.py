@@ -9,9 +9,8 @@ client = MongoClient()
 db = client.freifunk
 
 tileurls = {
-	"links": "http://home.heidler.eu:8000",
-	"routers": "http://home.heidler.eu:8001",
-	"hoods": "http://home.heidler.eu:8002",
+	"links_and_routers": "http://home.heidler.eu:8000",
+	"hoods": "http://home.heidler.eu:8001",
 }
 
 @app.route('/')
