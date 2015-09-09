@@ -97,7 +97,7 @@ def crawl(router):
 	except subprocess.CalledProcessError:
 		db.routers.update_one({"_id": router["_id"]}, {"$set": {"status": "offline"}})
 		print(" --> OFFLINE")
-	except AssertionError:
+	except (AssertionError, lxml.etree.XMLSyntaxError):
 		db.routers.update_one({"_id": router["_id"]}, {"$set": {"status": "unknown"}})
 		print(" --> UNKNOWN")
 
