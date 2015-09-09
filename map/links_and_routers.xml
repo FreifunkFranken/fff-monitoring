@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map>
+<Map background-color="transparent">
+  <Style name="routerpoint" filter-mode="first">
+	<Rule>
+	  <Filter>([status] = 'online')</Filter>
+	  <!-- For directed antenna
+		<PointSymbolizer file="static/img/router_direct_green.svg" allow-overlap="true" transform="rotate(45)" />
+	  -->
+	  <PointSymbolizer file="static/img/router_green.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'offline')</Filter>
+	  <PointSymbolizer file="static/img/router_red.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'unknown')</Filter>
+	  <PointSymbolizer file="static/img/router_yellow.svg" allow-overlap="true" />
+	</Rule>
+  </Style>
+  <Style name="color" filter-mode="first">
+	<Rule>
+	  <Filter>([quality] &lt; 105)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff1e1e" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 130)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff4949" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 155)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff6a6a" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 180)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ffac53" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 205)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ffeb79" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 230)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#79ff7c" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 300)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#04ff0a" stroke-linecap="butt" clip="false" />
+	</Rule>
+  </Style>
+  <Style name="shadow1">
+	<Rule>
+	  <LineSymbolizer stroke-width="4" stroke="#333333" stroke-linecap="round" stroke-opacity="0.5" />
+	</Rule>
+  </Style>
+  
+  <Layer name="links">
+    <StyleName>shadow1</StyleName>
+    <StyleName>color</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/links.csv</Parameter>
+    </Datasource>
+  </Layer>
+  <Layer name="routers">
+    <StyleName>routerpoint</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/routers.csv</Parameter>
+    </Datasource>
+  </Layer>
+</Map>
