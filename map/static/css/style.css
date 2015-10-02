@@ -1,0 +1,27 @@
+#map {
+	cursor: default;
+}
+.leaflet-control label {
+	font-weight: normal;
+}
+.leaflet-dragging #map {
+	cursor: grabbing;
+}
+
+.popup-headline {
+	font-size: 150%;
+}
+.popup-headline.with-neighbours {
+	border-bottom: 1px solid lightgray;
+}
+table.neighbours td {
+	padding: 0 3px;
+}
+table.neighbours {
+	border-collapse: separate;
+	border-spacing: 2px;
+}
+
+.panel-heading {
+	padding: 6px 12px;
+}

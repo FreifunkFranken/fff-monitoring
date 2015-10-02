@@ -1,0 +1,117 @@
+{% extends "bootstrap.html" %}
+{% block head %}{{super()}}
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+	<style type="text/css">
+		#map {
+			height: 400px;
+			width: 100%;
+		}
+		.navbar, .table-condensed {
+			margin-bottom: 0;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<h1>Router: {{ router.hostname }}</h1>
+	<div class="row">
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-body" style="padding: 0;">
+					<div id="map"></div>
+					<script type="text/javascript">
+						var url_get_nearest_router = "{{ url_for('get_nearest_router') }}";
+						var url_router_info = "{{ url_for('router_info', dbid='') }}";
+						var tileurls = {{ tileurls|tojson|safe }};
+					</script>
+					<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+					<script type="text/javascript">
+						{%- if router.position is defined %}
+						var router_pos = [{{ router.position.coordinates[1] }}, {{ router.position.coordinates[0] }}];
+						map.setView(router_pos, 18);
+						var marker = L.marker(router_pos, {
+							icon: L.icon({
+								iconUrl: "{{ url_for('static', filename='img/router_blue.svg') }}",
+								iconSize: [14, 14]
+							}),
+							clickable: false
+						}).addTo(map);
+						{%- else %}
+						map.setView([49.45, 11.1], 10);
+						{%- endif %}
+					</script>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6" style="height: 422px; display: flex; flex-flow: column;">
+			{%- if router.neighbours is defined %}
+			<div class="panel panel-default" style="flex: 0 1 auto;">
+				<div class="panel-heading">Neighbours</div>
+				<div class="panel-body">
+					<table class="neighbours">
+						<tr>
+							<th>Hostname</th>
+							<th>MAC Address</th>
+							<th>Quality</th>
+							<th>Interface</th>
+						</tr>
+						{%- for neighbour in router.neighbours %}
+						<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
+							<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</td>
+							<td>{{ neighbour.mac }}</td>
+							<td>{{ neighbour.quality }}</td>
+							<td>{{ neighbour.net_if }}</td>
+						</tr>
+						{%- endfor %}
+					</table>
+				</div>
+			</div>
+			{%- endif %}
+			<div class="panel panel-default" style="flex: 1 1 auto;">
+				<div class="panel-heading">Events</div>
+				<div class="panel-body">
+					Foobar
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">System</div>
+				<div class="panel-body">
+					<table class="table table-condensed">
+						<tr><th>Hostname</th><td>{{ router.hostname }}</td></tr>
+						<tr><th>Status</th><td>{{ router.status }}</td></tr>
+						{%- if router.description %}
+						<tr><th>Description</th><td>{{ router.description }}</td></tr>
+						{%- endif %}
+						{%- if router.position.comment %}
+						<tr><th>Position</th><td>{{ router.position.comment }}</td></tr>
+						{%- endif %}
+						<tr><th>User</th><td>{{ router.user.nickname }}</td></tr>
+						{%- if router.hardware.name %}
+						<tr><th>Hardware</th><td>{{ router.hardware.name }}</td></tr>
+						{%- endif %}
+						<tr><th>Last contact</th><td>{{ router.last_contact|utc2local }}</td></tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		{%- if router.software is defined %}
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Software</div>
+				<div class="panel-body">
+					<table class="table table-condensed">
+						<tr><th>Operating System</th><td>{{ router.software.os }}</td></tr>
+						<tr><th>Kernel</th><td>{{ router.software.kernel }}</td></tr>
+						<tr><th>Firmware</th><td>{{ router.software.firmware }} ({{ router.software.firmware_rev }})</td></tr>
+						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.software.batman_adv }}</td></tr>
+						<tr><th>Nodewatcher</th><td>{{ router.software.nodewatcher }}</td></tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		{%- endif %}
+	</div>
+{% endblock %}

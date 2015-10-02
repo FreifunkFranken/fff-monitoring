@@ -15,7 +15,7 @@ with open("csv/routers.csv", "w") as csv:
 		csv.write("%f,%f,%s\n" % (
 			router["position"]["coordinates"][0],
 			router["position"]["coordinates"][1],
-			router.get("status", "unknown")
+			router["status"]
 		))
 
 with open("csv/links.csv", "w") as csv:

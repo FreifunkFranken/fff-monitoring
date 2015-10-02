@@ -1,0 +1,21 @@
+{% extends "bootstrap.html" %}
+{% block content %}
+<table class="table table-condensed">
+	<tr>
+		<th>Hostname</th>
+		<th>Status</th>
+		<th>Hood</th>
+		<th>User</th>
+		<th>Hardware</th>
+	</tr>
+	{%- for router in routers %}
+	<tr>
+		<td><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
+		<td>{{ router.status }}</td>
+		<td>{{ router.hood }}</td>
+		<td>{{ router.user.nickname }}</td>
+		<td>{{ router.get("hardware", {}).get("name", "") }}</td>
+	</tr>
+	{%- endfor %}
+</table>
+{% endblock %}
