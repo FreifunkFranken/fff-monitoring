@@ -31,11 +31,12 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 			"netmon_id": user_netmon_id,
 			"nickname": r.xpath("user/nickname/text()")[0]
 		})
+		user = db.users.find_one({"_id": user_id})
 
 	router = {
 		"netmon_id": int(r.xpath("router_id/text()")[0]),
 		"hostname": r.xpath("hostname/text()")[0],
-		"user": user_id
+		"user": {"nickname": user["nickname"], "_id": user["_id"]}
 	}
 
 	try:
@@ -79,5 +80,6 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 			}]
 
 		router["created"] = datetime.datetime.utcnow()
+		router["status"] = "unknown"
 
 		db.routers.insert_one(router)
