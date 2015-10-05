@@ -93,6 +93,14 @@ def request_data(data_type):
 			assert len(payload) == data_length
 			res_length -= data_length
 
+			try:
+				payload = gzip.decompress(payload)
+			except:
+				pass
+
+			# decode string (expect unicode)
+			payload = payload.decode("UTF-8", errors="replace")
+
 			if mac in response:
 				response[mac] += payload
 			else:
