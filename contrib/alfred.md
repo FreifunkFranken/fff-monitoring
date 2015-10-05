@@ -19,3 +19,17 @@ cat r.xml | gzip | alfred -s 64
 # 00:16:ea:c3:b8:26 is the mac of the sender
 alfred-json -z -f string -r 64 | python -c 'import sys,json;print(json.load(sys.stdin)["00:16:ea:c3:b8:26"])'
 ```
+
+# Slave Config
+```
+config 'alfred' 'alfred'
+        option interface 'br-mesh'
+        option mode 'master'
+        option batmanif 'bat0'
+        option start_vis '0'
+        option run_facters '1'
+# REMOVE THIS LINE TO ENABLE ALFRED
+#       option disabled '1'
+```
+
+Call Nodewatcher via /etc/alfred 5-minute cron?
