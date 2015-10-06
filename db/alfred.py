@@ -30,7 +30,7 @@ alfred_data = Struct("!%is%is" % (ETH_ALEN, alfred_tlv.size))
 
 alfred_push_data_v0 = Struct("!%is%is" % (alfred_tlv.size, alfred_transaction_mgmt.size))
 # (alfred_tlv) header
-# (alfred_transaction_mgmt) tx
+# (alfred_transaction_mgmt) txm
 # (alfred_data) data[0]
 
 class AlfredPacketType(IntEnum):
@@ -42,9 +42,44 @@ class AlfredPacketType(IntEnum):
 
 ALFRED_VERSION = 0
 
-def request_data(data_type):
+
+def get_alfred_socket():
 	client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 	client.connect("/var/run/alfred.sock")
+	return client
+
+def send_data(data_type, data):
+	"""
+	Args:
+		data_type (int)
+		data (string)
+	"""
+	client = get_alfred_socket()
+
+	data = data.encode("UTF-8")
+	data_tlv = alfred_tlv.pack(data_type, ALFRED_VERSION, len(data))
+	# ALFRED server will fill this field
+	source = mac_address.pack(*[0]*ETH_ALEN)
+	pkt_data = alfred_data.pack(source, data_tlv) + data
+
+	request_id = randint(0, 65535)
+	seq_id = 0
+	txm = alfred_transaction_mgmt.pack(request_id, seq_id)
+	tlv = alfred_tlv.pack(AlfredPacketType.ALFRED_PUSH_DATA, ALFRED_VERSION, len(pkt_data) + len(txm))
+	pkt_push_data = alfred_push_data_v0.pack(tlv, txm) + pkt_data
+
+	client.send(pkt_push_data)
+	client.close()
+
+def request_data(data_type):
+	"""
+	Args:
+		data_type (int)
+
+	Returns:
+		data (string)
+	"""
+	client = get_alfred_socket()
 
 	header = alfred_tlv.pack(AlfredPacketType.ALFRED_REQUEST, ALFRED_VERSION, alfred_request_v0.size - alfred_tlv.size)
 	request_id = randint(0, 65535)
@@ -111,8 +146,26 @@ def request_data(data_type):
 
 if __name__ == "__main__":
 	import sys
-	if len(sys.argv) > 1:
-		req_data_type = int(sys.argv[1])
-		print(request_data(req_data_type))
+	import requests
+	if len(sys.argv) > 1 and sys.argv[1] == "client":
+		if len(sys.argv) > 3:
+			push_data_type = int(sys.argv[2])
+			data = sys.argv[3]
+			send_data(push_data_type, data)
+		elif len(sys.argv) > 2:
+			req_data_type = int(sys.argv[2])
+			data = request_data(req_data_type)
+			print(data)
+	elif len(sys.argv) > 1:
+		# send all updated data to HTTP server and send response to ALFRED
+		for i in sys.argv[1:]:
+			req_data_type = int(i)
+			data = request_data(req_data_type)
+
+			response = requests.post("http://localhost:5000/api/alfred", json=data).json()
+			for data_type, data in response.items():
+				send_data(int(data_type), data)
 	else:
-		print("Usage: %s DATA_TYPE (eg. 64)" % sys.argv[0])
+		print("Get: %s client DATA_TYPE" % sys.argv[0])
+		print("Set: %s client DATA_TYPE VALUE)" % sys.argv[0])
+		print("Proxy: %s DATA_TYPE_1 [DATA_TYPE_N])" % sys.argv[0])
