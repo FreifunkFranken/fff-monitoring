@@ -160,7 +160,7 @@ if __name__ == "__main__":
 		# send all updated data to HTTP server and send response to ALFRED
 		for i in sys.argv[1:]:
 			req_data_type = int(i)
-			data = request_data(req_data_type)
+			data = {req_data_type: request_data(req_data_type)}
 
 			response = requests.post("http://localhost:5000/api/alfred", json=data).json()
 			for data_type, data in response.items():
