@@ -10,6 +10,9 @@
 		.navbar, .table-condensed {
 			margin-bottom: 0;
 		}
+		.table-condensed tr:last-child td, th {
+			border-bottom: 1px solid #ddd;
+		}
 	</style>
 {% endblock %}
 
@@ -21,7 +24,7 @@
 				<div class="panel-body" style="padding: 0;">
 					<div id="map"></div>
 					<script type="text/javascript">
-						var url_get_nearest_router = "{{ url_for('get_nearest_router') }}";
+						var url_get_nearest_router = "{{ url_for('api.get_nearest_router') }}";
 						var url_router_info = "{{ url_for('router_info', dbid='') }}";
 						var tileurls = {{ tileurls|tojson|safe }};
 					</script>
@@ -49,7 +52,7 @@
 			<div class="panel panel-default" style="flex: 0 1 auto;">
 				<div class="panel-heading">Neighbours</div>
 				<div class="panel-body">
-					<table class="neighbours">
+					<table class="neighbours" style="width: 100%;">
 						<tr>
 							<th>Hostname</th>
 							<th>MAC Address</th>
@@ -71,7 +74,14 @@
 			<div class="panel panel-default" style="flex: 1 1 auto;">
 				<div class="panel-heading">Events</div>
 				<div class="panel-body">
-					Foobar
+					<table class="table table-condensed">
+					{%- for event in router.events[:5] %}
+						<tr>
+							<td>{{ event.time|utc2local }}</td>
+							<td>{{ event.type }}</td>
+						</tr>
+					{%- endfor %}
+					</table>
 				</div>
 			</div>
 		</div>

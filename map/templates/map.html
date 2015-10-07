@@ -25,7 +25,7 @@
 {% block content %}
 	<div id="map"></div>
 	<script type="text/javascript">
-		var url_get_nearest_router = "{{ url_for('get_nearest_router') }}";
+		var url_get_nearest_router = "{{ url_for('api.get_nearest_router') }}";
 		var url_router_info = "{{ url_for('router_info', dbid='') }}";
 		var tileurls = {{ tileurls|tojson|safe }};
 	</script>
