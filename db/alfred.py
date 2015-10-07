@@ -92,8 +92,8 @@ def request_data(data_type):
 	last_seq_id = -1
 	while True:
 		tlv = client.recv(alfred_tlv.size)
-		# exit loop on 2nd run without error when reaching end of data
-		if last_seq_id > -1 and len(tlv) < alfred_tlv.size:
+		if len(tlv) < alfred_tlv.size:
+			# no (more) data available
 			break
 		assert len(tlv) == alfred_tlv.size
 
@@ -122,7 +122,8 @@ def request_data(data_type):
 
 			mac = ":".join(["%02x" % i for i in mac_address.unpack(source)])
 
-			data_type, data_version, data_length = alfred_tlv.unpack(data_tlv)
+			data_type_recv, data_version, data_length = alfred_tlv.unpack(data_tlv)
+			assert data_type == data_type_recv
 
 			payload = client.recv(data_length)
 			assert len(payload) == data_length
