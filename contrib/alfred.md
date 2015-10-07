@@ -24,7 +24,7 @@ alfred-json -z -f string -r 64 | python -c 'import sys,json;print(json.load(sys.
 ```
 config 'alfred' 'alfred'
         option interface 'br-mesh'
-        option mode 'master'
+        option mode 'slave'
         option batmanif 'bat0'
         option start_vis '0'
         option run_facters '1'
@@ -32,4 +32,27 @@ config 'alfred' 'alfred'
 #       option disabled '1'
 ```
 
-Call Nodewatcher via /etc/alfred 5-minute cron?
+
+## Install ALFRED on the Router
+If the router has no IP, you will need to scp:
+```
+scp data.tar.gz root@[fe80::fad1:11ff:fe30:0abc%wlan0]:/tmp/
+```
+
+```
+cd /tmp/
+wget http://upload.kruton.de/files/1444228240/data.tar.gz
+cd /
+tar xzvf /tmp/data.tar.gz
+uci set alfred.alfred.interface=br-mesh
+uci set alfred.alfred.mode=slave
+uci set alfred.alfred.start_vis=0
+uci set alfred.alfred.run_facters=1
+uci set alfred.alfred.batmanif=bat0
+uci set alfred.alfred.disabled=0
+uci commit
+echo -e "#!/bin/sh\n\ncat /tmp/crawldata/node.data | alfred -s 64" > /etc/alfred/send_xml.sh
+chmod +x /etc/alfred/send_xml.sh
+/etc/init.d/alfred enable
+/etc/init.d/alfred start
+```
