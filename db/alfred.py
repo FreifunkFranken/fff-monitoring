@@ -6,6 +6,10 @@ from struct import Struct
 from random import randint
 from enum import IntEnum
 
+CONFIG = {
+	"api_url": "http://server2.heidler.eu/api/alfred"
+}
+
 alfred_tlv = Struct("!BBH")
 # type
 # version
@@ -162,8 +166,7 @@ if __name__ == "__main__":
 		for i in sys.argv[1:]:
 			req_data_type = int(i)
 			data = {req_data_type: request_data(req_data_type)}
-
-			response = requests.post("http://localhost:5000/api/alfred", json=data).json()
+			response = requests.post(CONFIG["api_url"], json=data).json()
 			for data_type, data in response.items():
 				send_data(int(data_type), data)
 	else:
