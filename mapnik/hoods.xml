@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Map>
-<Map background-color="transparent">
+<Map background-color="transparent" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
   <Style name="hoodpoint">
 	<Rule>
 	  <TextSymbolizer face-name="DejaVu Sans Book" size="12" fill="#1e42ff" halo-radius="2" text-transform="capitalize">[name]</TextSymbolizer>

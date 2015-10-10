@@ -1,19 +1,22 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-import netmon
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
+
+from ffmap.dbtools import FreifunkDB
 
 import lxml.etree
 import datetime
-from pymongo import MongoClient
+import requests
 
-client = MongoClient()
-db = client.freifunk
+db = FreifunkDB().handle()
 
 CONFIG = {
 	"vpn_netif": "fffVPN",
 }
 
-def process_router_xml(mac, xml):
+def load_nodewatcher_xml(mac, xml):
 	try:
 		router = db.routers.find_one({"netifs.mac": mac.lower()})
 		if router:
@@ -25,6 +28,7 @@ def process_router_xml(mac, xml):
 		router_update = {
 			"status": tree.xpath("/data/system_data/status/text()")[0],
 			"hostname": tree.xpath("/data/system_data/hostname/text()")[0],
+			"last_contact": datetime.datetime.utcnow(),
 			"neighbours": [],
 			"netifs": [],
 			"system": {
@@ -118,14 +122,15 @@ def process_router_xml(mac, xml):
 		if router:
 			# keep hood up to date
 			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
-			db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update, "$currentDate": {"last_contact": True}})
+			db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update})
 		else:
 			# new router
 			# fetch additional information from netmon as it is not yet contained in xml
-			router_info = netmon.fetch_router_info(mac)
+			router_info = netmon_fetch_router_info(mac)
 			if router_info:
 				# keep hood up to date
 				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
+				router_update["events"] = []
 				router_update.update(router_info)
 			router_id = db.routers.insert_one(router_update).inserted_id
 		status = router_update["status"]
@@ -133,7 +138,8 @@ def process_router_xml(mac, xml):
 		if router:
 			db.routers.update_one({"_id": router_id}, {"$set": {"status": "unknown"}})
 		status = "unknown"
-	finally:
+
+	if router_id:
 		# fire events
 		events = []
 		try:
@@ -169,3 +175,66 @@ def process_router_xml(mac, xml):
 		# calculate RRD statistics (rrdcache?)
 		#FIXME: implementation
 		pass
+
+def detect_offline_routers():
+	db.routers.update_many({
+		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=10)},
+		"status": {"$ne": "offline"}
+	}, {
+		"$set": {"status": "offline"},
+		"$push": {"events": {
+			"$each": [{
+				"time": datetime.datetime.utcnow(),
+				"type": "offline"
+			}],
+			"$slice": -10
+		}}
+	})
+
+def netmon_fetch_router_info(mac):
+	mac = mac.replace(":", "").lower()
+	tree = lxml.etree.fromstring(requests.get("https://netmon.freifunk-franken.de/api/rest/router/%s" % mac, params={"limit": 5000}).content)
+
+	for r in tree.xpath("/netmon_response/router"):
+		user_netmon_id = int(r.xpath("user_id/text()")[0])
+		user = db.users.find_one({"netmon_id": user_netmon_id})
+		if user:
+			user_id = user["_id"]
+		else:
+			user_id = db.users.insert({
+				"netmon_id": user_netmon_id,
+				"nickname": r.xpath("user/nickname/text()")[0]
+			})
+			user = db.users.find_one({"_id": user_id})
+
+		router = {
+			"netmon_id": int(r.xpath("router_id/text()")[0]),
+			"user": {"nickname": user["nickname"], "_id": user["_id"]}
+		}
+
+		try:
+			lng = float(r.xpath("longitude/text()")[0])
+			lat = float(r.xpath("latitude/text()")[0])
+			assert lng != 0
+			assert lat != 0
+
+			router["position"] = {
+				"type": "Point",
+				"coordinates": [lng, lat]
+			}
+
+			# try to get comment
+			position_comment = r.xpath("location/text()")[0]
+			if position_comment != "undefined":
+				router["position"]["comment"] = position_comment
+		except (IndexError, AssertionError):
+			pass
+
+		try:
+			router["description"] = r.xpath("description/text()")[0]
+		except IndexError:
+			pass
+
+		router["created"] = datetime.datetime.utcnow()
+
+		return router

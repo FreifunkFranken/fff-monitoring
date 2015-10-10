@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Map>
-<Map background-color="transparent">
+<Map background-color="transparent" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
   <Style name="routerpoint" filter-mode="first">
 	<Rule>
 	  <Filter>([status] = 'online')</Filter>

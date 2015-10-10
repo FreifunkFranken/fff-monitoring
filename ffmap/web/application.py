@@ -1,10 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from api import api
-from filters import filters
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
+
+from ffmap.web.api import api
+from ffmap.web.filters import filters
+from ffmap.dbtools import FreifunkDB
 
 from flask import Flask, render_template, request, make_response
-from pymongo import MongoClient
 from bson.json_util import dumps as bson2json
 from bson.objectid import ObjectId
 import json
@@ -13,12 +17,11 @@ app = Flask(__name__)
 app.register_blueprint(api, url_prefix='/api')
 app.register_blueprint(filters)
 
-client = MongoClient()
-db = client.freifunk
+db = FreifunkDB().handle()
 
 tileurls = {
-	"links_and_routers": "http://localhost:8000",
-	"hoods": "http://localhost:8001",
+	"links_and_routers": "/tiles/links_and_routers",
+	"hoods": "/tiles/hoods",
 }
 
 @app.route('/')
@@ -43,5 +46,10 @@ def router_list():
 def router_info(dbid):
 	return render_template("router.html", router=db.routers.find_one({"_id": ObjectId(dbid)}), tileurls=tileurls)
 
+
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
+else:
+	app.template_folder = "/usr/share/ffmap/templates"
+	app.static_folder = "/usr/share/ffmap/static"
+	#app.debug = True

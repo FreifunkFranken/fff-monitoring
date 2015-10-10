@@ -52,8 +52,19 @@ map.on('click', function(pos) {
 		if (px_distance <= router_pointer_radius) {
 			console.log("Click on '"+router.hostname+"' detected.");
 			console.log(router);
-			var has_neighbours = 'neighbours' in router && router.neighbours.length > 0;
 			var popup_html = "";
+			var has_neighbours = 'neighbours' in router && router.neighbours.length > 0;
+
+			// avoid empty tables
+			if (has_neighbours) {
+				has_neighbours = false;
+				for (neighbour of router.neighbours) {
+					if ('_id' in neighbour) {
+						has_neighbours = true;
+					}
+				}
+			}
+						
 			if (has_neighbours) {
 				popup_html += "<div class=\"popup-headline with-neighbours\">";
 			}
@@ -71,7 +82,7 @@ map.on('click', function(pos) {
 				popup_html += "<th>Outgoing Interface</th>";
 				popup_html += "</tr>";
 				for (neighbour of router.neighbours) {
-					// skip unknown neighbours (FIXME: avoid empty table)
+					// skip unknown neighbours
 					if ('_id' in neighbour) {
 						var tr_color = "#04ff0a";
 						if      (neighbour.quality < 105) { tr_color = "#ff1e1e"; }

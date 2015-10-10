@@ -8,7 +8,7 @@ db = client.freifunk
 # create db indexes
 db.hoods.create_index([("position", "2dsphere")])
 
-db.hoods.insert_many([
+hoods = [
 {
 	"keyxchange_id": 1,
 	"name": "default",
@@ -61,4 +61,7 @@ db.hoods.insert_many([
 	"name": "HassbergeSued",
 	"net": "10.50.60.0/22",
 	"position": {"type": "Point", "coordinates": [10.568013390003, 50.08]}
-}])
+}]
+
+for hood in hoods:
+	db.hoods.insert_one(hood)

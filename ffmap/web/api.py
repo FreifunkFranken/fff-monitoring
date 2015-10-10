@@ -1,6 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-import nodewatcher
+from ffmap.routertools import *
+from ffmap.maptools import *
+from ffmap.dbtools import FreifunkDB
 
 from flask import Blueprint, request, make_response
 from pymongo import MongoClient
@@ -9,8 +11,7 @@ import json
 
 api = Blueprint("api", __name__)
 
-client = MongoClient()
-db = client.freifunk
+db = FreifunkDB().handle()
 
 @api.route('/get_nearest_router')
 def get_nearest_router():
@@ -31,9 +32,12 @@ def alfred():
 	r = make_response(json.dumps(set_alfred_data))
 	if request.method == 'POST':
 		alfred_data = request.get_json()
-		# load router status xml data
-		for mac, xml in alfred_data.get("64", {}).items():
-			nodewatcher.process_router_xml(mac, xml)
-		r.headers['X-API-STATUS'] = "ALFRED data imported"
+		if alfred_data:
+			# load router status xml data
+			for mac, xml in alfred_data.get("64", {}).items():
+				load_nodewatcher_xml(mac, xml)
+			r.headers['X-API-STATUS'] = "ALFRED data imported"
+		detect_offline_routers()
+		update_mapnik_csv()
 	r.mimetype = 'application/json'
 	return r

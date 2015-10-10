@@ -1,0 +1,14 @@
+[Unit]
+Description=FF-MAP Tiles: Links and Routers
+After=syslog.target
+
+[Service]
+ExecStart=/usr/bin/uwsgi_python -s 127.0.0.1:3032 --wsgi-file /usr/share/ffmap/links_and_routers.wsgi --uid www-data --gid www-data --enable-threads
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

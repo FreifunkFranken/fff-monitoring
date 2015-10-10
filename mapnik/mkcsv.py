@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import math
 import numpy as np
@@ -31,7 +31,7 @@ with open("csv/links.csv", "w") as csv:
 					neighbour["quality"]
 				))
 
-with open("csv/hood-points.csv", "w") as csv:
+with open("csv/hood-points.csv", "w", encoding="UTF-8") as csv:
 	csv.write("lng,lat,name\n")
 	for hood in db.hoods.find({"position": {"$exists": True}}):
 		csv.write("%f,%f,\"%s\"\n" % (
