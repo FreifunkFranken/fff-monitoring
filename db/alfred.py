@@ -4,7 +4,6 @@ import socket
 import gzip
 from struct import Struct
 from random import randint
-from enum import IntEnum
 
 CONFIG = {
 	"api_url": "http://monitoring.freifunk-franken.de/api/alfred"
@@ -37,7 +36,7 @@ alfred_push_data_v0 = Struct("!%is%is" % (alfred_tlv.size, alfred_transaction_mg
 # (alfred_transaction_mgmt) txm
 # (alfred_data) data[0]
 
-class AlfredPacketType(IntEnum):
+class AlfredPacketType(object):
 	ALFRED_PUSH_DATA = 0
 	ALFRED_ANNOUNCE_MASTER = 1
 	ALFRED_REQUEST = 2
@@ -102,7 +101,6 @@ def request_data(data_type):
 		assert len(tlv) == alfred_tlv.size
 
 		res_type, res_version, res_length = alfred_tlv.unpack(tlv)
-		res_type = AlfredPacketType(res_type)
 		assert res_type == AlfredPacketType.ALFRED_PUSH_DATA
 		assert res_version == ALFRED_VERSION
 
