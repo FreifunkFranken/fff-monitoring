@@ -7,7 +7,7 @@ from random import randint
 from enum import IntEnum
 
 CONFIG = {
-	"api_url": "http://server2.heidler.eu/api/alfred"
+	"api_url": "http://monitoring.freifunk-franken.de/api/alfred"
 }
 
 alfred_tlv = Struct("!BBH")
