@@ -8,10 +8,9 @@ from ffmap.web.api import api
 from ffmap.web.filters import filters
 from ffmap.dbtools import FreifunkDB
 
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, Response
 from bson.json_util import dumps as bson2json
 from bson.objectid import ObjectId
-import json
 
 app = Flask(__name__)
 app.register_blueprint(api, url_prefix='/api')
@@ -44,7 +43,11 @@ def router_list():
 
 @app.route('/routers/<dbid>')
 def router_info(dbid):
-	return render_template("router.html", router=db.routers.find_one({"_id": ObjectId(dbid)}), tileurls=tileurls)
+	router = db.routers.find_one({"_id": ObjectId(dbid)})
+	if request.args.get('json', None) != None:
+		return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
+	else:
+		return render_template("router.html", router=router, tileurls=tileurls)
 
 
 if __name__ == '__main__':
