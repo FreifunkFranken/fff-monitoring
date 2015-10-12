@@ -166,10 +166,11 @@ def load_nodewatcher_xml(mac, xml):
 				})
 		except:
 			pass
-		db.routers.update_one({"_id": router_id}, {"$push": {"events": {
-			"$each": events,
-			"$slice": -10,
-		}}})
+		if len(events) > 0:
+			db.routers.update_one({"_id": router_id}, {"$push": {"events": {
+				"$each": events,
+				"$slice": -10,
+			}}})
 
 	if status == "online":
 		# calculate RRD statistics (rrdcache?)
