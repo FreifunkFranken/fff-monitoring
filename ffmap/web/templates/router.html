@@ -13,6 +13,9 @@
 		.table-condensed tr:last-child td, th {
 			border-bottom: 1px solid #ddd;
 		}
+		li.list-group-item:hover {
+			background-color: #f5f5f5;
+		}
 	</style>
 {% endblock %}
 
@@ -61,7 +64,7 @@
 						</tr>
 						{%- for neighbour in router.neighbours %}
 						<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
-							<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</td>
+							<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</a></td>
 							<td>{{ neighbour.mac }}</td>
 							<td>{{ neighbour.quality }}</td>
 							<td>{{ neighbour.net_if }}</td>
@@ -85,6 +88,8 @@
 				</div>
 			</div>
 		</div>
+	</div>
+	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">System</div>
@@ -123,5 +128,60 @@
 			</div>
 		</div>
 		{%- endif %}
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Network Interfaces</div>
+				<div class="panel-body">
+				</div>
+				<ul class="list-group" id="netif-list">
+				{# make sure that br-mesh is on top of the list #}
+				{%- for netif in router.netifs if netif.name == 'br-mesh' %}
+					<li class="list-group-item active" data-mac="{{ netif.mac }}">
+						<h4 class="list-group-item-heading"><div class="row">
+							<div class="col-md-6">{{ netif.name }}</div>
+							<div class="col-md-6 text-right">{{ netif.mac|upper }}</div>
+						</div></h4>
+						<p class="list-group-item-text"><div class="row">
+							<div class="col-md-6">{{ netif.ipv6_fe80_addr }}</div>
+							{%- if netif.traffic.rx is defined %}
+							<div class="col-md-6 text-right">
+								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.traffic.tx|humanize_bytes }}/s
+							</div>
+							{%- endif %}
+						</div></p>
+					</li>
+				{%- endfor %}
+				{%- for netif in router.netifs if netif.name != 'br-mesh' %}
+					<li class="list-group-item" data-mac="{{ netif.mac }}">
+						<h4 class="list-group-item-heading"><div class="row">
+							<div class="col-md-6">{{ netif.name }}</div>
+							<div class="col-md-6 text-right">{{ netif.mac|upper }}</div>
+						</div></h4>
+						<p class="list-group-item-text"><div class="row">
+							<div class="col-md-6">{{ netif.ipv6_fe80_addr }}</div>
+							{%- if netif.traffic.rx is defined %}
+							<div class="col-md-6 text-right">
+								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.traffic.tx|humanize_bytes }}/s
+							</div>
+							{%- endif %}
+						</div></p>
+					</li>
+				{%- endfor %}
+				</ul>
+			</div>
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$("#netif-list li").on("click", function() {
+						$("#netif-list li").removeClass("active");
+						$(this).addClass("active");
+						this.getAttribute("data-mac")
+					});
+				});
+			</script>
+		</div>
 	</div>
 {% endblock %}

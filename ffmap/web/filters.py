@@ -25,3 +25,11 @@ def neighbour_color(quality):
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
 	return dt.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
+
+@filters.app_template_filter('humanize_bytes')
+def humanize_bytes(num, suffix='B'):
+	for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+		if abs(num) < 1024.0:
+			return "%3.1f%s%s" % (num, unit, suffix)
+		num /= 1024.0
+	return "%.1f%s%s" % (num, 'Yi', suffix)

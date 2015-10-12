@@ -74,8 +74,8 @@ def load_nodewatcher_xml(mac, xml):
 				"mtu": int(netif.xpath("mtu/text()")[0]),
 				"mac": netif.xpath("mac_addr/text()")[0].lower(),
 				"traffic": {
-					"rx": int(netif.xpath("traffic_rx/text()")[0]),
-					"tx": int(netif.xpath("traffic_tx/text()")[0]),
+					"rx_bytes": int(netif.xpath("traffic_rx/text()")[0]),
+					"tx_bytes": int(netif.xpath("traffic_tx/text()")[0]),
 				},
 			}
 			if len(netif.xpath("ipv6_link_local_addr/text()")) > 0:
@@ -122,6 +122,28 @@ def load_nodewatcher_xml(mac, xml):
 		if router:
 			# keep hood up to date
 			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
+
+			# calculate network io
+			try:
+				if router["system"]["uptime"] < router_update["system"]["uptime"]:
+					timediff =  router_update["system"]["uptime"] - router["system"]["uptime"]
+					for netif in router["netifs"]:
+						netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
+						rx_diff = netif_update["traffic"]["rx_bytes"] - netif["traffic"]["rx_bytes"]
+						tx_diff = netif_update["traffic"]["tx_bytes"] - netif["traffic"]["tx_bytes"]
+						netif_update["traffic"]["rx"] = rx_diff / timediff
+						netif_update["traffic"]["tx"] = tx_diff / timediff
+				elif router["system"]["uptime"] == router_update["system"]["uptime"]:
+					for netif in router["netifs"]:
+						netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
+						netif_update["traffic"]["rx"] = netif["traffic"]["rx"]
+						netif_update["traffic"]["tx"] = netif["traffic"]["tx"]
+			except KeyError:
+				pass
+
+			# calculate RRD statistics (rrdcache?)
+			#FIXME: implementation
+
 			db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update})
 		else:
 			# new router
@@ -171,11 +193,6 @@ def load_nodewatcher_xml(mac, xml):
 				"$each": events,
 				"$slice": -10,
 			}}})
-
-	if status == "online":
-		# calculate RRD statistics (rrdcache?)
-		#FIXME: implementation
-		pass
 
 def detect_offline_routers():
 	db.routers.update_many({
