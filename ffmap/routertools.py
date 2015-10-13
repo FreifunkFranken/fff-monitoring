@@ -201,13 +201,10 @@ def detect_offline_routers():
 	}, {
 		"$set": {"status": "offline"},
 		"$push": {"events": {
-			"$each": [{
-				"time": datetime.datetime.utcnow(),
-				"type": "offline"
-			}],
-			"$slice": -10
-		}}
-	})
+			"time": datetime.datetime.utcnow(),
+			"type": "offline"
+		}
+	}})
 
 def netmon_fetch_router_info(mac):
 	mac = mac.replace(":", "").lower()
