@@ -118,7 +118,7 @@
 				<div class="panel-heading">Software</div>
 				<div class="panel-body">
 					<table class="table table-condensed">
-						<tr><th>Operating System</th><td>{{ router.software.os }}</td></tr>
+						<tr><th>Operating&nbsp;System</th><td>{{ router.software.os }}</td></tr>
 						<tr><th>Kernel</th><td>{{ router.software.kernel }}</td></tr>
 						<tr><th>Firmware</th><td>{{ router.software.firmware }} ({{ router.software.firmware_rev }})</td></tr>
 						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.software.batman_adv }}</td></tr>
@@ -140,13 +140,13 @@
 				{%- for netif in router.netifs if netif.name == 'br-mesh' %}
 					<li class="list-group-item active" data-mac="{{ netif.mac }}">
 						<h4 class="list-group-item-heading"><div class="row">
-							<div class="col-md-6">{{ netif.name }}</div>
-							<div class="col-md-6 text-right">{{ netif.mac|upper }}</div>
+							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
+							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
-							<div class="col-md-6">{{ netif.ipv6_fe80_addr }}</div>
+							<div class="col-xs-5 col-sm-5">{{ netif.ipv6_fe80_addr }}</div>
 							{%- if netif.traffic.rx is defined %}
-							<div class="col-md-6 text-right">
+							<div class="col-xs-7 col-sm-7 text-right">
 								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
 								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.traffic.tx|humanize_bytes }}/s
 							</div>
@@ -157,13 +157,13 @@
 				{%- for netif in router.netifs if netif.name != 'br-mesh' %}
 					<li class="list-group-item" data-mac="{{ netif.mac }}">
 						<h4 class="list-group-item-heading"><div class="row">
-							<div class="col-md-6">{{ netif.name }}</div>
-							<div class="col-md-6 text-right">{{ netif.mac|upper }}</div>
+							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
+							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
-							<div class="col-md-6">{{ netif.ipv6_fe80_addr }}</div>
+							<div class="col-xs-5 col-sm-5">{{ netif.ipv6_fe80_addr }}</div>
 							{%- if netif.traffic.rx is defined %}
-							<div class="col-md-6 text-right">
+							<div class="col-xs-7 col-sm-7 text-right">
 								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
 								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.traffic.tx|humanize_bytes }}/s
 							</div>
@@ -178,7 +178,7 @@
 					$("#netif-list li").on("click", function() {
 						$("#netif-list li").removeClass("active");
 						$(this).addClass("active");
-						this.getAttribute("data-mac")
+						this.getAttribute("data-mac");
 					});
 				});
 			</script>
