@@ -12,11 +12,8 @@ systemctl start uwsgi-tiles-hoods
 
 ## Debian Dependencies
 ```
-apt-get install python python3 mongodb python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python-mapnik python3-pip uwsgi-plugin-python uwsgi-plugin-python3 nginx
+apt-get install python python3 mongodb python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python-mapnik python3-pip uwsgi-plugin-python uwsgi-plugin-python3 nginx tilestache
 pip3 install pymongo
-git clone https://github.com/asdil12/tilelite
-cd tilelite
-python setup.py install
 ```
 
 ## NGINX Config
@@ -27,14 +24,9 @@ python setup.py install
                 uwsgi_pass 127.0.0.1:3031;
         }
 
-        location /tiles/links_and_routers {
-                include uwsgi_params;
-                uwsgi_pass 127.0.0.1:3032;
-        }
-
-        location /tiles/hoods {
-                include uwsgi_params;
-                uwsgi_pass 127.0.0.1:3033;
-        }
+	location /tiles {
+		include uwsgi_params;
+		uwsgi_pass 127.0.0.1:3032;
+	}
 ...
 ```
