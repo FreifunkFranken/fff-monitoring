@@ -138,7 +138,7 @@ def load_nodewatcher_xml(mac, xml):
 						netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
 						netif_update["traffic"]["rx"] = netif["traffic"]["rx"]
 						netif_update["traffic"]["tx"] = netif["traffic"]["tx"]
-			except KeyError:
+			except (KeyError, StopIteration):
 				pass
 
 			# calculate RRD statistics (rrdcache?)
