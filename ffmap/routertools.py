@@ -9,6 +9,7 @@ from ffmap.dbtools import FreifunkDB
 import lxml.etree
 import datetime
 import requests
+from bson import SON
 
 db = FreifunkDB().handle()
 
@@ -189,10 +190,10 @@ def load_nodewatcher_xml(mac, xml):
 		except:
 			pass
 		if len(events) > 0:
-			db.routers.update_one({"_id": router_id}, {"$push": {"events": {
-				"$each": events,
-				"$slice": -10,
-			}}})
+			db.routers.update_one({"_id": router_id}, {"$push": {"events": SON([
+				("$each", events),
+				("$slice", -10),
+			])}})
 
 def detect_offline_routers():
 	db.routers.update_many({
