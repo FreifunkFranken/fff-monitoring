@@ -20,3 +20,5 @@ cp -v ffmap/systemd/*.service /etc/systemd/system/
 systemctl daemon-reload
 
 python3 setup.py install --force
+
+(cd ffmap/mapnik; python2 setup.py install)
