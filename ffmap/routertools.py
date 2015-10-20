@@ -50,6 +50,7 @@ def load_nodewatcher_xml(mac, xml):
 			},
 			"hardware": {
 				"chipset": tree.xpath("/data/system_data/chipset/text()")[0],
+				"name": tree.xpath("/data/system_data/model/text()")[0].upper(),
 				"cpu": tree.xpath("/data/system_data/cpu/text()")[0]
 			},
 			"software": {
@@ -63,11 +64,6 @@ def load_nodewatcher_xml(mac, xml):
 				"firmware_rev": tree.xpath("/data/system_data/firmware_revision/text()")[0],
 			}
 		}
-
-		# get hardware.name by chipset - FIXME: this should be found out by nodewatcher
-		chipset = db.chipsets.find_one({"name": router_update["hardware"]["chipset"]})
-		if chipset:
-			router_update["hardware"]["name"] = chipset["hardware"]
 
 		for netif in tree.xpath("/data/interface_data/*"):
 			interface = {
