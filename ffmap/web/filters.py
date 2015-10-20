@@ -2,6 +2,7 @@
 
 from flask import Blueprint
 from dateutil import tz
+import re
 
 filters = Blueprint("filters", __name__)
 
@@ -33,3 +34,19 @@ def humanize_bytes(num, suffix='B'):
 			return "%3.1f%s%s" % (num, unit, suffix)
 		num /= 1024.0
 	return "%.1f%s%s" % (num, 'Yi', suffix)
+
+@filters.app_template_filter('mac2fe80')
+def mac_to_ipv6_linklocal(mac):
+	# Remove the most common delimiters; dots, dashes, etc.
+	mac_bare = re.sub('[%s]+' % re.escape(' .:-'), '', mac)
+	mac_value = int(mac_bare, 16)
+
+	# Split out the bytes that slot into the IPv6 address
+	# XOR the most significant byte with 0x02, inverting the
+	# Universal / Local bit
+	high2 = mac_value >> 32 & 0xffff ^ 0x0200
+	high1 = mac_value >> 24 & 0xff
+	low1 = mac_value >> 16 & 0xff
+	low2 = mac_value & 0xffff
+
+	return 'fe80::{:04x}:{:02x}ff:fe{:02x}:{:04x}'.format(high2, high1, low1, low2)

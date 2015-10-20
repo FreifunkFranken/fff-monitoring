@@ -144,7 +144,13 @@
 							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
-							<div class="col-xs-5 col-sm-5">{{ netif.ipv6_fe80_addr }}</div>
+							<div class="col-xs-5 col-sm-5">
+								{%- if netif.ipv6_fe80_addr %}
+								{{ netif.ipv6_fe80_addr }}
+								{%- else %}
+								<em title="Calculated from MAC Address">{{ netif.mac|mac2fe80 }}</em>
+								{%- endif %}
+							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
 								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
@@ -161,7 +167,13 @@
 							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
-							<div class="col-xs-5 col-sm-5">{{ netif.ipv6_fe80_addr }}</div>
+							<div class="col-xs-5 col-sm-5">
+								{%- if netif.ipv6_fe80_addr %}
+								{{ netif.ipv6_fe80_addr }}
+								{%- else %}
+								<em title="Calculated from MAC Address">{{ netif.mac|mac2fe80 }}</em>
+								{%- endif %}
+							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
 								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
