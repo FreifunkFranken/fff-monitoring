@@ -149,7 +149,10 @@ def load_nodewatcher_xml(mac, xml):
 			if router_info:
 				# keep hood up to date
 				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
-				router_update["events"] = []
+				router_update["events"] = [{
+					"time": datetime.datetime.utcnow(),
+					"type": "created",
+				}]
 				router_update.update(router_info)
 			router_id = db.routers.insert_one(router_update).inserted_id
 		status = router_update["status"]
@@ -161,14 +164,6 @@ def load_nodewatcher_xml(mac, xml):
 	if router_id:
 		# fire events
 		events = []
-		try:
-			if not router:
-				events.append({
-					"time": datetime.datetime.utcnow(),
-					"type": "created",
-				})
-		except:
-			pass
 		try:
 			if router["system"]["uptime"] > router_update["system"]["uptime"]:
 				events.append({
