@@ -78,7 +78,7 @@
 				<div class="panel-heading">Events</div>
 				<div class="panel-body">
 					<table class="table table-condensed">
-					{%- for event in router.events[:5] %}
+					{%- for event in router.events[-5:] %}
 						<tr>
 							<td>{{ event.time|utc2local }}</td>
 							<td>{{ event.type }}</td>
@@ -104,9 +104,7 @@
 						<tr><th>Position</th><td>{{ router.position.comment }}</td></tr>
 						{%- endif %}
 						<tr><th>User</th><td>{{ router.user.nickname }}</td></tr>
-						{%- if router.hardware.name %}
-						<tr><th>Hardware</th><td>{{ router.hardware.name }}</td></tr>
-						{%- endif %}
+						<tr><th>Hardware</th><td>{{ router.hardware.name }} ({{ router.hardware.chipset }})</td></tr>
 						<tr><th>Last contact</th><td>{{ router.last_contact|utc2local }}</td></tr>
 					</table>
 				</div>
