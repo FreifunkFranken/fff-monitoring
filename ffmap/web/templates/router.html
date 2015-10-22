@@ -33,7 +33,7 @@
 					</script>
 					<script src="{{ url_for('static', filename='js/map.js') }}"></script>
 					<script type="text/javascript">
-						{%- if router.position is defined %}
+						{%- if router.position %}
 						var router_pos = [{{ router.position.coordinates[1] }}, {{ router.position.coordinates[0] }}];
 						map.setView(router_pos, 18);
 						var marker = L.marker(router_pos, {
@@ -51,7 +51,7 @@
 			</div>
 		</div>
 		<div class="col-xs-12 col-md-6" style="height: 422px; display: flex; flex-flow: column;">
-			{%- if router.neighbours is defined %}
+			{%- if router.neighbours|length > 0 %}
 			<div class="panel panel-default" style="flex: 0 1 auto;">
 				<div class="panel-heading">Neighbours</div>
 				<div class="panel-body">
@@ -80,8 +80,9 @@
 					<table class="table table-condensed">
 					{%- for event in router.events[-5:] %}
 						<tr>
-							<td>{{ event.time|utc2local }}</td>
-							<td>{{ event.type }}</td>
+							<td style="width: 1em;">{{ event.time|utc2local|format_dt|nbsp|safe }}</td>
+							<td style="width: 1em;"><span class="{{ event.type|status2css }}">{{ event.type }}</span></td>
+							<td>{{ event.comment }}</td>
 						</tr>
 					{%- endfor %}
 					</table>
@@ -96,16 +97,24 @@
 				<div class="panel-body">
 					<table class="table table-condensed">
 						<tr><th>Hostname</th><td>{{ router.hostname }}</td></tr>
-						<tr><th>Status</th><td>{{ router.status }}</td></tr>
+						<tr><th>Status</th><td><span class="{{ router.status|status2css }}">{{ router.status }}</span></td></tr>
+						<tr><th>Last contact</th><td>
+							{{ router.last_contact|utc2local|format_dt }}
+							({{ router.last_contact|format_dt_ago }})
+						</td></tr>
 						{%- if router.description %}
 						<tr><th>Description</th><td>{{ router.description }}</td></tr>
 						{%- endif %}
-						{%- if router.position.comment %}
+						{%- if router.position and router.position.comment %}
 						<tr><th>Position</th><td>{{ router.position.comment }}</td></tr>
 						{%- endif %}
+						{%- if router.hood %}
+						<tr><th>Hood</th><td>{{ router.hood }}</td></tr>
+						{%- endif %}
+						{%- if router.user %}
 						<tr><th>User</th><td>{{ router.user.nickname }}</td></tr>
+						{%- endif %}
 						<tr><th>Hardware</th><td>{{ router.hardware.name }} ({{ router.hardware.chipset }})</td></tr>
-						<tr><th>Last contact</th><td>{{ router.last_contact|utc2local }}</td></tr>
 					</table>
 				</div>
 			</div>

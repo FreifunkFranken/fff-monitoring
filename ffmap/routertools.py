@@ -117,9 +117,6 @@ def load_nodewatcher_xml(mac, xml):
 		router_update["system"]["visible_neighbours"] = visible_neighbours
 
 		if router:
-			# keep hood up to date
-			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
-
 			# calculate network io
 			try:
 				if router["system"]["uptime"] < router_update["system"]["uptime"]:
@@ -141,6 +138,10 @@ def load_nodewatcher_xml(mac, xml):
 			# calculate RRD statistics (rrdcache?)
 			#FIXME: implementation
 
+		if router and "netmon_id" in router:
+			# router is already in db and initial netmon data fetch was successfull
+			# keep hood up to date
+			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
 			db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update})
 		else:
 			# new router
@@ -169,6 +170,15 @@ def load_nodewatcher_xml(mac, xml):
 				events.append({
 					"time": datetime.datetime.utcnow(),
 					"type": "reboot",
+				})
+		except:
+			pass
+		try:
+			if router["software"]["firmware"] != router_update["software"]["firmware"]:
+				events.append({
+					"time": datetime.datetime.utcnow(),
+					"type": "update",
+					"comment": "%s -> %s" % (router["software"]["firmware"], router_update["software"]["firmware"]),
 				})
 		except:
 			pass

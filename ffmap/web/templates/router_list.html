@@ -11,9 +11,9 @@
 	{%- for router in routers %}
 	<tr>
 		<td><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
-		<td>{{ router.status }}</td>
+		<td><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
 		<td>{{ router.hood }}</td>
-		<td>{{ router.user.nickname }}</td>
+		<td>{{ router.user.nickname if router.user }}</td>
 		<td>{{ router.get("hardware", {}).get("name", "") }}</td>
 	</tr>
 	{%- endfor %}
