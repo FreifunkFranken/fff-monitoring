@@ -141,7 +141,8 @@ def load_nodewatcher_xml(mac, xml):
 		if router and "netmon_id" in router:
 			# router is already in db and initial netmon data fetch was successfull
 			# keep hood up to date
-			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
+			if "position" in router:
+				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
 			db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update})
 		else:
 			# new router
@@ -149,13 +150,17 @@ def load_nodewatcher_xml(mac, xml):
 			router_info = netmon_fetch_router_info(mac)
 			if router_info:
 				# keep hood up to date
-				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
+				if "position" in router_info:
+					router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
 				router_update["events"] = [{
 					"time": datetime.datetime.utcnow(),
 					"type": "created",
 				}]
 				router_update.update(router_info)
-			router_id = db.routers.insert_one(router_update).inserted_id
+			if router:
+				db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update})
+			else:
+				router_id = db.routers.insert_one(router_update).inserted_id
 		status = router_update["status"]
 	except (AssertionError, lxml.etree.XMLSyntaxError):
 		if router:
