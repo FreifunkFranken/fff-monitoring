@@ -15,12 +15,17 @@ db = FreifunkDB().handle()
 
 @api.route('/get_nearest_router')
 def get_nearest_router():
-	res_router = db.routers.find_one({"position": {"$near": {
-		"$geometry": {
+	res_router = db.routers.find_one(
+		{"position": {"$near": {"$geometry": {
 			"type": "Point",
 			"coordinates": [float(request.args.get("lng")), float(request.args.get("lat"))]
-		},
-	}}})
+		}}}},
+		{
+			"hostname": 1,
+			"neighbours": 1,
+			"position": 1,
+		}
+	)
 	r = make_response(bson2json(res_router))
 	r.mimetype = 'application/json'
 	return r
@@ -35,7 +40,7 @@ def alfred():
 		if alfred_data:
 			# load router status xml data
 			for mac, xml in alfred_data.get("64", {}).items():
-				load_nodewatcher_xml(mac, xml)
+				import_nodewatcher_xml(mac, xml)
 			r.headers['X-API-STATUS'] = "ALFRED data imported"
 		detect_offline_routers()
 		update_mapnik_csv()

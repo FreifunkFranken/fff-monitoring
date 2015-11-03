@@ -1,0 +1,6 @@
+<script src="https://raw.githubusercontent.com/mde/timezone-js/v0.4/src/date.js"></script>
+<script src="https://raw.githubusercontent.com/flot/flot/v0.8.3/jquery.flot.js"></script>
+<script src="https://raw.githubusercontent.com/flot/flot/v0.8.3/jquery.flot.time.js"></script>
+<script src="https://raw.githubusercontent.com/whatbox/jquery.flot.byte/master/jquery.flot.byte.js"></script>
+<script src="https://raw.githubusercontent.com/flot/flot/v0.8.3/jquery.flot.selection.js"></script>
+<script src="https://raw.githubusercontent.com/sveinn-steinarsson/flot-downsample/master/jquery.flot.downsample.js"></script>

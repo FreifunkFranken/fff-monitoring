@@ -10,6 +10,7 @@ import lxml.etree
 import datetime
 import requests
 from bson import SON
+from contextlib import suppress
 
 db = FreifunkDB().handle()
 
@@ -17,12 +18,138 @@ CONFIG = {
 	"vpn_netif": "fffVPN",
 }
 
-def load_nodewatcher_xml(mac, xml):
+def import_nodewatcher_xml(mac, xml):
 	try:
 		router = db.routers.find_one({"netifs.mac": mac.lower()})
 		if router:
 			router_id = router["_id"]
 
+		router_update = parse_nodewatcher_xml(xml)
+
+		if router and "netmon_id" in router:
+			# router is already in db and initial netmon data fetch was successfull
+			# keep hood up to date
+			if "position" in router:
+				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
+		else:
+			# new router
+			# fetch additional information from netmon as it is not yet contained in xml
+			router_info = netmon_fetch_router_info(mac)
+			if router_info:
+				# keep hood up to date
+				if "position" in router_info:
+					router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
+				router_update["events"] = [{
+					"time": datetime.datetime.utcnow(),
+					"type": "created",
+				}]
+				router_update.update(router_info)
+
+		if router:
+			# statistics
+			calculate_network_io(router, router_update)
+			db.routers.update_one({"netifs.mac": mac.lower()}, {
+				"$set": router_update,
+				"$push": {"stats": SON([
+					("$each", new_router_stats(router, router_update)),
+					("$slice", -8640)
+				])
+			}})
+		else:
+			router_id = db.routers.insert_one(router_update).inserted_id
+		status = router_update["status"]
+	except ValueError:
+		if router:
+			db.routers.update_one({"_id": router_id}, {"$set": {"status": "unknown"}})
+		status = "unknown"
+
+	if router_id:
+		# fire events
+		events = []
+		with suppress(KeyError, TypeError):
+			if router["system"]["uptime"] > router_update["system"]["uptime"]:
+				events.append({
+					"time": datetime.datetime.utcnow(),
+					"type": "reboot",
+				})
+
+		with suppress(KeyError, TypeError):
+			if router["software"]["firmware"] != router_update["software"]["firmware"]:
+				events.append({
+					"time": datetime.datetime.utcnow(),
+					"type": "update",
+					"comment": "%s -> %s" % (router["software"]["firmware"], router_update["software"]["firmware"]),
+				})
+
+		with suppress(KeyError, TypeError):
+			if router["status"] != status:
+				events.append({
+					"time": datetime.datetime.utcnow(),
+					"type": status,
+				})
+
+		if len(events) > 0:
+			db.routers.update_one({"_id": router_id}, {"$push": {"events": SON([
+				("$each", events),
+				("$slice", -10),
+			])}})
+
+def detect_offline_routers():
+	db.routers.update_many({
+		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=10)},
+		"status": {"$ne": "offline"}
+	}, {
+		"$set": {"status": "offline"},
+		"$push": {"events": {
+			"time": datetime.datetime.utcnow(),
+			"type": "offline"
+		}
+	}})
+
+def new_router_stats(router, router_update):
+	if router["system"]["uptime"] < router_update["system"]["uptime"]:
+		netifs = {}
+		for netif in router_update["netifs"]:
+			# sanitize name
+			name = netif["name"].replace(".", "").replace("$", "")
+			with suppress(KeyError):
+				netifs[name] = {"rx": netif["traffic"]["rx"], "tx": netif["traffic"]["tx"]}
+		return [{
+			"time": datetime.datetime.utcnow(),
+			"netifs": netifs,
+			"memory": router_update["system"]["memory"],
+			"processes": router_update["system"]["processes"],
+			"clients": router_update["system"]["clients"],
+		}]
+	else:
+		# don't push old data
+		return []
+
+def calculate_network_io(router, router_update):
+	"""
+	router: old router dict
+	router: new router dict (which will be updated with new data)
+	"""
+	try:
+		if router["system"]["uptime"] < router_update["system"]["uptime"]:
+			timediff =  router_update["system"]["uptime"] - router["system"]["uptime"]
+			for netif in router["netifs"]:
+				netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
+				rx_diff = netif_update["traffic"]["rx_bytes"] - netif["traffic"]["rx_bytes"]
+				tx_diff = netif_update["traffic"]["tx_bytes"] - netif["traffic"]["tx_bytes"]
+				if rx_diff > 0 and tx_diff > 0:
+					netif_update["traffic"]["rx"] = int(rx_diff / timediff)
+					netif_update["traffic"]["tx"] = int(tx_diff / timediff)
+		else:
+			for netif in router["netifs"]:
+				netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
+				netif_update["traffic"]["rx"] = netif["traffic"]["rx"]
+				netif_update["traffic"]["tx"] = netif["traffic"]["tx"]
+	except (KeyError, StopIteration):
+		pass
+
+def parse_nodewatcher_xml(xml):
+	try:
 		assert xml != ""
 		tree = lxml.etree.fromstring(xml)
 
@@ -55,7 +182,7 @@ def load_nodewatcher_xml(mac, xml):
 			},
 			"software": {
 				"os": "%s (%s)" % (tree.xpath("/data/system_data/distname/text()")[0],
-				                   tree.xpath("/data/system_data/distversion/text()")[0]),
+						   tree.xpath("/data/system_data/distversion/text()")[0]),
 				"batman_adv": tree.xpath("/data/system_data/batman_advanced_version/text()")[0],
 				"kernel": tree.xpath("/data/system_data/kernel_version/text()")[0],
 				"nodewatcher": tree.xpath("/data/system_data/nodewatcher_version/text()")[0],
@@ -114,104 +241,11 @@ def load_nodewatcher_xml(mac, xml):
 					pass
 				router_update["neighbours"].append(neighbour)
 
-		router_update["system"]["visible_neighbours"] = visible_neighbours
+			router_update["system"]["visible_neighbours"] = visible_neighbours
 
-		if router:
-			# calculate network io
-			try:
-				if router["system"]["uptime"] < router_update["system"]["uptime"]:
-					timediff =  router_update["system"]["uptime"] - router["system"]["uptime"]
-					for netif in router["netifs"]:
-						netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
-						rx_diff = netif_update["traffic"]["rx_bytes"] - netif["traffic"]["rx_bytes"]
-						tx_diff = netif_update["traffic"]["tx_bytes"] - netif["traffic"]["tx_bytes"]
-						netif_update["traffic"]["rx"] = rx_diff / timediff
-						netif_update["traffic"]["tx"] = tx_diff / timediff
-				elif router["system"]["uptime"] == router_update["system"]["uptime"]:
-					for netif in router["netifs"]:
-						netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
-						netif_update["traffic"]["rx"] = netif["traffic"]["rx"]
-						netif_update["traffic"]["tx"] = netif["traffic"]["tx"]
-			except (KeyError, StopIteration):
-				pass
-
-			# calculate RRD statistics (rrdcache?)
-			#FIXME: implementation
-
-		if router and "netmon_id" in router:
-			# router is already in db and initial netmon data fetch was successfull
-			# keep hood up to date
-			if "position" in router:
-				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
-			db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update})
-		else:
-			# new router
-			# fetch additional information from netmon as it is not yet contained in xml
-			router_info = netmon_fetch_router_info(mac)
-			if router_info:
-				# keep hood up to date
-				if "position" in router_info:
-					router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
-				router_update["events"] = [{
-					"time": datetime.datetime.utcnow(),
-					"type": "created",
-				}]
-				router_update.update(router_info)
-			if router:
-				db.routers.update_one({"netifs.mac": mac.lower()}, {"$set": router_update})
-			else:
-				router_id = db.routers.insert_one(router_update).inserted_id
-		status = router_update["status"]
-	except (AssertionError, lxml.etree.XMLSyntaxError):
-		if router:
-			db.routers.update_one({"_id": router_id}, {"$set": {"status": "unknown"}})
-		status = "unknown"
-
-	if router_id:
-		# fire events
-		events = []
-		try:
-			if router["system"]["uptime"] > router_update["system"]["uptime"]:
-				events.append({
-					"time": datetime.datetime.utcnow(),
-					"type": "reboot",
-				})
-		except:
-			pass
-		try:
-			if router["software"]["firmware"] != router_update["software"]["firmware"]:
-				events.append({
-					"time": datetime.datetime.utcnow(),
-					"type": "update",
-					"comment": "%s -> %s" % (router["software"]["firmware"], router_update["software"]["firmware"]),
-				})
-		except:
-			pass
-		try:
-			if router["status"] != status:
-				events.append({
-					"time": datetime.datetime.utcnow(),
-					"type": status,
-				})
-		except:
-			pass
-		if len(events) > 0:
-			db.routers.update_one({"_id": router_id}, {"$push": {"events": SON([
-				("$each", events),
-				("$slice", -10),
-			])}})
-
-def detect_offline_routers():
-	db.routers.update_many({
-		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=10)},
-		"status": {"$ne": "offline"}
-	}, {
-		"$set": {"status": "offline"},
-		"$push": {"events": {
-			"time": datetime.datetime.utcnow(),
-			"type": "offline"
-		}
-	}})
+		return router_update
+	except (AssertionError, lxml.etree.XMLSyntaxError) as e:
+		raise ValueError("%s: %s" % (e.__class__.__name__, e.msg))
 
 def netmon_fetch_router_info(mac):
 	mac = mac.replace(":", "").lower()

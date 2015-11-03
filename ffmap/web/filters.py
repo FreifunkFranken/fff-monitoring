@@ -2,6 +2,7 @@
 
 from flask import Blueprint
 from dateutil import tz
+from bson.json_util import dumps as bson2json
 import datetime
 import re
 
@@ -32,6 +33,10 @@ def utc2local(dt):
 def format_dt(dt):
 	return dt.strftime("%Y-%m-%d %H:%M:%S")
 
+@filters.app_template_filter('dt2jstimestamp')
+def dt2jstimestamp(dt):
+	return int(dt.timestamp())*1000
+
 @filters.app_template_filter('format_dt_ago')
 def format_dt_ago(dt):
 	diff = datetime.datetime.utcnow() - dt
@@ -52,6 +57,10 @@ def format_dt_ago(dt):
 		return '1 hour ago'
 	else:
 		return '%i hours ago' % (s/3600)
+
+@filters.app_template_filter('bson2json')
+def bson_to_json(bsn):
+	return bson2json(bsn)
 
 @filters.app_template_filter('nbsp')
 def nbsp(txt):

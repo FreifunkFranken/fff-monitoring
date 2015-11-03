@@ -2,7 +2,21 @@
 {% block head %}{{super()}}
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.time.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.byte.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.selection.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.downsample.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
 	<style type="text/css">
+		.graph {
+			height: 200px;
+			width: 100%;
+		}
+		.graph .legendLabel {
+			padding-left: 5px;
+		}
 		#map {
 			height: 400px;
 			width: 100%;
@@ -80,7 +94,7 @@
 					<table class="table table-condensed">
 					{%- for event in router.events[-5:] %}
 						<tr>
-							<td style="width: 1em;">{{ event.time|utc2local|format_dt|nbsp|safe }}</td>
+							<td style="width: 11em;">{{ event.time|utc2local|format_dt|nbsp|safe }}</td>
 							<td style="width: 1em;"><span class="{{ event.type|status2css }}">{{ event.type }}</span></td>
 							<td>{{ event.comment }}</td>
 						</tr>
@@ -141,11 +155,12 @@
 			<div class="panel panel-default">
 				<div class="panel-heading">Network Interfaces</div>
 				<div class="panel-body">
+					<div id="netstat" class="graph"></div>
 				</div>
 				<ul class="list-group" id="netif-list">
 				{# make sure that br-mesh is on top of the list #}
 				{%- for netif in router.netifs if netif.name == 'br-mesh' %}
-					<li class="list-group-item active" data-mac="{{ netif.mac }}">
+					<li class="list-group-item active" data-name="{{ netif.name|replace('.', '')|replace('$', '') }}">
 						<h4 class="list-group-item-heading"><div class="row">
 							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
 							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
@@ -168,7 +183,7 @@
 					</li>
 				{%- endfor %}
 				{%- for netif in router.netifs if netif.name != 'br-mesh' %}
-					<li class="list-group-item" data-mac="{{ netif.mac }}">
+					<li class="list-group-item" data-name="{{ netif.name|replace('.', '')|replace('$', '') }}">
 						<h4 class="list-group-item-heading"><div class="row">
 							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
 							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
@@ -193,12 +208,15 @@
 				</ul>
 			</div>
 			<script type="text/javascript">
-				$(document).ready(function() {
+				var router_stats = {{ router.stats|bson2json|safe }};
+				$(function() {
 					$("#netif-list li").on("click", function() {
 						$("#netif-list li").removeClass("active");
+						var netif = this.getAttribute("data-name");
+						network_graph(netif);
 						$(this).addClass("active");
-						this.getAttribute("data-mac");
 					});
+					network_graph("br-mesh");
 				});
 			</script>
 		</div>
