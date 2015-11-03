@@ -40,9 +40,10 @@ function network_graph(netif) {
 		plot.clearSelection();
 		netstat.children("#controls")
 			.css("top", (plot.getPlotOffset().top+5) + "px")
-			.css("right", (plot.getPlotOffset().right+42) + "px");
+			.css("right", (plot.getPlotOffset().right+42) + "px")
+			.css("display", "block");
 	});
-	var netstat_controls = $("<div style='right:60px;top:13px;position: absolute;' id='controls'></div>").appendTo(netstat);
+	var netstat_controls = $("<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>").appendTo(netstat);
 	$("<div class='btn btn-default btn-xs'>Reset</div>")
 		.appendTo(netstat_controls)
 		.click(function (event) {
@@ -58,7 +59,8 @@ function network_graph(netif) {
 			plot.draw();
 			netstat.children("#controls")
 				.css("top", (plot.getPlotOffset().top+5) + "px")
-				.css("right", (plot.getPlotOffset().right+42) + "px");
+				.css("right", (plot.getPlotOffset().right+42) + "px")
+				.css("display", "none");
 		});
 	netstat.children("#controls")
 		.css("top", (plot.getPlotOffset().top+5) + "px")
