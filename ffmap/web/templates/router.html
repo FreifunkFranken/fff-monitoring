@@ -8,6 +8,7 @@
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.byte.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.selection.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.downsample.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.resize.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
 	<style type="text/css">
 		.graph {
@@ -29,6 +30,13 @@
 		}
 		li.list-group-item:hover {
 			background-color: #f5f5f5;
+		}
+
+		/* hack to remove flex css on small single-column layout */
+		@media(max-width:767px) {
+			.row {
+				display: block !important;
+			}
 		}
 	</style>
 {% endblock %}
@@ -111,10 +119,10 @@
 			</div>
 		{%- if not router.neighbours|length > 0 %}
 		</div>
-		<div class="col-xs-12 col-md-6">
+		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
 		{%- endif %}
 		{%- else %}
-		<div class="col-xs-12 col-md-6">
+		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
 		{%- endif %}
 			<div class="panel panel-default" style="flex: 1 1 auto;">
 				<div class="panel-heading">Events</div>
@@ -245,11 +253,21 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Statistics</div>
+				<div class="panel-heading">Clients</div>
+				<div class="panel-body">
+					<div id="clientstat" class="graph"></div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">Memory</div>
 				<div class="panel-body">
 					<div id="memstat" class="graph"></div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">Processes</div>
+				<div class="panel-body">
 					<div id="procstat" class="graph"></div>
-					<div id="clientstat" class="graph"></div>
 				</div>
 			</div>
 			<script type="text/javascript">
