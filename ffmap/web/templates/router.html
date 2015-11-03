@@ -64,47 +64,6 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-xs-12 col-md-6" style="height: 422px; display: flex; flex-flow: column;">
-			{%- if router.neighbours|length > 0 %}
-			<div class="panel panel-default" style="flex: 0 1 auto;">
-				<div class="panel-heading">Neighbours</div>
-				<div class="panel-body">
-					<table class="neighbours" style="width: 100%;">
-						<tr>
-							<th>Hostname</th>
-							<th>MAC Address</th>
-							<th>Quality</th>
-							<th>Interface</th>
-						</tr>
-						{%- for neighbour in router.neighbours %}
-						<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
-							<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</a></td>
-							<td>{{ neighbour.mac }}</td>
-							<td>{{ neighbour.quality }}</td>
-							<td>{{ neighbour.net_if }}</td>
-						</tr>
-						{%- endfor %}
-					</table>
-				</div>
-			</div>
-			{%- endif %}
-			<div class="panel panel-default" style="flex: 1 1 auto;">
-				<div class="panel-heading">Events</div>
-				<div class="panel-body">
-					<table class="table table-condensed">
-					{%- for event in router.events[-5:] %}
-						<tr>
-							<td style="width: 11em;">{{ event.time|utc2local|format_dt|nbsp|safe }}</td>
-							<td style="width: 1em;"><span class="{{ event.type|status2css }}">{{ event.type }}</span></td>
-							<td>{{ event.comment }}</td>
-						</tr>
-					{%- endfor %}
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">System</div>
@@ -129,12 +88,15 @@
 						<tr><th>User</th><td>{{ router.user.nickname }}</td></tr>
 						{%- endif %}
 						<tr><th>Hardware</th><td>{{ router.hardware.name }} ({{ router.hardware.chipset }})</td></tr>
+						<tr><th>Clients</th><td>{{ router.system.clients }}</td></tr>
 					</table>
 				</div>
 			</div>
 		</div>
+	</div>
+	<div class="row" style="display: flex;">
 		{%- if router.software is defined %}
-		<div class="col-xs-12 col-md-6">
+		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
 			<div class="panel panel-default">
 				<div class="panel-heading">Software</div>
 				<div class="panel-body">
@@ -145,6 +107,68 @@
 						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.software.batman_adv }}</td></tr>
 						<tr><th>Nodewatcher</th><td>{{ router.software.nodewatcher }}</td></tr>
 					</table>
+				</div>
+			</div>
+		{%- if not router.neighbours|length > 0 %}
+		</div>
+		<div class="col-xs-12 col-md-6">
+		{%- endif %}
+		{%- else %}
+		<div class="col-xs-12 col-md-6">
+		{%- endif %}
+			<div class="panel panel-default" style="flex: 1 1 auto;">
+				<div class="panel-heading">Events</div>
+				<div class="panel-body">
+					<table class="table table-condensed">
+					{%- for event in router.events[-5:] %}
+						<tr>
+							<td style="width: 11em;">{{ event.time|utc2local|format_dt|nbsp|safe }}</td>
+							<td style="width: 1em;"><span class="{{ event.type|status2css }}">{{ event.type }}</span></td>
+							<td>{{ event.comment }}</td>
+						</tr>
+					{%- endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+		{%- if router.neighbours|length > 0 %}
+		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
+			<div class="panel panel-default" style="flex: 1 1 auto;">
+				<div class="panel-heading">Neighbours</div>
+				<div class="panel-body" style="height: 100%;">
+					<table class="neighbours" style="width: 100%; margin-bottom: 6px;">
+						<tr>
+							<th>Hostname</th>
+							<th>MAC Address</th>
+							<th>Quality</th>
+							<th>Interface</th>
+						</tr>
+						{%- for neighbour in router.neighbours %}
+						<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
+							<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</a></td>
+							<td>{{ neighbour.mac }}</td>
+							<td>{{ neighbour.quality }}</td>
+							<td>{{ neighbour.net_if }}</td>
+						</tr>
+						{%- endfor %}
+					</table>
+					{# hack for graph vertical align #}
+					{%- if  router.neighbours|length < 3 %}
+					{%- for n in range(3- router.neighbours|length) %}
+					<br />
+					{%- endfor %}
+					{%- endif %}
+					<div id="meshstat" class="graph" style="height: 300px;"></div>
+					<script type="text/javascript">
+						var neighbours = [
+						{%- for neighbour in router.neighbours %}
+							{"name": "{{ neighbour.hostname or neighbour.mac }}", "mac": "{{ neighbour.mac }}"},
+						{%- endfor %}
+						];
+						$(function() {
+							neighbour_graph(neighbours);
+						});
+					</script>
 				</div>
 			</div>
 		</div>
@@ -208,7 +232,6 @@
 				</ul>
 			</div>
 			<script type="text/javascript">
-				var router_stats = {{ router.stats|bson2json|safe }};
 				$(function() {
 					$("#netif-list li").on("click", function() {
 						$("#netif-list li").removeClass("active");
@@ -220,5 +243,25 @@
 				});
 			</script>
 		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Statistics</div>
+				<div class="panel-body">
+					<div id="memstat" class="graph"></div>
+					<div id="procstat" class="graph"></div>
+					<div id="clientstat" class="graph"></div>
+				</div>
+			</div>
+			<script type="text/javascript">
+				$(function() {
+					memory_graph();
+					process_graph();
+					client_graph();
+				});
+			</script>
+		</div>
 	</div>
+	<script type="text/javascript">
+		var router_stats = {{ router.stats|bson2json|safe }};
+	</script>
 {% endblock %}

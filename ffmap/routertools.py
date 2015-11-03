@@ -109,14 +109,19 @@ def detect_offline_routers():
 def new_router_stats(router, router_update):
 	if router["system"]["uptime"] < router_update["system"]["uptime"]:
 		netifs = {}
+		neighbours = {}
 		for netif in router_update["netifs"]:
 			# sanitize name
 			name = netif["name"].replace(".", "").replace("$", "")
 			with suppress(KeyError):
 				netifs[name] = {"rx": netif["traffic"]["rx"], "tx": netif["traffic"]["tx"]}
+		for neighbour in router_update["neighbours"]:
+			with suppress(KeyError):
+				neighbours[neighbour["mac"]] = neighbour["quality"]
 		return [{
 			"time": datetime.datetime.utcnow(),
 			"netifs": netifs,
+			"neighbours": neighbours,
 			"memory": router_update["system"]["memory"],
 			"processes": router_update["system"]["processes"],
 			"clients": router_update["system"]["clients"],
