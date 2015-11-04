@@ -20,7 +20,7 @@ CONFIG = {
 
 def import_nodewatcher_xml(mac, xml):
 	try:
-		router = db.routers.find_one({"netifs.mac": mac.lower()})
+		router = db.routers.find_one({"netifs.mac": mac.lower()}, {"stats": 0})
 		if router:
 			router_id = router["_id"]
 
@@ -135,7 +135,7 @@ def calculate_network_io(router, router_update):
 	router: old router dict
 	router: new router dict (which will be updated with new data)
 	"""
-	try:
+	with suppress(KeyError, StopIteration):
 		if router["system"]["uptime"] < router_update["system"]["uptime"]:
 			timediff =  router_update["system"]["uptime"] - router["system"]["uptime"]
 			for netif in router["netifs"]:
@@ -150,8 +150,6 @@ def calculate_network_io(router, router_update):
 				netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
 				netif_update["traffic"]["rx"] = netif["traffic"]["rx"]
 				netif_update["traffic"]["tx"] = netif["traffic"]["tx"]
-	except (KeyError, StopIteration):
-		pass
 
 def parse_nodewatcher_xml(xml):
 	try:
@@ -232,18 +230,17 @@ def parse_nodewatcher_xml(xml):
 					"quality": int(o_link_quality),
 					"net_if": o_out_if,
 				}
-				try:
-					neighbour_router = db.routers.find_one({"netifs.mac": neighbour["mac"]})
+				with suppress(AssertionError, TypeError):
+					neighbour_router = db.routers.find_one({"netifs.mac": neighbour["mac"]}, {"hostname": 1, "position": 1})
 					neighbour["_id"] = neighbour_router["_id"]
 					neighbour["hostname"] = neighbour_router["hostname"]
+					assert "position" in neighbour_router
 					assert "coordinates" in neighbour_router["position"]
 					assert neighbour_router["position"]["coordinates"][0] != 0
 					assert neighbour_router["position"]["coordinates"][1] != 0
 					if "comment" in neighbour_router["position"]:
 						del neighbour_router["position"]["comment"]
 					neighbour["position"] = neighbour_router["position"]
-				except:
-					pass
 				router_update["neighbours"].append(neighbour)
 
 			router_update["system"]["visible_neighbours"] = visible_neighbours
@@ -254,7 +251,10 @@ def parse_nodewatcher_xml(xml):
 
 def netmon_fetch_router_info(mac):
 	mac = mac.replace(":", "").lower()
-	tree = lxml.etree.fromstring(requests.get("https://netmon.freifunk-franken.de/api/rest/router/%s" % mac, params={"limit": 5000}).content)
+	try:
+		tree = lxml.etree.fromstring(requests.get("https://netmon.freifunk-franken.de/api/rest/router/%s" % mac).content)
+	except lxml.etree.XMLSyntaxError:
+		return None
 
 	for r in tree.xpath("/netmon_response/router"):
 		user_netmon_id = int(r.xpath("user_id/text()")[0])

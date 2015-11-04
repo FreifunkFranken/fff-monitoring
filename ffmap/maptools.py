@@ -23,7 +23,7 @@ def touch(fname, times=None):
 def update_mapnik_csv():
 	with open(os.path.join(CONFIG["csv_dir"], "routers.csv"), "w") as csv:
 		csv.write("lng,lat,status\n")
-		for router in db.routers.find({"position.coordinates": {"$exists": True}}):
+		for router in db.routers.find({"position.coordinates": {"$exists": True}}, {"status": 1, "position": 1}):
 			csv.write("%f,%f,%s\n" % (
 				router["position"]["coordinates"][0],
 				router["position"]["coordinates"][1],
@@ -32,7 +32,7 @@ def update_mapnik_csv():
 
 	with open(os.path.join(CONFIG["csv_dir"], "links.csv"), "w") as csv:
 		csv.write("WKT,quality\n")
-		for router in db.routers.find({"position.coordinates": {"$exists": True}, "neighbours": {"$exists": True}}):
+		for router in db.routers.find({"position.coordinates": {"$exists": True}, "neighbours": {"$exists": True}}, {"position": 1, "neighbours": 1}):
 			for neighbour in router["neighbours"]:
 				if "position" in neighbour:
 					csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % (
