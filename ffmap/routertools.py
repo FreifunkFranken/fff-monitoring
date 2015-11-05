@@ -16,11 +16,12 @@ db = FreifunkDB().handle()
 
 CONFIG = {
 	"vpn_netif": "fffVPN",
+	"vpn_netif_aux": "fffauxVPN",
 }
 
 def import_nodewatcher_xml(mac, xml):
 	try:
-		router = db.routers.find_one({"netifs.mac": mac.lower()}, {"stats": 0})
+		router = db.routers.find_one({"netifs.mac": mac.lower()}, {"stats": 0, "events": 0})
 		if router:
 			router_id = router["_id"]
 
@@ -176,7 +177,9 @@ def parse_nodewatcher_xml(xml):
 					"total": int(tree.xpath("/data/system_data/processes/text()")[0].split("/")[1]),
 				},
 				"clients": int(tree.xpath("/data/client_count/text()")[0]),
-				"has_wan_uplink": len(tree.xpath("/data/interface_data/fffVPN")) > 0,
+				"has_wan_uplink": (
+					len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif"])) > 0
+					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_aux"])) > 0),
 			},
 			"hardware": {
 				"chipset": tree.xpath("/data/system_data/chipset/text()")[0],

@@ -19,7 +19,7 @@
 			padding-left: 5px;
 		}
 		#map {
-			height: 400px;
+			height: 405px;
 			width: 100%;
 		}
 		.navbar, .table-condensed {
@@ -42,7 +42,7 @@
 {% endblock %}
 
 {% block content %}
-	<h1>Router: {{ router.hostname }}</h1>
+	<h2>Router: {{ router.hostname }}</h2>
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
@@ -79,6 +79,9 @@
 					<table class="table table-condensed">
 						<tr><th>Hostname</th><td>{{ router.hostname }}</td></tr>
 						<tr><th>Status</th><td><span class="{{ router.status|status2css }}">{{ router.status }}</span></td></tr>
+						<tr><th>Created</th><td>
+							{{ router.created|utc2local|format_dt }}
+						</td></tr>
 						<tr><th>Last contact</th><td>
 							{{ router.last_contact|utc2local|format_dt }}
 							({{ router.last_contact|format_dt_ago }})
@@ -96,6 +99,7 @@
 						<tr><th>User</th><td>{{ router.user.nickname }}</td></tr>
 						{%- endif %}
 						<tr><th>Hardware</th><td>{{ router.hardware.name }} ({{ router.hardware.chipset }})</td></tr>
+						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.system.has_wan_uplink else "glyphicon glyphicon-remove" }}"></span></td></tr>
 						<tr><th>Clients</th><td>{{ router.system.clients }}</td></tr>
 					</table>
 				</div>
