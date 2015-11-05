@@ -3,6 +3,7 @@
 from flask import Blueprint
 from dateutil import tz
 from bson.json_util import dumps as bson2json
+import json
 import datetime
 import re
 
@@ -61,6 +62,12 @@ def format_dt_ago(dt):
 @filters.app_template_filter('bson2json')
 def bson_to_json(bsn):
 	return bson2json(bsn)
+
+@filters.app_template_filter('statbson2json')
+def statbson_to_json(bsn):
+	for point in bsn:
+		point["time"] = {"$date": int(point["time"].timestamp()*1000)}
+	return json.dumps(bsn)
 
 @filters.app_template_filter('nbsp')
 def nbsp(txt):

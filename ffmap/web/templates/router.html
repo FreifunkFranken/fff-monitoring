@@ -284,6 +284,6 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		var router_stats = {{ router.stats|bson2json|safe }};
+		var router_stats = {{ router.stats|statbson2json|safe }};
 	</script>
 {% endblock %}
