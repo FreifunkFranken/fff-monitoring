@@ -9,6 +9,7 @@ from ffmap.web.filters import filters
 from ffmap.dbtools import FreifunkDB
 
 from flask import Flask, render_template, request, Response
+import bson
 from bson.json_util import dumps as bson2json
 from bson.objectid import ObjectId
 
@@ -43,7 +44,11 @@ def router_list():
 
 @app.route('/routers/<dbid>')
 def router_info(dbid):
-	router = db.routers.find_one({"_id": ObjectId(dbid)})
+	try:
+		router = db.routers.find_one({"_id": ObjectId(dbid)})
+		assert router
+	except (bson.errors.InvalidId, AssertionError):
+		return "Router not found"
 	if request.args.get('json', None) != None:
 		return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 	else:
