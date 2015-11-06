@@ -26,6 +26,7 @@ function network_graph(netif) {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, mode: "byteRate"},
+		legend: {noColumns: 2},
 		series: {downsample: {threshold: Math.floor(netstat.width() * points_per_px)}}
 	});
 	netstat.bind("plotselected", function (event, ranges) {
@@ -94,6 +95,7 @@ function neighbour_graph(neighbours) {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, max: 400},
+		legend: {noColumns: 2},
 		series: {downsample: {threshold: Math.floor(meshstat.width() * points_per_px)}}
 	});
 	meshstat.bind("plotselected", function (event, ranges) {
@@ -165,6 +167,7 @@ function memory_graph() {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, mode: "byte"},
+		legend: {noColumns: 3},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
 	memstat.bind("plotselected", function (event, ranges) {
@@ -233,6 +236,7 @@ function process_graph() {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, max: 50},
+		legend: {noColumns: 2},
 		series: {downsample: {threshold: Math.floor(procstat.width() * points_per_px)}}
 	});
 	procstat.bind("plotselected", function (event, ranges) {
