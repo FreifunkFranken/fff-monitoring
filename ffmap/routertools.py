@@ -57,6 +57,7 @@ def import_nodewatcher_xml(mac, xml):
 				])
 			}})
 		else:
+			router_update["created"] = datetime.datetime.utcnow()
 			router_id = db.routers.insert_one(router_update).inserted_id
 		status = router_update["status"]
 	except ValueError:
@@ -298,7 +299,5 @@ def netmon_fetch_router_info(mac):
 			router["description"] = r.xpath("description/text()")[0]
 		except IndexError:
 			pass
-
-		router["created"] = datetime.datetime.utcnow()
 
 		return router
