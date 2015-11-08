@@ -81,9 +81,10 @@ function neighbour_graph(neighbours) {
 			try {
 				var quality = router_stats[i].neighbours[mac];
 				var date_value = router_stats[i].time.$date;
-				if(quality != null) {
-					data.push([date_value, quality]);
+				if(quality == null) {
+					quality = 0;
 				}
+				data.push([date_value, quality]);
 			}
 			catch(TypeError) {
 				// pass
