@@ -3,6 +3,7 @@
 from ffmap.routertools import *
 from ffmap.maptools import *
 from ffmap.dbtools import FreifunkDB
+from ffmap.stattools import record_global_stats
 
 from flask import Blueprint, request, make_response
 from pymongo import MongoClient
@@ -43,6 +44,7 @@ def alfred():
 				import_nodewatcher_xml(mac, xml)
 			r.headers['X-API-STATUS'] = "ALFRED data imported"
 		detect_offline_routers()
+		record_global_stats()
 		update_mapnik_csv()
 	r.mimetype = 'application/json'
 	return r

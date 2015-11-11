@@ -238,17 +238,6 @@
 				{%- endfor %}
 				</ul>
 			</div>
-			<script type="text/javascript">
-				$(function() {
-					$("#netif-list li").on("click", function() {
-						$("#netif-list li").removeClass("active");
-						var netif = this.getAttribute("data-name");
-						network_graph(netif);
-						$(this).addClass("active");
-					});
-					network_graph("br-mesh");
-				});
-			</script>
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
@@ -269,16 +258,22 @@
 					<div id="procstat" class="graph"></div>
 				</div>
 			</div>
-			<script type="text/javascript">
-				$(function() {
-					memory_graph();
-					process_graph();
-					client_graph();
-				});
-			</script>
 		</div>
 	</div>
 	<script type="text/javascript">
 		var router_stats = {{ router.stats|statbson2json|safe }};
+		$(function() {
+			memory_graph();
+			process_graph();
+			client_graph();
+
+			$("#netif-list li").on("click", function() {
+				$("#netif-list li").removeClass("active");
+				var netif = this.getAttribute("data-name");
+				network_graph(netif);
+				$(this).addClass("active");
+			});
+			network_graph("br-mesh");
+		});
 	</script>
 {% endblock %}

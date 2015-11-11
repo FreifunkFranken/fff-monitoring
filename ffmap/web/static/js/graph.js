@@ -1,4 +1,56 @@
 var points_per_px = 0.3;
+var controls_container = "<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>";
+var reset_button = "<div class='btn btn-default btn-xs'>Reset</div>";
+
+
+function labelFormatter(label, series) {
+	return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+}
+
+function setup_plot_zoom(plot, pdata, num_data_points) {
+	plot.getPlaceholder().bind("plotselected", function (event, ranges) {
+		$.each(plot.getXAxes(), function(_, axis) {
+			var zoom_correction_factor = (1000*300*num_data_points)/(ranges.xaxis.to - ranges.xaxis.from);
+			plot.getOptions().series.downsample.threshold =
+				Math.floor(plot.getPlaceholder().width()
+				* points_per_px
+				* zoom_correction_factor);
+			axis.options.min = ranges.xaxis.from;
+			axis.options.max = ranges.xaxis.to;
+		});
+		plot.setData(pdata);
+		plot.setupGrid();
+		plot.draw();
+		plot.clearSelection();
+		plot.getPlaceholder().children("#controls")
+			.css("top", (plot.getPlotOffset().top+5) + "px")
+			.css("left", (plot.getPlotOffset().left+5) + "px")
+			.css("display", "block");
+	});
+	var plot_controls = $(controls_container).appendTo(plot.getPlaceholder());
+	$(reset_button)
+		.appendTo(plot_controls)
+		.click(function (event) {
+			event.preventDefault();
+			$.each(plot.getXAxes(), function(_, axis) {
+				axis.options.min = null;
+				axis.options.max = null;
+			});
+			plot.getOptions().series.downsample.threshold = Math.floor(plot.getPlaceholder().width() * points_per_px);
+			plot.setData(pdata);
+			plot.setupGrid();
+			plot.draw();
+			plot.getPlaceholder().children("#controls")
+				.css("top", (plot.getPlotOffset().top+5) + "px")
+				.css("left", (plot.getPlotOffset().left+5) + "px")
+				.css("display", "none");
+		});
+	plot.getPlaceholder().children("#controls")
+		.css("top", (plot.getPlotOffset().top+5) + "px")
+		.css("left", (plot.getPlotOffset().left+5) + "px");
+}
+
+// Per router statistics
 
 function network_graph(netif) {
 	var netstat = $("#netstat");
@@ -26,47 +78,10 @@ function network_graph(netif) {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, mode: "byteRate"},
-		legend: {noColumns: 2},
+		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(netstat.width() * points_per_px)}}
 	});
-	netstat.bind("plotselected", function (event, ranges) {
-		$.each(plot.getXAxes(), function(_, axis) {
-			var zoom_correction_factor = (1000*300*len)/(ranges.xaxis.to - ranges.xaxis.from);
-			plot.getOptions().series.downsample.threshold = Math.floor(netstat.width() * points_per_px * zoom_correction_factor);
-			axis.options.min = ranges.xaxis.from;
-			axis.options.max = ranges.xaxis.to;
-		});
-		plot.setData(pdata);
-		plot.setupGrid();
-		plot.draw();
-		plot.clearSelection();
-		netstat.children("#controls")
-			.css("top", (plot.getPlotOffset().top+5) + "px")
-			.css("left", (plot.getPlotOffset().left+5) + "px")
-			.css("display", "block");
-	});
-	var netstat_controls = $("<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>").appendTo(netstat);
-	$("<div class='btn btn-default btn-xs'>Reset</div>")
-		.appendTo(netstat_controls)
-		.click(function (event) {
-			event.preventDefault();
-			console.log("button");
-			$.each(plot.getXAxes(), function(_, axis) {
-				axis.options.min = null;
-				axis.options.max = null;
-			});
-			plot.getOptions().series.downsample.threshold = Math.floor(netstat.width() * points_per_px);
-			plot.setData(pdata);
-			plot.setupGrid();
-			plot.draw();
-			netstat.children("#controls")
-				.css("top", (plot.getPlotOffset().top+5) + "px")
-				.css("left", (plot.getPlotOffset().left+5) + "px")
-				.css("display", "none");
-		});
-	netstat.children("#controls")
-		.css("top", (plot.getPlotOffset().top+5) + "px")
-		.css("left", (plot.getPlotOffset().left+5) + "px");
+	setup_plot_zoom(plot, pdata, len);
 }
 
 function neighbour_graph(neighbours) {
@@ -96,47 +111,10 @@ function neighbour_graph(neighbours) {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, max: 400},
-		legend: {noColumns: 2},
+		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(meshstat.width() * points_per_px)}}
 	});
-	meshstat.bind("plotselected", function (event, ranges) {
-		$.each(plot.getXAxes(), function(_, axis) {
-			var zoom_correction_factor = (1000*300*len)/(ranges.xaxis.to - ranges.xaxis.from);
-			plot.getOptions().series.downsample.threshold = Math.floor(meshstat.width() * points_per_px * zoom_correction_factor);
-			axis.options.min = ranges.xaxis.from;
-			axis.options.max = ranges.xaxis.to;
-		});
-		plot.setData(pdata);
-		plot.setupGrid();
-		plot.draw();
-		plot.clearSelection();
-		meshstat.children("#controls")
-			.css("top", (plot.getPlotOffset().top+5) + "px")
-			.css("left", (plot.getPlotOffset().left+5) + "px")
-			.css("display", "block");
-	});
-	var meshstat_controls = $("<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>").appendTo(meshstat);
-	$("<div class='btn btn-default btn-xs'>Reset</div>")
-		.appendTo(meshstat_controls)
-		.click(function (event) {
-			event.preventDefault();
-			console.log("button");
-			$.each(plot.getXAxes(), function(_, axis) {
-				axis.options.min = null;
-				axis.options.max = null;
-			});
-			plot.getOptions().series.downsample.threshold = Math.floor(meshstat.width() * points_per_px);
-			plot.setData(pdata);
-			plot.setupGrid();
-			plot.draw();
-			meshstat.children("#controls")
-				.css("top", (plot.getPlotOffset().top+5) + "px")
-				.css("left", (plot.getPlotOffset().left+5) + "px")
-				.css("display", "none");
-		});
-	meshstat.children("#controls")
-		.css("top", (plot.getPlotOffset().top+5) + "px")
-		.css("left", (plot.getPlotOffset().left+5) + "px");
+	setup_plot_zoom(plot, pdata, len);
 }
 
 function memory_graph() {
@@ -168,47 +146,10 @@ function memory_graph() {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, mode: "byte"},
-		legend: {noColumns: 3},
+		legend: {noColumns: 3, hideable: true},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
-	memstat.bind("plotselected", function (event, ranges) {
-		$.each(plot.getXAxes(), function(_, axis) {
-			var zoom_correction_factor = (1000*300*len)/(ranges.xaxis.to - ranges.xaxis.from);
-			plot.getOptions().series.downsample.threshold = Math.floor(memstat.width() * points_per_px * zoom_correction_factor);
-			axis.options.min = ranges.xaxis.from;
-			axis.options.max = ranges.xaxis.to;
-		});
-		plot.setData(pdata);
-		plot.setupGrid();
-		plot.draw();
-		plot.clearSelection();
-		memstat.children("#controls")
-			.css("top", (plot.getPlotOffset().top+5) + "px")
-			.css("left", (plot.getPlotOffset().left+5) + "px")
-			.css("display", "block");
-	});
-	var memstat_controls = $("<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>").appendTo(memstat);
-	$("<div class='btn btn-default btn-xs'>Reset</div>")
-		.appendTo(memstat_controls)
-		.click(function (event) {
-			event.preventDefault();
-			console.log("button");
-			$.each(plot.getXAxes(), function(_, axis) {
-				axis.options.min = null;
-				axis.options.max = null;
-			});
-			plot.getOptions().series.downsample.threshold = Math.floor(memstat.width() * points_per_px);
-			plot.setData(pdata);
-			plot.setupGrid();
-			plot.draw();
-			memstat.children("#controls")
-				.css("top", (plot.getPlotOffset().top+5) + "px")
-				.css("left", (plot.getPlotOffset().left+5) + "px")
-				.css("display", "none");
-		});
-	memstat.children("#controls")
-		.css("top", (plot.getPlotOffset().top+5) + "px")
-		.css("left", (plot.getPlotOffset().left+5) + "px");
+	setup_plot_zoom(plot, pdata, len);
 }
 
 function process_graph() {
@@ -237,47 +178,10 @@ function process_graph() {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, max: 50},
-		legend: {noColumns: 2},
+		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(procstat.width() * points_per_px)}}
 	});
-	procstat.bind("plotselected", function (event, ranges) {
-		$.each(plot.getXAxes(), function(_, axis) {
-			var zoom_correction_factor = (1000*300*len)/(ranges.xaxis.to - ranges.xaxis.from);
-			plot.getOptions().series.downsample.threshold = Math.floor(procstat.width() * points_per_px * zoom_correction_factor);
-			axis.options.min = ranges.xaxis.from;
-			axis.options.max = ranges.xaxis.to;
-		});
-		plot.setData(pdata);
-		plot.setupGrid();
-		plot.draw();
-		plot.clearSelection();
-		procstat.children("#controls")
-			.css("top", (plot.getPlotOffset().top+5) + "px")
-			.css("left", (plot.getPlotOffset().left+5) + "px")
-			.css("display", "block");
-	});
-	var procstat_controls = $("<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>").appendTo(procstat);
-	$("<div class='btn btn-default btn-xs'>Reset</div>")
-		.appendTo(procstat_controls)
-		.click(function (event) {
-			event.preventDefault();
-			console.log("button");
-			$.each(plot.getXAxes(), function(_, axis) {
-				axis.options.min = null;
-				axis.options.max = null;
-			});
-			plot.getOptions().series.downsample.threshold = Math.floor(procstat.width() * points_per_px);
-			plot.setData(pdata);
-			plot.setupGrid();
-			plot.draw();
-			procstat.children("#controls")
-				.css("top", (plot.getPlotOffset().top+5) + "px")
-				.css("left", (plot.getPlotOffset().left+5) + "px")
-				.css("display", "none");
-		});
-	procstat.children("#controls")
-		.css("top", (plot.getPlotOffset().top+5) + "px")
-		.css("left", (plot.getPlotOffset().left+5) + "px");
+	setup_plot_zoom(plot, pdata, len);
 }
 
 function client_graph() {
@@ -299,49 +203,115 @@ function client_graph() {
 	var pdata = [
 		{"label": "clients", "data": clients, "color": "#8CACC6", lines: {fill: true}}
 	];
-	console.log(pdata);
 	var plot = $.plot(clientstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0},
+		legend: {hideable: true},
 		series: {downsample: {threshold: Math.floor(clientstat.width() * points_per_px)}}
 	});
-	clientstat.bind("plotselected", function (event, ranges) {
-		$.each(plot.getXAxes(), function(_, axis) {
-			var zoom_correction_factor = (1000*300*len)/(ranges.xaxis.to - ranges.xaxis.from);
-			plot.getOptions().series.downsample.threshold = Math.floor(clientstat.width() * points_per_px * zoom_correction_factor);
-			axis.options.min = ranges.xaxis.from;
-			axis.options.max = ranges.xaxis.to;
-		});
-		plot.setData(pdata);
-		plot.setupGrid();
-		plot.draw();
-		plot.clearSelection();
-		clientstat.children("#controls")
-			.css("top", (plot.getPlotOffset().top+5) + "px")
-			.css("left", (plot.getPlotOffset().left+5) + "px")
-			.css("display", "block");
+	setup_plot_zoom(plot, pdata, len);
+}
+
+
+// Global statistics
+
+function global_client_graph() {
+	var clientstat = $("#globclientstat");
+	var clients = [];
+	var len, i;
+	for (len=global_stats.length, i=0; i<len; i++) {
+		try {
+			var client_value = global_stats[i].total_clients;
+			var date_value = global_stats[i].time.$date;
+			if(client_value != null) {
+				clients.push([date_value, client_value]);
+			}
+		}
+		catch(TypeError) {
+			// pass
+		}
+	}
+	var pdata = [
+		{"label": "clients", "data": clients, "color": "#8CACC6", lines: {fill: true}}
+	];
+	var plot = $.plot(clientstat, pdata, {
+		xaxis: {mode: "time", timezone: "browser"},
+		selection: {mode: "x"},
+		yaxis: {min: 0},
+		legend: {hideable: true},
+		//points: {show: true}
+		series: {downsample: {threshold: Math.floor(clientstat.width() * points_per_px)}}
 	});
-	var clientstat_controls = $("<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>").appendTo(clientstat);
-	$("<div class='btn btn-default btn-xs'>Reset</div>")
-		.appendTo(clientstat_controls)
-		.click(function (event) {
-			event.preventDefault();
-			console.log("button");
-			$.each(plot.getXAxes(), function(_, axis) {
-				axis.options.min = null;
-				axis.options.max = null;
-			});
-			plot.getOptions().series.downsample.threshold = Math.floor(clientstat.width() * points_per_px);
-			plot.setData(pdata);
-			plot.setupGrid();
-			plot.draw();
-			clientstat.children("#controls")
-				.css("top", (plot.getPlotOffset().top+5) + "px")
-				.css("left", (plot.getPlotOffset().left+5) + "px")
-				.css("display", "none");
+	setup_plot_zoom(plot, pdata, len);
+}
+
+function global_router_graph() {
+	var memstat = $("#globrouterstat");
+	var offline = [], online = [], unknown = [];
+	var len, i;
+	for (len=global_stats.length, i=0; i<len; i++) {
+		try {
+			var offline_value = global_stats[i].router_status.offline;
+			var online_value = global_stats[i].router_status.online;
+			var unknown_value = global_stats[i].router_status.unknown;
+			var date_value = global_stats[i].time.$date;
+			if (offline_value == null) offline_value = 0;
+			if (online_value == null) online_value = 0;
+			if (unknown_value == null) unknown_value = 0;
+			offline.push([date_value, offline_value]);
+			online.push([date_value, online_value]);
+			unknown.push([date_value, unknown_value]);
+		}
+		catch(TypeError) {
+			// pass
+		}
+	}
+	var pdata = [
+		{"label": "online", "data": online, "color": "#4DA74A"},
+		{"label": "offline", "data": offline, "color": "#CB4B4B"},
+		{"label": "unknown", "data": unknown, "color": "#EDC240"}
+	];
+	var plot = $.plot(memstat, pdata, {
+		xaxis: {mode: "time", timezone: "browser"},
+		selection: {mode: "x"},
+		yaxis: {min: 0},
+		legend: {noColumns: 3, hideable: true},
+		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
+	});
+	setup_plot_zoom(plot, pdata, len);
+}
+
+function global_router_firmwares_graph() {
+	var placeholder = $("#globrouterfwstat");
+	var pdata = [];
+	for (var fwname in router_firmwares) {
+		pdata.push({
+			"label": fwname,
+			"data": [router_firmwares[fwname]]
 		});
-	clientstat.children("#controls")
-		.css("top", (plot.getPlotOffset().top+5) + "px")
-		.css("left", (plot.getPlotOffset().left+5) + "px");
+	}
+	var plot = $.plot(placeholder, pdata, {
+		legend: {noColumns: 2, show: true},
+		grid: {hoverable: true, clickable: false},
+		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
+		series: {pie: {show: true, radius: 99/100}}
+	});
+}
+
+function global_router_models_graph() {
+	var placeholder = $("#globroutermodelsstat");
+	var pdata = [];
+	for (var mdname in router_models) {
+		pdata.push({
+			"label": mdname,
+			"data": [router_models[mdname]]
+		});
+	}
+	var plot = $.plot(placeholder, pdata, {
+		legend: {noColumns: 2, show: true},
+		grid: {hoverable: true, clickable: false},
+		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
+		series: {pie: {show: true, radius: 99/100}}
+	});
 }

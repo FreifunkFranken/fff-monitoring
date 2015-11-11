@@ -1,0 +1,145 @@
+{% extends "bootstrap.html" %}
+{% block viewport %}{{super()}}, maximum-scale=1.0, user-scalable=no{% endblock %}
+{% block head %}{{super()}}
+	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.time.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.byte.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.selection.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.downsample.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.resize.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.hiddengraphs.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.pie.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.tooltip.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+	<style type="text/css">
+		.table-condensed {
+			margin-bottom: 0;
+		}
+		.table-condensed tr:last-child td, th {
+			border-bottom: 1px solid #ddd;
+		}
+		@media(max-width:500px) {
+			th {
+				padding-left: 2px !important;
+				padding-right: 2px !important;
+			}
+			td {
+				padding-left: 2px !important;
+				padding-right: 2px !important;
+			}
+			.panel-body {
+				padding-left: 3px !important;
+				padding-right: 3px !important;
+			}
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Hoods</div>
+				<div class="panel-body">
+					<table class="table table-condensed">
+						<tr>
+							<th>Hood</th>
+							<th class="success" title="Online Routers">Online</th>
+							<th class="danger" title="Offline Routers">Offline</th>
+							<th class="warning" title="Unknown Routers">Unknown</th>
+							<th title="Total Routers">Total</th>
+							<th class="info">Clients</th>
+						</tr>
+						{%- for hood in hoods %}
+						<tr>
+							<td>{{ hood }}</td>
+							<td class="success">{{ hoods[hood]["online"] or 0 }}</td>
+							<td class="danger">{{ hoods[hood]["offline"] or 0 }}</td>
+							<td class="warning">{{ hoods[hood]["unknown"] or 0 }}</td>
+							<td>{{ hoods_sum[hood]["routers"] or 0 }}</td>
+							<td class="info">{{ hoods_sum[hood]["clients"] or 0 }}</td>
+						</tr>
+						{%- endfor %}
+						<tr>
+							<th>Sum</th>
+							<td class="success">{{ router_status.online or 0 }}</td>
+							<td class="danger">{{ router_status.offline or 0 }}</td>
+							<td class="warning">{{ router_status.unknown or 0 }}</td>
+							<td>{{ (router_status.online or 0) + (router_status.offline or 0) + (router_status.unknown or 0) }}</td>
+							<td class="info">{{ clients }}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Newest Routers</div>
+				<div class="panel-body">
+					<table class="table table-condensed">
+						<tr>
+							<th>Hostname</th>
+							<th>Hood</th>
+							<th>Created</th>
+						</tr>
+						{%- for router in newest_routers|reverse %}
+						<tr>
+							<td><a href="{{ url_for('router_info', dbid=router._id) }}">{{ router.hostname }}</a></td>
+							<td>{{ router.hood }}</td>
+							<td>{{ router.created|utc2local|format_dt }}</td>
+						</tr>
+						{%- endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Routers</div>
+				<div class="panel-body">
+					<div id="globrouterstat" class="graph"></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Clients</div>
+				<div class="panel-body">
+					<div id="globclientstat" class="graph"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Routers Firmwares</div>
+				<div class="panel-body">
+					<div id="globrouterfwstat" class="graph"></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Routers Models</div>
+				<div class="panel-body">
+					<div id="globroutermodelsstat" class="graph"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var global_stats = {{ stats|statbson2json|safe }};
+		var router_firmwares = {{ router_firmwares|tojson }}
+		var router_models = {{ router_models|tojson }}
+		$(function() {
+			global_client_graph();
+			global_router_graph();
+			global_router_firmwares_graph();
+			global_router_models_graph();
+		});
+	</script>
+{% endblock %}

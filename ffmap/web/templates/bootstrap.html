@@ -34,7 +34,8 @@
 					{# ([own_function, child1, child2], text) #}
 					{%- for fkt, text in [(["index"], "Home"),
 					                      (["router_map"], "Map"),
-					                      (["router_list", "router_info"], "Routers")
+					                      (["router_list", "router_info"], "Routers"),
+					                      (["global_statistics"], "Statistics"),
 					] %}
 					<li class="{{ "active" if request.endpoint in fkt }}"><a href="{{ url_for(fkt[0]) }}">{{ text }}</a></li>
 					{%- endfor %}

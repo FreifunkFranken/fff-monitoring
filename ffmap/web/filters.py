@@ -6,6 +6,7 @@ from bson.json_util import dumps as bson2json
 import json
 import datetime
 import re
+import pymongo
 
 filters = Blueprint("filters", __name__)
 
@@ -65,6 +66,8 @@ def bson_to_json(bsn):
 
 @filters.app_template_filter('statbson2json')
 def statbson_to_json(bsn):
+	if isinstance(bsn, pymongo.cursor.Cursor):
+		bsn = list(bsn)
 	for point in bsn:
 		point["time"] = {"$date": int(point["time"].timestamp()*1000)}
 	return json.dumps(bsn)

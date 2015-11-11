@@ -7,9 +7,11 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from ffmap.web.api import api
 from ffmap.web.filters import filters
 from ffmap.dbtools import FreifunkDB
+from ffmap import stattools
 
 from flask import Flask, render_template, request, Response
 import bson
+import pymongo
 from bson.json_util import dumps as bson2json
 from bson.objectid import ObjectId
 
@@ -54,6 +56,19 @@ def router_info(dbid):
 	else:
 		return render_template("router.html", router=router, tileurls=tileurls)
 
+@app.route('/statistics')
+def global_statistics():
+	hoods = stattools.hoods()
+	return render_template("statistics.html",
+		stats = db.stats.find({}, {"_id": 0}),
+		clients = stattools.total_clients(),
+		router_status = stattools.router_status(),
+		router_models = stattools.router_models(),
+		router_firmwares = stattools.router_firmwares(),
+		hoods = hoods,
+		hoods_sum = stattools.hoods_sum(),
+		newest_routers = db.routers.find({}, {"hostname": 1, "hood": 1, "created": 1}).sort("created", pymongo.DESCENDING).limit(len(hoods)+1)
+	)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
