@@ -48,7 +48,7 @@
 							<th class="success" title="Online Routers">Online</th>
 							<th class="danger" title="Offline Routers">Offline</th>
 							<th class="warning" title="Unknown Routers">Unknown</th>
-							<th title="Total Routers">Total</th>
+							<th class="active" title="Total Routers">Total</th>
 							<th class="info">Clients</th>
 						</tr>
 						{%- for hood in hoods %}
@@ -57,7 +57,7 @@
 							<td class="success">{{ hoods[hood]["online"] or 0 }}</td>
 							<td class="danger">{{ hoods[hood]["offline"] or 0 }}</td>
 							<td class="warning">{{ hoods[hood]["unknown"] or 0 }}</td>
-							<td>{{ hoods_sum[hood]["routers"] or 0 }}</td>
+							<td class="active">{{ hoods_sum[hood]["routers"] or 0 }}</td>
 							<td class="info">{{ hoods_sum[hood]["clients"] or 0 }}</td>
 						</tr>
 						{%- endfor %}
@@ -66,7 +66,7 @@
 							<td class="success">{{ router_status.online or 0 }}</td>
 							<td class="danger">{{ router_status.offline or 0 }}</td>
 							<td class="warning">{{ router_status.unknown or 0 }}</td>
-							<td>{{ (router_status.online or 0) + (router_status.offline or 0) + (router_status.unknown or 0) }}</td>
+							<td class="active">{{ (router_status.online or 0) + (router_status.offline or 0) + (router_status.unknown or 0) }}</td>
 							<td class="info">{{ clients }}</td>
 						</tr>
 					</table>
