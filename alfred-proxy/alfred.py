@@ -6,7 +6,7 @@ from struct import Struct
 from random import randint
 
 CONFIG = {
-	"api_url": "http://monitoring.freifunk-franken.de/api/alfred"
+	"api_url": "https://monitoring.freifunk-franken.de/api/alfred"
 }
 
 alfred_tlv = Struct("!BBH")
@@ -62,7 +62,7 @@ def send_data(data_type, data):
 	data = data.encode("UTF-8")
 	data_tlv = alfred_tlv.pack(data_type, ALFRED_VERSION, len(data))
 	# ALFRED server will fill this field
-	source = mac_address.pack(*[0]*ETH_ALEN)
+	source = mac_address.pack([0]*ETH_ALEN)
 	pkt_data = alfred_data.pack(source, data_tlv) + data
 
 	request_id = randint(0, 65535)
