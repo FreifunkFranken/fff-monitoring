@@ -1,5 +1,6 @@
 {% extends "bootstrap.html" %}
 {% block viewport %}{{super()}}, maximum-scale=1.0, user-scalable=no{% endblock %}
+{% block title %}{{super()}} :: {{ router.hostname }}{% endblock %}
 {% block head %}{{super()}}
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
@@ -28,7 +29,7 @@
 		}
 
 		/* hack to remove flex css on small single-column layout */
-		@media(max-width:767px) {
+		@media(max-width:991px) {
 			.row {
 				display: block !important;
 			}
@@ -72,12 +73,18 @@
 				<div class="panel-heading">System</div>
 				<div class="panel-body">
 					<table class="table table-condensed">
-						<tr><th>Hostname</th><td>{{ router.hostname }}</td></tr>
+						<tr><th>Hostname</th><td>
+							{%- if router.netmon_id %}
+							<a href="https://netmon.freifunk-franken.de/router.php?router_id={{ router.netmon_id }}">{{ router.hostname }}</a>
+							{%- else %}
+							{{ router.hostname }}
+							{%- endif %}
+						</td></tr>
 						<tr><th>Status</th><td><span class="{{ router.status|status2css }}">{{ router.status }}</span></td></tr>
 						<tr><th>Created</th><td>
 							{{ router.created|utc2local|format_dt }}
 						</td></tr>
-						<tr><th>Last contact</th><td>
+						<tr><th class="text-nowrap">Last contact</th><td>
 							{{ router.last_contact|utc2local|format_dt }}
 							({{ router.last_contact|format_dt_ago }})
 						</td></tr>
@@ -91,7 +98,7 @@
 						<tr><th>Hood</th><td>{{ router.hood }}</td></tr>
 						{%- endif %}
 						{%- if router.user %}
-						<tr><th>User</th><td>{{ router.user.nickname }}</td></tr>
+						<tr><th>User</th><td><a href="{{ url_for('router_list') }}?user.nickname={{ router.user.nickname }}">{{ router.user.nickname }}</a></td></tr>
 						{%- endif %}
 						<tr><th>Hardware</th><td>{{ router.hardware.name }} ({{ router.hardware.chipset }})</td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.system.has_wan_uplink else "glyphicon glyphicon-remove" }}"></span></td></tr>
@@ -143,22 +150,24 @@
 			<div class="panel panel-default" style="flex: 1 1 auto;">
 				<div class="panel-heading">Neighbours</div>
 				<div class="panel-body" style="height: 100%;">
-					<table class="neighbours" style="width: 100%; margin-bottom: 6px;">
-						<tr>
-							<th>Hostname</th>
-							<th>MAC Address</th>
-							<th>Quality</th>
-							<th>Interface</th>
-						</tr>
-						{%- for neighbour in router.neighbours %}
-						<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
-							<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</a></td>
-							<td>{{ neighbour.mac }}</td>
-							<td>{{ neighbour.quality }}</td>
-							<td>{{ neighbour.net_if }}</td>
-						</tr>
-						{%- endfor %}
-					</table>
+					<div class="table-responsive">
+						<table class="neighbours" style="width: 100%; margin-bottom: 6px;">
+							<tr>
+								<th>Hostname</th>
+								<th>MAC Address</th>
+								<th>Quality</th>
+								<th>Interface</th>
+							</tr>
+							{%- for neighbour in router.neighbours %}
+							<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
+								<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</a></td>
+								<td>{{ neighbour.mac }}</td>
+								<td>{{ neighbour.quality }}</td>
+								<td>{{ neighbour.net_if }}</td>
+							</tr>
+							{%- endfor %}
+						</table>
+					</div>
 					{# hack for graph vertical align #}
 					{%- if  router.neighbours|length < 3 %}
 					{%- for n in range(3- router.neighbours|length) %}
@@ -194,7 +203,7 @@
 					<li class="list-group-item active" data-name="{{ netif.name|replace('.', '')|replace('$', '') }}">
 						<h4 class="list-group-item-heading"><div class="row">
 							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
-							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
+							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;">{{ netif.mac }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
 							<div class="col-xs-5 col-sm-5">

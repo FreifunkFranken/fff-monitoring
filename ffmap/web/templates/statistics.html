@@ -1,5 +1,6 @@
 {% extends "bootstrap.html" %}
 {% block viewport %}{{super()}}, maximum-scale=1.0, user-scalable=no{% endblock %}
+{% block title %}{{super()}} Statistics{% endblock %}
 {% block head %}{{super()}}
 	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
@@ -87,7 +88,7 @@
 						<tr>
 							<td><a href="{{ url_for('router_info', dbid=router._id) }}">{{ router.hostname }}</a></td>
 							<td>{{ router.hood }}</td>
-							<td>{{ router.created|utc2local|format_dt }}</td>
+							<td class="text-nowrap">{{ router.created|utc2local|format_dt }}</td>
 						</tr>
 						{%- endfor %}
 					</table>
