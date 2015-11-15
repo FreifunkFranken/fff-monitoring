@@ -27,6 +27,8 @@ def import_nodewatcher_xml(mac, xml):
 
 		router_update = parse_nodewatcher_xml(xml)
 
+		#FIXME: restructure this mess
+
 		if router and "netmon_id" in router:
 			# router is already in db and initial netmon data fetch was successfull
 			# keep hood up to date
@@ -57,10 +59,14 @@ def import_nodewatcher_xml(mac, xml):
 				])
 			}})
 		else:
+			# insert new router
 			router_update["created"] = datetime.datetime.utcnow()
+			router_update["stats"] = []
+			router_update["events"] = router_update.get("events", [])
 			router_id = db.routers.insert_one(router_update).inserted_id
 		status = router_update["status"]
-	except ValueError:
+	except ValueError as e:
+		print("Warning: Unable to parse xml from %s: %s" % (mac, e))
 		if router:
 			db.routers.update_one({"_id": router_id}, {"$set": {"status": "unknown"}})
 		status = "unknown"
@@ -101,7 +107,7 @@ def detect_offline_routers():
 		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=10)},
 		"status": {"$ne": "offline"}
 	}, {
-		"$set": {"status": "offline"},
+		"$set": {"status": "offline", "system.clients": 0},
 		"$push": {"events": {
 			"time": datetime.datetime.utcnow(),
 			"type": "offline"
@@ -135,7 +141,7 @@ def new_router_stats(router, router_update):
 def calculate_network_io(router, router_update):
 	"""
 	router: old router dict
-	router: new router dict (which will be updated with new data)
+	router_update: new router dict (which will be updated with new data)
 	"""
 	with suppress(KeyError, StopIteration):
 		if router["system"]["uptime"] < router_update["system"]["uptime"]:
@@ -229,6 +235,8 @@ def parse_nodewatcher_xml(xml):
 				# skip vpn server
 				if o_out_if == CONFIG["vpn_netif"]:
 					continue
+				elif o_out_if == CONFIG["vpn_netif_aux"]:
+					continue
 				neighbour = {
 					"mac": o_mac.lower(),
 					"quality": int(o_link_quality),
@@ -250,7 +258,7 @@ def parse_nodewatcher_xml(xml):
 			router_update["system"]["visible_neighbours"] = visible_neighbours
 
 		return router_update
-	except (AssertionError, lxml.etree.XMLSyntaxError) as e:
+	except (AssertionError, lxml.etree.XMLSyntaxError, IndexError) as e:
 		raise ValueError("%s: %s" % (e.__class__.__name__, e.msg))
 
 def netmon_fetch_router_info(mac):
