@@ -4,8 +4,23 @@ var reset_button = "<div class='btn btn-default btn-xs'>Reset</div>";
 
 
 function labelFormatter(label, series) {
+	var append_dots = (label.length > 18);
+	label = label.substr(0, 17);
+	if (append_dots) {
+		label += "&hellip;";
+	}
 	return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
 }
+
+function legendFormatter(label, series) {
+	var append_dots = (label.length > 18);
+	label = label.substr(0, 17);
+	if (append_dots) {
+		label += "&hellip;";
+	}
+	return label;
+}
+
 
 function setup_plot_zoom(plot, pdata, num_data_points) {
 	plot.getPlaceholder().bind("plotselected", function (event, ranges) {
@@ -275,7 +290,7 @@ function global_router_graph() {
 	var plot = $.plot(memstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0},
+		yaxis: {min: 0, autoscaleMargin: 0.1},
 		legend: {noColumns: 3, hideable: true},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
@@ -292,10 +307,10 @@ function global_router_firmwares_graph() {
 		});
 	}
 	var plot = $.plot(placeholder, pdata, {
-		legend: {noColumns: 2, show: true},
+		legend: {noColumns: 1, show: true, "labelFormatter": legendFormatter},
 		grid: {hoverable: true, clickable: false},
 		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
-		series: {pie: {show: true, radius: 99/100}}
+		series: {pie: {show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.10}}}
 	});
 }
 
@@ -309,9 +324,9 @@ function global_router_models_graph() {
 		});
 	}
 	var plot = $.plot(placeholder, pdata, {
-		legend: {noColumns: 2, show: true},
+		legend: {noColumns: 2, show: true, "labelFormatter": legendFormatter},
 		grid: {hoverable: true, clickable: false},
 		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
-		series: {pie: {show: true, radius: 99/100}}
+		series: {pie: {show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.2}}}
 	});
 }
