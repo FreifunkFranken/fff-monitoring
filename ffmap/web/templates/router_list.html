@@ -1,21 +1,30 @@
 {% extends "bootstrap.html" %}
 {% block content %}
-<table class="table table-condensed">
+<table class="table table-condensed table-striped table-bordered" style="margin-bottom: 8px;">
 	<tr>
-		<th>Hostname</th>
-		<th>Status</th>
+		<th style="width: 1%;">Hostname</th>
+		<th style="width: 45px;">Status</th>
 		<th>Hood</th>
 		<th>User</th>
 		<th>Hardware</th>
+		<th>Created</th>
+		<th>Uptime</th>
+		<th>Clients</th>
 	</tr>
 	{%- for router in routers %}
 	<tr>
-		<td><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
-		<td><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
+		<td class="text-nowrap"><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
+		<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
 		<td>{{ router.hood }}</td>
 		<td>{{ router.user.nickname if router.user }}</td>
 		<td>{{ router.get("hardware", {}).get("name", "") }}</td>
+		<td>{{ router.created|utc2local|format_dt }}</td>
+		<td>{{ router.system.uptime|format_ts_diff }}</td>
+		<td>{{ router.system.clients }}</td>
 	</tr>
 	{%- endfor %}
 </table>
+<div style="margin-bottom: 20px;">
+	{{ routers.count() }} Router{{ "s" if (routers.count() > 1) else "" }} found.
+</div>
 {% endblock %}

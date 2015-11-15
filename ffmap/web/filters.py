@@ -60,6 +60,27 @@ def format_dt_ago(dt):
 	else:
 		return '%i hours ago' % (s/3600)
 
+@filters.app_template_filter('format_ts_diff')
+def format_dt_diff(ts):
+	diff = datetime.timedelta(seconds=ts)
+	s = diff.seconds
+	if diff.days > 1:
+		return '%i days' % diff.days
+	elif diff.days == 1:
+		return '1 day'
+	elif s <= 1:
+		return '< 1 sec'
+	elif s < 60:
+		return '%i sec' % s
+	elif s < 120:
+		return '1 min'
+	elif s < 3600:
+		return '%i min' % (s/60)
+	elif s < 7200:
+		return '1 hour'
+	else:
+		return '%i hours' % (s/3600)
+
 @filters.app_template_filter('bson2json')
 def bson_to_json(bsn):
 	return bson2json(bsn)

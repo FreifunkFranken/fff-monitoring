@@ -36,12 +36,23 @@ def router_map():
 
 @app.route('/routers')
 def router_list():
-	return render_template("router_list.html", routers=db.routers.find({}, {
+	query = {}
+	for allowed_filter in ('hostname', 'status', 'hood', 'user.nickname', 'hardware.name', 'netifs.mac'):
+		if allowed_filter in request.args:
+			query[allowed_filter] = request.args[allowed_filter]
+			if allowed_filter == 'netifs.mac':
+				query[allowed_filter] = query[allowed_filter].lower()
+			if query[allowed_filter] == "EXISTS_NOT":
+				query[allowed_filter] = {"$exists": False}
+	return render_template("router_list.html", routers=db.routers.find(query, {
 		"hostname": 1,
 		"status": 1,
 		"hood": 1,
 		"user.nickname": 1,
 		"hardware.name": 1,
+		"created": 1,
+		"system.uptime": 1,
+		"system.clients": 1,
 	}))
 
 @app.route('/routers/<dbid>')
@@ -52,6 +63,7 @@ def router_info(dbid):
 	except (bson.errors.InvalidId, AssertionError):
 		return "Router not found"
 	if request.args.get('json', None) != None:
+		del router["stats"]
 		return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 	else:
 		return render_template("router.html", router=router, tileurls=tileurls)
