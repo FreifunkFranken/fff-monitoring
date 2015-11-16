@@ -207,11 +207,11 @@
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
 							<div class="col-xs-5 col-sm-5">
-								{%- if netif.ipv6_fe80_addr %}
+								{%- if netif.ipv6_fe80_addr -%}
 								{{ netif.ipv6_fe80_addr }}
-								{%- else %}
+								{%- else -%}
 								<em title="Calculated from MAC Address">{{ netif.mac|mac2fe80 }}</em>
-								{%- endif %}
+								{%- endif -%}
 							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
@@ -230,11 +230,11 @@
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
 							<div class="col-xs-5 col-sm-5">
-								{%- if netif.ipv6_fe80_addr %}
+								{%- if netif.ipv6_fe80_addr -%}
 								{{ netif.ipv6_fe80_addr }}
-								{%- else %}
+								{%- else -%}
 								<em title="Calculated from MAC Address">{{ netif.mac|mac2fe80 }}</em>
-								{%- endif %}
+								{%- endif -%}
 							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
