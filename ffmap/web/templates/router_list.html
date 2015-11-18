@@ -1,31 +1,79 @@
 {% extends "bootstrap.html" %}
 {% block title %}{{super()}} Routers{% endblock %}
+{% block head %}{{super()}}
+	<script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.10/js/dataTables.bootstrap.min.js"></script>
+	<!--<script src="https://cdn.datatables.net/responsive/2.0.0/js/dataTables.responsive.min.js"></script>-->
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/dataTables.bootstrap.min.css">
+	<!--<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.0.0/css/responsive.dataTables.min.css">-->
+	<style type="text/css">
+		@media(min-width:991px) {
+			.text-nowrap-responsive {
+				white-space: nowrap;
+			}
+		}
+	</style>
+{% endblock %}
+{%- block search %}
+<form class="navbar-form navbar-right" role="search">
+	<div class="input-group">
+		<input type="text" class="form-control" placeholder="Search routers" name="q" value="{{ query_str }}">
+		<span class="input-group-btn">
+			<button type="submit" class="btn btn-default">
+				<span class="glyphicon glyphicon-search"></span>
+			</button>
+		</span>
+	</div>
+</form>
+{%- endblock %}
 {% block content %}
-<table class="table table-condensed table-striped table-bordered" style="margin-bottom: 8px;">
-	<tr>
-		<th style="width: 1%;">Hostname</th>
-		<th style="width: 45px;">Status</th>
-		<th>Hood</th>
-		<th>User</th>
-		<th>Hardware</th>
-		<th>Created</th>
-		<th>Uptime</th>
-		<th>Clients</th>
-	</tr>
-	{%- for router in routers %}
-	<tr>
-		<td class="text-nowrap"><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
-		<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
-		<td>{{ router.hood }}</td>
-		<td>{{ router.user.nickname if router.user }}</td>
-		<td>{{ router.get("hardware", {}).get("name", "") }}</td>
-		<td>{{ router.created|utc2local|format_dt }}</td>
-		<td>{{ router.system.uptime|format_ts_diff }}</td>
-		<td>{{ router.system.clients }}</td>
-	</tr>
-	{%- endfor %}
-</table>
+<div class="table-responsive">
+	<table id="routerlist" class="table table-condensed table-striped table-bordered" style="margin-bottom: 8px;">
+		<thead>
+			<tr>
+				<th style="width: 1%; padding-right: 5px; min-width: 90px;">Hostname</th>
+				<th style="width: 45px; padding-right: 5px;">Status</th>
+				<th style="padding-right: 5px;">Hood</th>
+				<th style="padding-right: 5px;">User</th>
+				<th style="padding-right: 5px;">Hardware</th>
+				<th style="padding-right: 5px;">Created</th>
+				<th style="padding-right: 5px;">Uptime</th>
+				<th>Clients</th>
+			</tr>
+		</thead>
+		<tbody>
+			{%- for router in routers %}
+			<tr>
+				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
+				<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
+				<td>{{ router.hood }}</td>
+				<td>{{ router.user.nickname if router.user }}</td>
+				<td class="text-nowrap">{{ router.get("hardware", {}).get("name", "") }}</td>
+				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
+				<td class="text-nowrap">{{ router.system.uptime|format_ts_diff }}</td>
+				<td>{{ router.system.clients }}</td>
+			</tr>
+			{%- endfor %}
+		</tbody>
+	</table>
+</div>
 <div style="margin-bottom: 20px;">
 	{{ routers.count() }} Router{{ "s" if (routers.count() > 1) else "" }} found.
 </div>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#routerlist").DataTable({
+			"paging": false,
+			"info": false,
+			"searching": false,
+			/*"responsive": {
+				"details": false
+			},*/
+			"columnDefs": [
+				{"orderable": false, "targets": 1},
+				{"orderable": false, "targets": -2},
+			]
+		});
+	});
+</script>
 {% endblock %}

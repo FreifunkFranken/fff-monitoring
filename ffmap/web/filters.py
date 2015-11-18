@@ -35,6 +35,10 @@ def utc2local(dt):
 def format_dt(dt):
 	return dt.strftime("%Y-%m-%d %H:%M:%S")
 
+@filters.app_template_filter('format_dt_date')
+def format_dt_date(dt):
+	return dt.strftime("%Y-%m-%d")
+
 @filters.app_template_filter('dt2jstimestamp')
 def dt2jstimestamp(dt):
 	return int(dt.timestamp())*1000

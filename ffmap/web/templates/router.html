@@ -1,5 +1,4 @@
 {% extends "bootstrap.html" %}
-{% block viewport %}{{super()}}, maximum-scale=1.0, user-scalable=no{% endblock %}
 {% block title %}{{super()}} :: {{ router.hostname }}{% endblock %}
 {% block head %}{{super()}}
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
@@ -98,7 +97,7 @@
 						<tr><th>Hood</th><td>{{ router.hood }}</td></tr>
 						{%- endif %}
 						{%- if router.user %}
-						<tr><th>User</th><td><a href="{{ url_for('router_list') }}?user.nickname={{ router.user.nickname }}">{{ router.user.nickname }}</a></td></tr>
+						<tr><th>User</th><td><a href="{{ url_for('router_list') }}?q=user.nickname:{{ router.user.nickname }}">{{ router.user.nickname }}</a></td></tr>
 						{%- endif %}
 						<tr><th>Hardware</th><td>{{ router.hardware.name }} ({{ router.hardware.chipset }})</td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.system.has_wan_uplink else "glyphicon glyphicon-remove" }}"></span></td></tr>
@@ -271,7 +270,7 @@
 	</div>
 	<script type="text/javascript">
 		var router_stats = {{ router.stats|statbson2json|safe }};
-		$(function() {
+		$(document).ready(function() {
 			memory_graph();
 			process_graph();
 			client_graph();

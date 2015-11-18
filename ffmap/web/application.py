@@ -8,6 +8,7 @@ from ffmap.web.api import api
 from ffmap.web.filters import filters
 from ffmap.dbtools import FreifunkDB
 from ffmap import stattools
+from ffmap.web.helpers import *
 
 from flask import Flask, render_template, request, Response
 import bson
@@ -36,15 +37,8 @@ def router_map():
 
 @app.route('/routers')
 def router_list():
-	query = {}
-	for allowed_filter in ('hostname', 'status', 'hood', 'user.nickname', 'hardware.name', 'netifs.mac'):
-		if allowed_filter in request.args:
-			query[allowed_filter] = request.args[allowed_filter]
-			if allowed_filter == 'netifs.mac':
-				query[allowed_filter] = query[allowed_filter].lower()
-			if query[allowed_filter] == "EXISTS_NOT":
-				query[allowed_filter] = {"$exists": False}
-	return render_template("router_list.html", routers=db.routers.find(query, {
+	query, query_str = parse_router_list_search_query(request.args)
+	return render_template("router_list.html", query_str=query_str, routers=db.routers.find(query, {
 		"hostname": 1,
 		"status": 1,
 		"hood": 1,
@@ -53,7 +47,7 @@ def router_list():
 		"created": 1,
 		"system.uptime": 1,
 		"system.clients": 1,
-	}))
+	}).sort("hostname", pymongo.ASCENDING))
 
 @app.route('/routers/<dbid>')
 def router_info(dbid):

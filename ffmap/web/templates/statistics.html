@@ -1,5 +1,4 @@
 {% extends "bootstrap.html" %}
-{% block viewport %}{{super()}}, maximum-scale=1.0, user-scalable=no{% endblock %}
 {% block title %}{{super()}} Statistics{% endblock %}
 {% block head %}{{super()}}
 	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
@@ -52,13 +51,13 @@
 							<th class="active" title="Total Routers">Total</th>
 							<th class="info">Clients</th>
 						</tr>
-						{%- for hood in hoods %}
+						{%- for hood, value in hoods|dictsort %}
 						<tr>
 							<td>{{ hood }}</td>
-							<td class="success">{{ hoods[hood]["online"] or 0 }}</td>
-							<td class="danger">{{ hoods[hood]["offline"] or 0 }}</td>
-							<td class="warning">{{ hoods[hood]["unknown"] or 0 }}</td>
-							<td class="active">{{ hoods_sum[hood]["routers"] or 0 }}</td>
+							<td class="success">{{ value["online"] or 0 }}</td>
+							<td class="danger">{{ value["offline"] or 0 }}</td>
+							<td class="warning">{{ value["unknown"] or 0 }}</td>
+							<td class="active">{{ value["routers"] or 0 }}</td>
 							<td class="info">{{ hoods_sum[hood]["clients"] or 0 }}</td>
 						</tr>
 						{%- endfor %}
@@ -134,9 +133,10 @@
 	</div>
 	<script type="text/javascript">
 		var global_stats = {{ stats|statbson2json|safe }};
-		var router_firmwares = {{ router_firmwares|tojson }}
-		var router_models = {{ router_models|tojson }}
-		$(function() {
+		var router_firmwares = {{ router_firmwares|tojson }};
+		var router_models = {{ router_models|tojson }};
+		var routers_page_url = "{{ url_for('router_list') }}";
+		$(document).ready(function() {
 			global_client_graph();
 			global_router_graph();
 			global_router_firmwares_graph();
