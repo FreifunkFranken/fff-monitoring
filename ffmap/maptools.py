@@ -32,7 +32,14 @@ def update_mapnik_csv():
 
 	with open(os.path.join(CONFIG["csv_dir"], "links.csv"), "w") as csv:
 		csv.write("WKT,quality\n")
-		for router in db.routers.find({"position.coordinates": {"$exists": True}, "neighbours": {"$exists": True}}, {"position": 1, "neighbours": 1}):
+		for router in db.routers.find(
+			{
+				"position.coordinates": {"$exists": True},
+				"neighbours": {"$exists": True},
+				"status": "online"
+			},
+			{"position": 1, "neighbours": 1}
+		):
 			for neighbour in router["neighbours"]:
 				if "position" in neighbour:
 					csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % (
