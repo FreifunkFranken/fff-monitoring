@@ -20,6 +20,7 @@ CONFIG = {
 }
 
 def import_nodewatcher_xml(mac, xml):
+	events = []
 	try:
 		router = db.routers.find_one({"netifs.mac": mac.lower()}, {"stats": 0, "events": 0})
 		if router:
@@ -27,26 +28,20 @@ def import_nodewatcher_xml(mac, xml):
 
 		router_update = parse_nodewatcher_xml(xml)
 
-		#FIXME: restructure this mess
-
-		if router and "netmon_id" in router:
-			# router is already in db and initial netmon data fetch was successfull
-			# keep hood up to date
-			if "position" in router:
-				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
-		else:
+		if not router or not "netmon_id" in router:
 			# new router
 			# fetch additional information from netmon as it is not yet contained in xml
 			router_info = netmon_fetch_router_info(mac)
 			if router_info:
-				# keep hood up to date
-				if "position" in router_info:
-					router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
-				router_update["events"] = [{
+				events.append({
 					"time": datetime.datetime.utcnow(),
-					"type": "created",
-				}]
+					"type": "netmon",
+				})
 				router_update.update(router_info)
+
+		if "position" in router_update:
+			# keep hood up to date (hoods coordinated might change as well...)
+			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
 
 		if router:
 			# statistics
@@ -62,7 +57,11 @@ def import_nodewatcher_xml(mac, xml):
 			# insert new router
 			router_update["created"] = datetime.datetime.utcnow()
 			router_update["stats"] = []
-			router_update["events"] = router_update.get("events", [])
+			events = [] # don't fire sub-events of created events
+			router_update["events"] = [{
+				"time": datetime.datetime.utcnow(),
+				"type": "created",
+			}]
 			router_id = db.routers.insert_one(router_update).inserted_id
 		status = router_update["status"]
 	except ValueError as e:
@@ -73,7 +72,6 @@ def import_nodewatcher_xml(mac, xml):
 
 	if router_id:
 		# fire events
-		events = []
 		with suppress(KeyError, TypeError):
 			if router["system"]["uptime"] > router_update["system"]["uptime"]:
 				events.append({
@@ -87,6 +85,22 @@ def import_nodewatcher_xml(mac, xml):
 					"time": datetime.datetime.utcnow(),
 					"type": "update",
 					"comment": "%s -> %s" % (router["software"]["firmware"], router_update["software"]["firmware"]),
+				})
+
+		with suppress(KeyError, TypeError):
+			if router["hostname"] != router_update["hostname"]:
+				events.append({
+					"time": datetime.datetime.utcnow(),
+					"type": "hostname",
+					"comment": "%s -> %s" % (router["hostname"], router_update["hostname"]),
+				})
+
+		with suppress(KeyError, TypeError):
+			if router["hood"] != router_update["hood"]:
+				events.append({
+					"time": datetime.datetime.utcnow(),
+					"type": "hood",
+					"comment": "%s -> %s" % (router["hood"], router_update["hood"]),
 				})
 
 		with suppress(KeyError, TypeError):
