@@ -12,7 +12,7 @@ def format_query(query_usr):
 		query_list.append("%s%s" % (qtag, value))
 	return " ".join(query_list)
 
-allowed_filters = ('status', 'hood', 'user.nickname', 'hardware.name', 'software.firmware', 'netifs.mac', 'hostname')
+allowed_filters = ('status', 'hood', 'user.nickname', 'hardware.name', 'software.firmware', 'netifs.mac', 'netmon_id', 'hostname')
 def parse_router_list_search_query(args):
 	query_usr = bson.SON()
 	if "q" in args:
@@ -33,7 +33,9 @@ def parse_router_list_search_query(args):
 		elif key == 'netifs.mac':
 			query[key] = value.lower()
 		elif key == 'hostname':
-			query[key] = {"$regex": value, "$options": 'i'}
+			query[key] = {"$regex": value.replace('.', '\.'), "$options": 'i'}
+		elif key == 'netifs.mac':
+			query[key] = int(value)
 		else:
 			query[key] = value
 	return (query, format_query(query_usr))
