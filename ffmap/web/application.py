@@ -10,7 +10,7 @@ from ffmap.dbtools import FreifunkDB
 from ffmap import stattools
 from ffmap.web.helpers import *
 
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, redirect, url_for, flash
 import bson
 import pymongo
 from bson.json_util import dumps as bson2json
@@ -49,9 +49,15 @@ def router_list():
 		"system.clients": 1,
 	}).sort("hostname", pymongo.ASCENDING))
 
-@app.route('/routers/<dbid>')
+@app.route('/routers/<dbid>', methods=['GET', 'POST'])
 def router_info(dbid):
 	try:
+		if request.method == 'POST':
+			if request.form.get("act") == "netmon_resync":
+				r = db.routers.update_one({"_id": ObjectId(dbid)}, {"$unset": {"netmon_id": 1}})
+				assert r.matched_count > 0
+				flash("<b>Netmon Sync triggered!</b>", "success")
+				return redirect(url_for("router_info", dbid=dbid))
 		router = db.routers.find_one({"_id": ObjectId(dbid)})
 		assert router
 	except (bson.errors.InvalidId, AssertionError):
@@ -75,6 +81,9 @@ def global_statistics():
 		hoods_sum = stattools.hoods_sum(),
 		newest_routers = db.routers.find({}, {"hostname": 1, "hood": 1, "created": 1}).sort("created", pymongo.DESCENDING).limit(len(hoods)+1)
 	)
+
+
+app.secret_key = os.urandom(24)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)

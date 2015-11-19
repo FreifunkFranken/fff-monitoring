@@ -133,6 +133,7 @@ def status2css(status):
 		"online": "success",
 		"reboot": "info",
 		"created": "primary",
+		"netmon": "primary",
 		"update": "primary",
 	}
 	return "label label-%s" % status_map.get(status, "default")

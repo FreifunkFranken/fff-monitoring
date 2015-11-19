@@ -37,7 +37,23 @@
 {% endblock %}
 
 {% block content %}
-	<h2>Router: {{ router.hostname }}</h2>
+	<div class="row" style="margin-top: 5px; margin-bottom: 5px;">
+		<div class="col-xs-12 col-sm-10"><h2 style="margin-top: 10px;">Router: {{ router.hostname }}</h2></div>
+		<div class="col-xs-12 col-sm-2 text-right" style="margin-top: 10px; margin-bottom: 10px;">
+			<form method="post" id="actform">
+				<input type="hidden" name="act" id="act" value="" />
+				<div class="btn-group">
+					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Actions
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="#" onclick="$('#act').val('netmon_resync'); $('#actform').submit()">Trigger Netmon Sync</a></li>
+					</ul>
+				</div>
+			</form>
+		</div>
+	</div>
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
