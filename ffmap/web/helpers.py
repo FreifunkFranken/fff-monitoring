@@ -34,6 +34,8 @@ def parse_router_list_search_query(args):
 			query[key] = value.lower()
 		elif key == 'hostname':
 			query[key] = {"$regex": value.replace('.', '\.'), "$options": 'i'}
+		elif key == 'hardware.name':
+			query[key] = {"$regex": value.replace('.', '\.').replace('_', ' '), "$options": 'i'}
 		elif key == 'netifs.mac':
 			query[key] = int(value)
 		else:
