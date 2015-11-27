@@ -45,22 +45,28 @@ hoods = [
 	"position": {"type": "Point", "coordinates": [11.0019221, 49.6005981]}
 },
 {
-	"keyxchange_id": 6,
+	"keyxchange_id": 7,
 	"name": "wuerzburg",
 	"net": "10.50.72.0/21",
 	"position": {"type": "Point", "coordinates": [9.93489, 49.79688]}
 },
 {
-	"keyxchange_id": 7,
+	"keyxchange_id": 9,
 	"name": "bgl",
 	"net": "10.50.80.0/21",
 	"position": {"type": "Point", "coordinates": [12.8825, 47.7314]}
 },
 {
-	"keyxchange_id": 8,
+	"keyxchange_id": 10,
 	"name": "HassbergeSued",
 	"net": "10.50.60.0/22",
 	"position": {"type": "Point", "coordinates": [10.568013390003, 50.08]}
+},
+{
+	"keyxchange_id": 11,
+	"name": "nbgland",
+	"net": "10.50.88.0/21",
+	"position": {"type": "Point", "coordinates": [11.162796020507812, 49.39200496388418]}
 }]
 
 for hood in hoods:
