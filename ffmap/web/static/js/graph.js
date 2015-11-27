@@ -1,6 +1,7 @@
 var points_per_px = 0.3;
 var controls_container = "<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>";
 var reset_button = "<div class='btn btn-default btn-xs'>Reset</div>";
+timezoneJS.timezone.zoneFileBasePath = '/static/tz';
 
 
 function labelFormatter(label, series) {
@@ -13,8 +14,8 @@ function labelFormatter(label, series) {
 }
 
 function legendFormatter(label, series) {
-	var append_dots = (label.length > 18);
-	label = label.substr(0, 17);
+	var append_dots = (label.length > 28);
+	label = label.substr(0, 27);
 	if (append_dots) {
 		label += "&hellip;";
 	}
@@ -104,6 +105,15 @@ function neighbour_graph(neighbours) {
 	var pdata = [];
 	for (j=0; j<neighbours.length; j++) {
 		var label = neighbours[j].name;
+
+		// add network interface when there are multiple links to same node
+		var k;
+		for(k=0; k<neighbours.length; k++) {
+			if(label == neighbours[k].name && k != j) {
+				label += "@" + neighbours[j].net_if;
+			}
+		}
+
 		var mac = neighbours[j].mac;
 		var data = [];
 		var len, i;
@@ -253,7 +263,7 @@ function global_client_graph() {
 	var plot = $.plot(clientstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0},
+		yaxis: {min: 0, autoscaleMargin: 0.1},
 		legend: {hideable: true},
 		//points: {show: true}
 		series: {downsample: {threshold: Math.floor(clientstat.width() * points_per_px)}}
@@ -336,7 +346,7 @@ function global_router_models_graph() {
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
 		if (obj) {
-			window.location.href = routers_page_url + "?q=hardware.name:" + obj.series.label;
+			window.location.href = routers_page_url + "?q=hardware.name:" + obj.series.label.replace(/ /g, '_');
 		}
 	});
 }

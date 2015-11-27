@@ -101,7 +101,7 @@
 						</td></tr>
 						<tr><th class="text-nowrap">Last contact</th><td>
 							{{ router.last_contact|utc2local|format_dt }}
-							({{ router.last_contact|format_dt_ago }})
+							({{ router.last_contact|format_dt_ago }}){{- "" -}}
 						</td></tr>
 						{%- if router.description %}
 						<tr><th>Description</th><td>{{ router.description }}</td></tr>
@@ -190,16 +190,6 @@
 					{%- endfor %}
 					{%- endif %}
 					<div id="meshstat" class="graph" style="height: 300px;"></div>
-					<script type="text/javascript">
-						var neighbours = [
-						{%- for neighbour in router.neighbours %}
-							{"name": "{{ neighbour.hostname or neighbour.mac }}", "mac": "{{ neighbour.mac }}"},
-						{%- endfor %}
-						];
-						$(function() {
-							neighbour_graph(neighbours);
-						});
-					</script>
 				</div>
 			</div>
 		</div>
@@ -241,7 +231,7 @@
 					<li class="list-group-item" data-name="{{ netif.name|replace('.', '')|replace('$', '') }}">
 						<h4 class="list-group-item-heading"><div class="row">
 							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
-							<div class="col-xs-6 col-sm-6 text-right">{{ netif.mac|upper }}</div>
+							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;">{{ netif.mac }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
 							<div class="col-xs-5 col-sm-5">
@@ -286,7 +276,13 @@
 	</div>
 	<script type="text/javascript">
 		var router_stats = {{ router.stats|statbson2json|safe }};
+		var neighbours = [
+		{%- for neighbour in router.neighbours %}
+			{"name": "{{ neighbour.hostname or neighbour.mac }}", "mac": "{{ neighbour.mac }}", "net_if": "{{ neighbour.net_if }}"},
+		{%- endfor %}
+		];
 		$(document).ready(function() {
+			neighbour_graph(neighbours);
 			memory_graph();
 			process_graph();
 			client_graph();
