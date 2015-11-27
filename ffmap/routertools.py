@@ -39,9 +39,13 @@ def import_nodewatcher_xml(mac, xml):
 				})
 				router_update.update(router_info)
 
+		# keep hood up to date
 		if "position" in router_update:
-			# keep hood up to date (hoods coordinated might change as well...)
-			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_info["position"]}}})["name"]
+			# router has new position info from netmon
+			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_update["position"]}}})["name"]
+		elif router and "position" in router:
+			# hood might change as well
+			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
 
 		if router:
 			# statistics
@@ -118,7 +122,7 @@ def import_nodewatcher_xml(mac, xml):
 
 def detect_offline_routers():
 	db.routers.update_many({
-		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=10)},
+		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=20)},
 		"status": {"$ne": "offline"}
 	}, {
 		"$set": {"status": "offline", "system.clients": 0},
@@ -164,7 +168,7 @@ def calculate_network_io(router, router_update):
 				netif_update = next(filter(lambda n: n["name"] == netif["name"], router_update["netifs"]))
 				rx_diff = netif_update["traffic"]["rx_bytes"] - netif["traffic"]["rx_bytes"]
 				tx_diff = netif_update["traffic"]["tx_bytes"] - netif["traffic"]["tx_bytes"]
-				if rx_diff > 0 and tx_diff > 0:
+				if rx_diff >= 0 and tx_diff >= 0:
 					netif_update["traffic"]["rx"] = int(rx_diff / timediff)
 					netif_update["traffic"]["tx"] = int(tx_diff / timediff)
 		else:
@@ -204,7 +208,7 @@ def parse_nodewatcher_xml(xml):
 			},
 			"hardware": {
 				"chipset": tree.xpath("/data/system_data/chipset/text()")[0],
-				"name": tree.xpath("/data/system_data/model/text()")[0].upper(),
+				"name": tree.xpath("/data/system_data/model/text()")[0],
 				"cpu": tree.xpath("/data/system_data/cpu/text()")[0]
 			},
 			"software": {
@@ -218,6 +222,19 @@ def parse_nodewatcher_xml(xml):
 				"firmware_rev": tree.xpath("/data/system_data/firmware_revision/text()")[0],
 			}
 		}
+
+		#FIXME: tmp workaround to get similar hardware names
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("nanostation-m", "Ubiquiti Nanostation M")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr1043nd-v1", "TP-Link TL-WR1043N/ND v1")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr1043nd-v2", "TP-Link TL-WR1043N/ND v2")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr741nd-v2", "TP-Link TL-WR741N/ND v2")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr741nd-v4", "TP-Link TL-WR741N/ND v4")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841nd-v7", "TP-Link TL-WR841N/ND v7")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841n-v8", "TP-Link TL-WR841N/ND v8")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841n-v9", "TP-Link TL-WR841N/ND v9")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841nd-v9", "TP-Link TL-WR841N/ND v9")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr842n-v2", "TP-Link TL-WR842N/ND v2")
+		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wdr4300", "TP-Link TL-WDR4300")
 
 		for netif in tree.xpath("/data/interface_data/*"):
 			interface = {

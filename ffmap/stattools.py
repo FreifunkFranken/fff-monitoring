@@ -53,7 +53,7 @@ def hoods():
 	}}])
 	result = {}
 	for rs in r:
-		if not "hood" in  rs["_id"]:
+		if not "hood" in rs["_id"]:
 			rs["_id"]["hood"] = "default"
 		if not rs["_id"]["hood"] in result:
 			result[rs["_id"]["hood"]] = {}
