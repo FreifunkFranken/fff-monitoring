@@ -282,7 +282,9 @@
 		{%- endfor %}
 		];
 		$(document).ready(function() {
+			{%- if router.neighbours|length > 0 %}
 			neighbour_graph(neighbours);
+			{%- endif %}
 			memory_graph();
 			process_graph();
 			client_graph();
