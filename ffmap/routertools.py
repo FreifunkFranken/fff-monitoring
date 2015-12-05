@@ -329,7 +329,7 @@ def netmon_fetch_router_info(mac):
 
 			# try to get comment
 			position_comment = r.xpath("location/text()")[0]
-			if position_comment != "undefined":
+			if position_comment != "undefined" and position_comment != " ":
 				router["position"]["comment"] = position_comment
 		except (IndexError, AssertionError):
 			pass
