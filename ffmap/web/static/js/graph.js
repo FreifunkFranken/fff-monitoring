@@ -170,7 +170,7 @@ function memory_graph() {
 	var plot = $.plot(memstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0, mode: "byte"},
+		yaxis: {min: 0, mode: "byte", autoscaleMargin: 0.1},
 		legend: {noColumns: 3, hideable: true},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
@@ -202,7 +202,7 @@ function process_graph() {
 	var plot = $.plot(procstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0, max: 50},
+		yaxis: {min: 0, autoscaleMargin: 0.1},
 		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(procstat.width() * points_per_px)}}
 	});
@@ -320,10 +320,13 @@ function global_router_firmwares_graph() {
 		legend: {noColumns: 1, show: true, "labelFormatter": legendFormatter},
 		grid: {hoverable: true, clickable: true},
 		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
-		series: {pie: {show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.10}}}
+		series: {pie: {
+			show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.10},
+			combine: {threshold: 0.009}
+		}}
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
-		if (obj) {
+		if (obj && obj.series.label != "Other") {
 			window.location.href = routers_page_url + "?q=software.firmware:" + obj.series.label;
 		}
 	});
@@ -342,10 +345,13 @@ function global_router_models_graph() {
 		legend: {noColumns: 1, show: true, "labelFormatter": legendFormatter},
 		grid: {hoverable: true, clickable: true},
 		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
-		series: {pie: {show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.2}}}
+		series: {pie: {
+			show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.2},
+			combine: {threshold: 0.009}
+		}}
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
-		if (obj) {
+		if (obj && obj.series.label != "Other") {
 			window.location.href = routers_page_url + "?q=hardware.name:" + obj.series.label.replace(/ /g, '_');
 		}
 	});
