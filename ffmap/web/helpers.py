@@ -21,7 +21,7 @@ def parse_router_list_search_query(args):
 				key = "hostname"
 				value = word
 			else:
-				key, value = word.split(':')
+				key, value = word.split(':', 1)
 			if key in allowed_filters:
 				query_usr[key] = query_usr.get(key, "") + value
 	query = {}
