@@ -36,7 +36,7 @@ def parse_router_list_search_query(args):
 			query[key] = {"$regex": value.replace('.', '\.'), "$options": 'i'}
 		elif key == 'hardware.name':
 			query[key] = {"$regex": value.replace('.', '\.').replace('_', ' '), "$options": 'i'}
-		elif key == 'netifs.mac':
+		elif key == 'netmon_id':
 			query[key] = int(value)
 		else:
 			query[key] = value
