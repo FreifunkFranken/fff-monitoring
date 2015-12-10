@@ -22,6 +22,18 @@ var router_pointer_radius = 7.5; // actually 7 but let's add some rounding toler
 
 var popup;
 
+function update_mappos_permalink() {
+	if (typeof mapurl != 'undefined') {
+		var pos = map.getCenter();
+		var zoom = map.getZoom();
+		window.history.replaceState({}, document.title, mapurl + '?mapcenter='+pos.lat.toFixed(5)+','+pos.lng.toFixed(5)+','+zoom);
+	}
+}
+
+
+map.on('moveend', update_mappos_permalink);
+map.on('zoomend', update_mappos_permalink);
+
 map.on('click', function(pos) {
 	// height = width of world in px
 	var size_of_world_in_px = map.options.crs.scale(map.getZoom());

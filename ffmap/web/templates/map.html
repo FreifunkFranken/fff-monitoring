@@ -28,9 +28,16 @@
 		var url_get_nearest_router = "{{ url_for('api.get_nearest_router') }}";
 		var url_router_info = "{{ url_for('router_info', dbid='') }}";
 		var tileurls = {{ tileurls|tojson|safe }};
+		var mapurl = "{{ url_for('router_map') }}";
 	</script>
 	<script src="{{ url_for('static', filename='js/map.js') }}"></script>
 	<script type="text/javascript">
-		map.setView([49.45, 11.1], 10);
+		if (window.location.search.match("^\\?mapcenter")) {
+			var maploc = window.location.search.replace("?mapcenter=", "").split(",");
+			map.setView([maploc[0], maploc[1]], maploc[2]);
+		}
+		else {
+			map.setView([49.45, 11.1], 10);
+		}
 	</script>
 {% endblock %}
