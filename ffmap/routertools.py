@@ -223,6 +223,10 @@ def parse_nodewatcher_xml(xml):
 			}
 		}
 
+		# data.system_data.status_text
+		if len(tree.xpath("/data/system_data/status_text/text()")) > 0:
+			router_update["system"]["status_text"] = tree.xpath("/data/system_data/status_text/text()")[0]
+
 		#FIXME: tmp workaround to get similar hardware names
 		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("nanostation-m", "Ubiquiti Nanostation M")
 		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr1043nd-v1", "TP-Link TL-WR1043N/ND v1")
