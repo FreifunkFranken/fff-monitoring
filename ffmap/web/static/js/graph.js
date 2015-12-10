@@ -1,8 +1,6 @@
 var points_per_px = 0.3;
 var controls_container = "<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>";
 var reset_button = "<div class='btn btn-default btn-xs'>Reset</div>";
-timezoneJS.timezone.zoneFileBasePath = '/static/tz';
-
 
 function labelFormatter(label, series) {
 	var append_dots = (label.length > 18);
