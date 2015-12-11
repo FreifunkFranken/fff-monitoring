@@ -1,11 +1,9 @@
 {% extends "bootstrap.html" %}
 {% block title %}{{super()}} Routers{% endblock %}
 {% block head %}{{super()}}
-	<script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.datatables.net/1.10.10/js/dataTables.bootstrap.min.js"></script>
-	<!--<script src="https://cdn.datatables.net/responsive/2.0.0/js/dataTables.responsive.min.js"></script>-->
-	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/dataTables.bootstrap.min.css">
-	<!--<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.0.0/css/responsive.dataTables.min.css">-->
+	<script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap.min.js') }}"></script>
+	<link rel="stylesheet" rel="{{ url_for('static', filename='css/dataTables.bootstrap.min.css') }}">
 	<style type="text/css">
 		@media(min-width:991px) {
 			.text-nowrap-responsive {

@@ -1,8 +1,8 @@
 {% extends "bootstrap.html" %}
 {% block title %}{{super()}} :: {{ router.hostname }}{% endblock %}
 {% block head %}{{super()}}
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}" />
+	<script src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.time.js') }}"></script>
