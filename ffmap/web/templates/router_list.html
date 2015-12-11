@@ -3,7 +3,7 @@
 {% block head %}{{super()}}
 	<script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap.min.js') }}"></script>
-	<link rel="stylesheet" rel="{{ url_for('static', filename='css/dataTables.bootstrap.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables/dataTables.bootstrap.min.css') }}">
 	<style type="text/css">
 		@media(min-width:991px) {
 			.text-nowrap-responsive {
