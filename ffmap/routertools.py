@@ -20,6 +20,7 @@ CONFIG = {
 }
 
 def import_nodewatcher_xml(mac, xml):
+	router_id = None
 	events = []
 	try:
 		router = db.routers.find_one({"netifs.mac": mac.lower()}, {"stats": 0, "events": 0})
@@ -294,7 +295,7 @@ def parse_nodewatcher_xml(xml):
 
 		return router_update
 	except (AssertionError, lxml.etree.XMLSyntaxError, IndexError) as e:
-		raise ValueError("%s: %s" % (e.__class__.__name__, e.msg))
+		raise ValueError("%s: %s" % (e.__class__.__name__, str(e)))
 
 def netmon_fetch_router_info(mac):
 	mac = mac.replace(":", "").lower()
