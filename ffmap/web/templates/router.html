@@ -95,7 +95,11 @@
 							{{ router.hostname }}
 							{%- endif %}
 						</td></tr>
-						<tr><th>Status</th><td><span class="{{ router.status|status2css }}">{{ router.status }}</span></td></tr>
+						<tr><th>Status</th><td><span class="{{ router.status|status2css }}">{{ router.status }}</span>
+							{%- if router.status == "online" %}
+							({{ router.system.uptime|format_ts_diff }} up)
+							{%- endif -%}
+						</td></tr>
 						<tr><th>Created</th><td>
 							{{ router.created|utc2local|format_dt }}
 						</td></tr>
