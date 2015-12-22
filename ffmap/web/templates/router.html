@@ -107,6 +107,9 @@
 							{{ router.last_contact|utc2local|format_dt }}
 							({{ router.last_contact|format_dt_ago }}){{- "" -}}
 						</td></tr>
+						{%- if router.system.status_text %}
+						<tr><th>Status Text</th><td>{{ router.system.status_text }}</td></tr>
+						{%- endif %}
 						{%- if router.description %}
 						<tr><th>Description</th><td>{{ router.description }}</td></tr>
 						{%- endif %}
