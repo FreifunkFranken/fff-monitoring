@@ -224,6 +224,10 @@ def parse_nodewatcher_xml(xml):
 			}
 		}
 
+		# data.system_data.firmware_community
+		if len(tree.xpath("/data/system_data/firmware_community/text()")) > 0:
+			router_update["community"] = tree.xpath("/data/system_data/firmware_community/text()")[0]
+
 		# data.system_data.status_text
 		if len(tree.xpath("/data/system_data/status_text/text()")) > 0:
 			router_update["system"]["status_text"] = tree.xpath("/data/system_data/status_text/text()")[0]

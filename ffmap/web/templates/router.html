@@ -114,12 +114,16 @@
 						<tr><th>Position</th><td>{{ router.position.comment }}</td></tr>
 						{%- endif %}
 						{%- if router.hood %}
-						<tr><th>Hood</th><td>{{ router.hood }}</td></tr>
+						<tr><th>Hood</th><td>{{ router.hood }}
+							{%- if router.community %}
+							({{ router.community }})
+							{%- endif -%}
+						</td></tr>
 						{%- endif %}
 						{%- if router.user %}
 						<tr><th>User</th><td><a href="{{ url_for('router_list') }}?q=user.nickname:{{ router.user.nickname }}">{{ router.user.nickname }}</a></td></tr>
 						{%- endif %}
-						<tr><th>Hardware</th><td>{{ router.hardware.name }} ({{ router.hardware.chipset }})</td></tr>
+						<tr><th>Hardware</th><td><span title="{{ router.hardware.chipset }}">{{ router.hardware.name }}</span></td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.system.has_wan_uplink else "glyphicon glyphicon-remove" }}"></span></td></tr>
 						<tr><th>Clients</th><td>{{ router.system.clients }}</td></tr>
 					</table>
@@ -136,7 +140,7 @@
 					<table class="table table-condensed">
 						<tr><th>Operating&nbsp;System</th><td>{{ router.software.os }}</td></tr>
 						<tr><th>Kernel</th><td>{{ router.software.kernel }}</td></tr>
-						<tr><th>Firmware</th><td>{{ router.software.firmware }} ({{ router.software.firmware_rev }})</td></tr>
+						<tr><th>Firmware</th><td><span title="{{ router.software.firmware_rev }}">{{ router.software.firmware }}</span></td></tr>
 						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.software.batman_adv }}</td></tr>
 						<tr><th>Nodewatcher</th><td>{{ router.software.nodewatcher }}</td></tr>
 					</table>
