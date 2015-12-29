@@ -12,7 +12,7 @@ def format_query(query_usr):
 		query_list.append("%s%s" % (qtag, value))
 	return " ".join(query_list)
 
-allowed_filters = ('status', 'hood', 'user.nickname', 'hardware.name', 'software.firmware', 'netifs.mac', 'netmon_id', 'hostname')
+allowed_filters = ('status', 'hood', 'community', 'user.nickname', 'hardware.name', 'software.firmware', 'netifs.mac', 'netmon_id', 'hostname')
 def parse_router_list_search_query(args):
 	query_usr = bson.SON()
 	if "q" in args:
