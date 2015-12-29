@@ -37,6 +37,7 @@ def import_nodewatcher_xml(mac, xml):
 				events.append({
 					"time": datetime.datetime.utcnow(),
 					"type": "netmon",
+					"comment": "Fetched metadata from netmon",
 				})
 				router_update.update(router_info)
 
