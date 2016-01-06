@@ -291,8 +291,6 @@ def parse_nodewatcher_xml(xml):
 					assert "coordinates" in neighbour_router["position"]
 					assert neighbour_router["position"]["coordinates"][0] != 0
 					assert neighbour_router["position"]["coordinates"][1] != 0
-					if "comment" in neighbour_router["position"]:
-						del neighbour_router["position"]["comment"]
 					neighbour["position"] = neighbour_router["position"]
 				router_update["neighbours"].append(neighbour)
 
@@ -340,9 +338,11 @@ def netmon_fetch_router_info(mac):
 			# try to get comment
 			position_comment = r.xpath("location/text()")[0]
 			if position_comment != "undefined" and position_comment != " ":
-				router["position"]["comment"] = position_comment
+				router["position_comment"] = position_comment
+			else:
+				router["position_comment"] = ""
 		except (IndexError, AssertionError):
-			pass
+			router["position_comment"] = ""
 
 		try:
 			router["description"] = r.xpath("description/text()")[0]

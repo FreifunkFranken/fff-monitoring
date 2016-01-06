@@ -113,8 +113,8 @@
 						{%- if router.description %}
 						<tr><th>Description</th><td>{{ router.description }}</td></tr>
 						{%- endif %}
-						{%- if router.position and router.position.comment %}
-						<tr><th>Position</th><td>{{ router.position.comment }}</td></tr>
+						{%- if router.position_comment %}
+						<tr><th>Position</th><td>{{ router.position_comment }}</td></tr>
 						{%- endif %}
 						{%- if router.hood %}
 						<tr><th>Hood</th><td>{{ router.hood }}
