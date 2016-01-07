@@ -225,6 +225,14 @@ def parse_nodewatcher_xml(xml):
 			}
 		}
 
+		# data.system_data.description
+		if len(tree.xpath("/data/system_data/description/text()")) > 0:
+			router_update["description"] = tree.xpath("/data/system_data/description/text()")[0]
+
+		# data.system_data.position_comment
+		if len(tree.xpath("/data/system_data/position_comment/text()")) > 0:
+			router_update["position_comment"] = tree.xpath("/data/system_data/position_comment/text()")[0]
+
 		# data.system_data.firmware_community
 		if len(tree.xpath("/data/system_data/firmware_community/text()")) > 0:
 			router_update["community"] = tree.xpath("/data/system_data/firmware_community/text()")[0]
@@ -232,6 +240,22 @@ def parse_nodewatcher_xml(xml):
 		# data.system_data.status_text
 		if len(tree.xpath("/data/system_data/status_text/text()")) > 0:
 			router_update["system"]["status_text"] = tree.xpath("/data/system_data/status_text/text()")[0]
+
+		# data.system_data.contact
+		if len(tree.xpath("/data/system_data/contact/text()")) > 0:
+			router_update["system"]["contact"] = tree.xpath("/data/system_data/contact/text()")[0]
+
+		# data.system_data.geo
+		with suppress(AssertionError, IndexError):
+			lng = float(tree.xpath("/data/system_data/geo/lng/text()")[0])
+			lat = float(tree.xpath("/data/system_data/geo/lat/text()")[0])
+			assert lng != 0
+			assert lat != 0
+
+			router_update["position"] = {
+				"type": "Point",
+				"coordinates": [lng, lat]
+			}
 
 		#FIXME: tmp workaround to get similar hardware names
 		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("nanostation-m", "Ubiquiti Nanostation M")
