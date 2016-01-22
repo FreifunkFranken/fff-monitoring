@@ -1,2 +1,17 @@
 {% extends "bootstrap.html" %}
 {% block title %}{{super()}} :: Home{% endblock %}
+{% block content %}
+	<div class="jumbotron">
+		<h1>Freifunk Franken Monitoring</h1>
+		<div class="row">
+			<div class="col-xs-2 col-sm-2">
+				<img src="{{ url_for('static', filename='img/freifunk.svg') }}" style="width: 100%;" />
+			</div>
+			<div class="col-xs-8 col-sm-8"><p>
+				Monitoring f&uuml;r das Freifunk Franken Funknetzwerk.<br />
+				Der Quellcode für diese Webanwendung steht unter der GPL und kann <a href="https://github.com/asdil12/ff-map">hier</a>
+				heruntergeladen werden.
+			</p></div>
+		</div>
+	</div>
+{% endblock %}
