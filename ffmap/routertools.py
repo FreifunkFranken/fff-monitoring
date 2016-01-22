@@ -17,6 +17,8 @@ db = FreifunkDB().handle()
 CONFIG = {
 	"vpn_netif": "fffVPN",
 	"vpn_netif_aux": "fffauxVPN",
+	"offline_threshold_minutes": 20,
+	"router_stat_days": 15,
 }
 
 def import_nodewatcher_xml(mac, xml):
@@ -52,11 +54,12 @@ def import_nodewatcher_xml(mac, xml):
 		if router:
 			# statistics
 			calculate_network_io(router, router_update)
+			#FIXME: use _id
 			db.routers.update_one({"netifs.mac": mac.lower()}, {
 				"$set": router_update,
 				"$push": {"stats": SON([
 					("$each", new_router_stats(router, router_update)),
-					("$slice", -8640)
+					("$slice", int(CONFIG["router_stat_days"] * -1 * 24 * (3600 / 300)))
 				])
 			}})
 		else:
@@ -124,7 +127,7 @@ def import_nodewatcher_xml(mac, xml):
 
 def detect_offline_routers():
 	db.routers.update_many({
-		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=20)},
+		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=CONFIG["offline_threshold_minutes"])},
 		"status": {"$ne": "offline"}
 	}, {
 		"$set": {"status": "offline", "system.clients": 0},
