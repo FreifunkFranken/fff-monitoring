@@ -19,11 +19,11 @@ pip3 install pymongo
 ## NGINX Config
 ```
 ...
-        location / {
-                include uwsgi_params;
-                uwsgi_pass 127.0.0.1:3031;
-                client_max_body_size 10M;
-        }
+	location / {
+		include uwsgi_params;
+		uwsgi_pass 127.0.0.1:3031;
+		client_max_body_size 10M;
+	}
 
 	location /tiles {
 		include uwsgi_params;
