@@ -6,6 +6,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	maxZoom: 22
 }).addTo(map);
 
+L.control.scale({imperial: false}).addTo(map);
+
 var overlay_config = {
 	maxNativeZoom: 22,
 	maxZoom: 22,
