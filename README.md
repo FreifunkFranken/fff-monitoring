@@ -1,5 +1,5 @@
 ## Installation
-```
+```bash
 ./install.sh
 systemctl enable uwsgi-ffmap
 systemctl enable uwsgi-tiles-links_and_routers
@@ -11,13 +11,13 @@ systemctl start uwsgi-tiles-hoods
 ```
 
 ## Debian Dependencies
-```
+```bash
 apt-get install python python3 mongodb python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python-mapnik python3-pip uwsgi-plugin-python uwsgi-plugin-python3 nginx tilestache
 pip3 install pymongo
 ```
 
 ## NGINX Config
-```
+```nginx
 ...
 	location / {
 		include uwsgi_params;
