@@ -5,7 +5,7 @@ from ffmap.maptools import *
 from ffmap.dbtools import FreifunkDB
 from ffmap.stattools import record_global_stats
 
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, make_response, redirect, url_for
 from pymongo import MongoClient
 from bson.json_util import dumps as bson2json
 import json
@@ -14,6 +14,7 @@ api = Blueprint("api", __name__)
 
 db = FreifunkDB().handle()
 
+# map ajax
 @api.route('/get_nearest_router')
 def get_nearest_router():
 	res_router = db.routers.find_one(
@@ -30,6 +31,15 @@ def get_nearest_router():
 	r = make_response(bson2json(res_router))
 	r.mimetype = 'application/json'
 	return r
+
+# router by mac (link from router webui)
+@api.route('/get_router_by_mac/<mac>')
+def get_router_by_mac(mac):
+	res_routers = db.routers.find({"netifs.mac": mac.lower()}, {"_id": 1})
+	if res_routers.count() != 1:
+		return redirect(url_for("router_list", q="netifs.mac=%s" % mac))
+	else:
+		return redirect(url_for("router_info", dbid=next(res_routers)["_id"]))
 
 @api.route('/alfred', methods=['GET', 'POST'])
 def alfred():
