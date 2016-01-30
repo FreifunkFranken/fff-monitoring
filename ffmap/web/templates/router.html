@@ -231,9 +231,9 @@
 								{%- if netif.ipv4_addr -%}
 								<br />{{ netif.ipv4_addr }}
 								{%- endif -%}
-								{%- for ipv6_addr in netif.ipv6_addrs %}
+								{%- for ipv6_addr in netif.ipv6_addrs -%}
 								<br />{{ ipv6_addr }}
-								{%- endfor %}
+								{%- endfor -%}
 							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
@@ -260,9 +260,9 @@
 								{%- if netif.ipv4_addr -%}
 								<br />{{ netif.ipv4_addr }}
 								{%- endif -%}
-								{%- for ipv6_addr in netif.ipv6_addrs %}
+								{%- for ipv6_addr in netif.ipv6_addrs -%}
 								<br />{{ ipv6_addr }}
-								{%- endfor %}
+								{%- endfor -%}
 							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
