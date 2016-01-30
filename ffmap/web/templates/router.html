@@ -228,6 +228,12 @@
 								{%- else -%}
 								<em title="Calculated from MAC Address">{{ netif.mac|mac2fe80 }}</em>
 								{%- endif -%}
+								{%- if netif.ipv4_addr -%}
+								<br />{{ netif.ipv4_addr }}
+								{%- endif -%}
+								{%- for ipv6_addr in netif.ipv6_addrs %}
+								<br />{{ ipv6_addr }}
+								{%- endfor %}
 							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
@@ -251,6 +257,12 @@
 								{%- else -%}
 								<em title="Calculated from MAC Address">{{ netif.mac|mac2fe80 }}</em>
 								{%- endif -%}
+								{%- if netif.ipv4_addr -%}
+								<br />{{ netif.ipv4_addr }}
+								{%- endif -%}
+								{%- for ipv6_addr in netif.ipv6_addrs %}
+								<br />{{ ipv6_addr }}
+								{%- endfor %}
 							</div>
 							{%- if netif.traffic.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">

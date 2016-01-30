@@ -285,6 +285,10 @@ def parse_nodewatcher_xml(xml):
 			}
 			if len(netif.xpath("ipv6_link_local_addr/text()")) > 0:
 				interface["ipv6_fe80_addr"] = netif.xpath("ipv6_link_local_addr/text()")[0].lower().split("/")[0]
+			if len(netif.xpath("ipv6_addr/text()")) > 0:
+				interface["ipv6_addrs"] = []
+				for ipv6_addr in netif.xpath("ipv6_addr/text()"):
+					interface["ipv6_addrs"].append(ipv6_addr.lower().split("/")[0])
 			if len(netif.xpath("ipv4_addr/text()")) > 0:
 				interface["ipv4_addr"] = netif.xpath("ipv4_addr/text()")[0]
 			router_update["netifs"].append(interface)
