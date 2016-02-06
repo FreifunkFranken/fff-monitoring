@@ -37,7 +37,7 @@ def get_nearest_router():
 def get_router_by_mac(mac):
 	res_routers = db.routers.find({"netifs.mac": mac.lower()}, {"_id": 1})
 	if res_routers.count() != 1:
-		return redirect(url_for("router_list", q="netifs.mac=%s" % mac))
+		return redirect(url_for("router_list", q="netifs.mac:%s" % mac))
 	else:
 		return redirect(url_for("router_info", dbid=next(res_routers)["_id"]))
 
