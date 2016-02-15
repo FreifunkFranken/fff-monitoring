@@ -155,14 +155,14 @@ def crawl(router):
 		try:
 			if router["system"]["uptime"] > router_update["system"]["uptime"]:
 				events.append({
-					"time": datetime.datetime.utcnow(),
+					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": "reboot",
 				})
 		except:
 			pass
 		if router["status"] != status:
 			events.append({
-				"time": datetime.datetime.utcnow(),
+				"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 				"type": status,
 			})
 		db.routers.update_one({"_id": router["_id"]}, {"$push": {"events": {

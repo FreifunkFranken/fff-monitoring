@@ -9,7 +9,7 @@ class FreifunkDB(object):
 	@classmethod
 	def handle(cls):
 		if not cls.client:
-			cls.client = MongoClient()
+			cls.client = MongoClient(tz_aware=True)
 		if not cls.db:
 			cls.db = cls.client.freifunk
 		return cls.db

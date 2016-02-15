@@ -79,7 +79,7 @@ for r in tree.xpath("/netmon_response/routerlist/router"):
 				"ipv6_fe80_addr": netif_ip
 			}]
 
-		router["created"] = datetime.datetime.utcnow()
+		router["created"] = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 		router["status"] = "unknown"
 
 		db.routers.insert_one(router)

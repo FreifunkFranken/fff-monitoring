@@ -29,7 +29,7 @@ def neighbour_color(quality):
 
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
-	return dt.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
+	return dt.astimezone(tz.tzlocal())
 
 @filters.app_template_filter('format_dt')
 def format_dt(dt):
@@ -45,7 +45,7 @@ def dt2jstimestamp(dt):
 
 @filters.app_template_filter('format_dt_ago')
 def format_dt_ago(dt):
-	diff = datetime.datetime.utcnow() - dt
+	diff = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - dt
 	s = diff.seconds
 	if diff.days > 1:
 		return '%i days ago' % diff.days

@@ -37,7 +37,7 @@ def import_nodewatcher_xml(mac, xml):
 			router_info = netmon_fetch_router_info(mac)
 			if router_info:
 				events.append({
-					"time": datetime.datetime.utcnow(),
+					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": "netmon",
 					"comment": "Fetched metadata from netmon",
 				})
@@ -64,11 +64,11 @@ def import_nodewatcher_xml(mac, xml):
 			}})
 		else:
 			# insert new router
-			router_update["created"] = datetime.datetime.utcnow()
+			router_update["created"] = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 			router_update["stats"] = []
 			events = [] # don't fire sub-events of created events
 			router_update["events"] = [{
-				"time": datetime.datetime.utcnow(),
+				"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 				"type": "created",
 			}]
 			router_id = db.routers.insert_one(router_update).inserted_id
@@ -84,14 +84,14 @@ def import_nodewatcher_xml(mac, xml):
 		with suppress(KeyError, TypeError):
 			if router["system"]["uptime"] > router_update["system"]["uptime"]:
 				events.append({
-					"time": datetime.datetime.utcnow(),
+					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": "reboot",
 				})
 
 		with suppress(KeyError, TypeError):
 			if router["software"]["firmware"] != router_update["software"]["firmware"]:
 				events.append({
-					"time": datetime.datetime.utcnow(),
+					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": "update",
 					"comment": "%s -> %s" % (router["software"]["firmware"], router_update["software"]["firmware"]),
 				})
@@ -99,7 +99,7 @@ def import_nodewatcher_xml(mac, xml):
 		with suppress(KeyError, TypeError):
 			if router["hostname"] != router_update["hostname"]:
 				events.append({
-					"time": datetime.datetime.utcnow(),
+					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": "hostname",
 					"comment": "%s -> %s" % (router["hostname"], router_update["hostname"]),
 				})
@@ -107,7 +107,7 @@ def import_nodewatcher_xml(mac, xml):
 		with suppress(KeyError, TypeError):
 			if router["hood"] != router_update["hood"]:
 				events.append({
-					"time": datetime.datetime.utcnow(),
+					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": "hood",
 					"comment": "%s -> %s" % (router["hood"], router_update["hood"]),
 				})
@@ -115,7 +115,7 @@ def import_nodewatcher_xml(mac, xml):
 		with suppress(KeyError, TypeError):
 			if router["status"] != status:
 				events.append({
-					"time": datetime.datetime.utcnow(),
+					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": status,
 				})
 
@@ -127,12 +127,12 @@ def import_nodewatcher_xml(mac, xml):
 
 def detect_offline_routers():
 	db.routers.update_many({
-		"last_contact": {"$lt": datetime.datetime.utcnow() - datetime.timedelta(minutes=CONFIG["offline_threshold_minutes"])},
+		"last_contact": {"$lt": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(minutes=CONFIG["offline_threshold_minutes"])},
 		"status": {"$ne": "offline"}
 	}, {
 		"$set": {"status": "offline", "system.clients": 0},
 		"$push": {"events": {
-			"time": datetime.datetime.utcnow(),
+			"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 			"type": "offline"
 		}
 	}})
@@ -150,7 +150,7 @@ def new_router_stats(router, router_update):
 			with suppress(KeyError):
 				neighbours[neighbour["mac"]] = neighbour["quality"]
 		return [{
-			"time": datetime.datetime.utcnow(),
+			"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 			"netifs": netifs,
 			"neighbours": neighbours,
 			"memory": router_update["system"]["memory"],
@@ -190,7 +190,7 @@ def parse_nodewatcher_xml(xml):
 		router_update = {
 			"status": tree.xpath("/data/system_data/status/text()")[0],
 			"hostname": tree.xpath("/data/system_data/hostname/text()")[0],
-			"last_contact": datetime.datetime.utcnow(),
+			"last_contact": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 			"neighbours": [],
 			"netifs": [],
 			"system": {

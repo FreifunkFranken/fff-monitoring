@@ -75,7 +75,7 @@ def hoods_sum():
 
 def record_global_stats():
 	db.stats.insert_one({
-		"time": datetime.datetime.utcnow(),
+		"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 		"router_status": router_status(),
 		"total_clients": total_clients()
 	})
