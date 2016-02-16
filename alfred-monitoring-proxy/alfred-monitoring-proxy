@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+
+import pyalfred
+import requests
+
+CONFIG = {
+	"api_url": "https://monitoring.freifunk-franken.de/api/alfred",
+	"fetch_ids": [64]
+}
+
+ac = pyalfred.AlfredConnection()
+
+for req_data_type in CONFIG["fetch_ids"]:
+	data = {req_data_type: ac.fetch(req_data_type)}
+	response = requests.post(CONFIG["api_url"], json=data).json()
+	for data_type, data in response.items():
+		ac.send(int(data_type), data)
