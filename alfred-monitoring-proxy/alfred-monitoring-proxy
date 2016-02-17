@@ -12,6 +12,7 @@ ac = pyalfred.AlfredConnection()
 
 for req_data_type in CONFIG["fetch_ids"]:
 	data = {req_data_type: ac.fetch(req_data_type)}
-	response = requests.post(CONFIG["api_url"], json=data).json()
-	for data_type, data in response.items():
+	response = requests.post(CONFIG["api_url"], json=data)
+	response.raise_for_status()
+	for data_type, data in response.json().items():
 		ac.send(int(data_type), data)

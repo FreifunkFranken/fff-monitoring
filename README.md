@@ -22,7 +22,7 @@ pip3 install pymongo
 	location / {
 		include uwsgi_params;
 		uwsgi_pass 127.0.0.1:3031;
-		client_max_body_size 10M;
+		client_max_body_size 30M;
 	}
 
 	location /tiles {
