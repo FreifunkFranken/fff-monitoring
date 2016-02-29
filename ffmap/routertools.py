@@ -74,21 +74,22 @@ def import_nodewatcher_xml(mac, xml):
 			router_id = db.routers.insert_one(router_update).inserted_id
 		status = router_update["status"]
 	except ValueError as e:
-		print("Warning: Unable to parse xml from %s: %s" % (mac, e))
+		import traceback
+		print("Warning: Unable to parse xml from %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
 		if router:
 			db.routers.update_one({"_id": router_id}, {"$set": {"status": "unknown"}})
 		status = "unknown"
 
 	if router_id:
 		# fire events
-		with suppress(KeyError, TypeError):
+		with suppress(KeyError, TypeError, UnboundLocalError):
 			if router["system"]["uptime"] > router_update["system"]["uptime"]:
 				events.append({
 					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": "reboot",
 				})
 
-		with suppress(KeyError, TypeError):
+		with suppress(KeyError, TypeError, UnboundLocalError):
 			if router["software"]["firmware"] != router_update["software"]["firmware"]:
 				events.append({
 					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
@@ -96,7 +97,7 @@ def import_nodewatcher_xml(mac, xml):
 					"comment": "%s -> %s" % (router["software"]["firmware"], router_update["software"]["firmware"]),
 				})
 
-		with suppress(KeyError, TypeError):
+		with suppress(KeyError, TypeError, UnboundLocalError):
 			if router["hostname"] != router_update["hostname"]:
 				events.append({
 					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
@@ -104,7 +105,7 @@ def import_nodewatcher_xml(mac, xml):
 					"comment": "%s -> %s" % (router["hostname"], router_update["hostname"]),
 				})
 
-		with suppress(KeyError, TypeError):
+		with suppress(KeyError, TypeError, UnboundLocalError):
 			if router["hood"] != router_update["hood"]:
 				events.append({
 					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
@@ -213,7 +214,7 @@ def parse_nodewatcher_xml(xml):
 			},
 			"hardware": {
 				"chipset": tree.xpath("/data/system_data/chipset/text()")[0],
-				"name": tree.xpath("/data/system_data/model/text()")[0],
+				#"name": tree.xpath("/data/system_data/model/text()")[0],
 				"cpu": tree.xpath("/data/system_data/cpu/text()")[0]
 			},
 			"software": {
@@ -227,6 +228,12 @@ def parse_nodewatcher_xml(xml):
 				"firmware_rev": tree.xpath("/data/system_data/firmware_revision/text()")[0],
 			}
 		}
+
+		# data.system_data.model
+		if len(tree.xpath("/data/system_data/model/text()")) > 0:
+			router_update["hardware"]["name"] = tree.xpath("/data/system_data/model/text()")[0]
+		else:
+			router_update["hardware"]["name"] = "Legacy"
 
 		# data.system_data.description
 		if len(tree.xpath("/data/system_data/description/text()")) > 0:
@@ -247,6 +254,10 @@ def parse_nodewatcher_xml(xml):
 		# data.system_data.contact
 		if len(tree.xpath("/data/system_data/contact/text()")) > 0:
 			router_update["system"]["contact"] = tree.xpath("/data/system_data/contact/text()")[0]
+			user = db.users.find_one({"email": router_update["system"]["contact"]})
+			if user:
+				# post-netmon router gets its user assigned
+				router_update["user"] = {"nickname": user["nickname"], "_id": user["_id"]}
 
 		# data.system_data.geo
 		with suppress(AssertionError, IndexError):
@@ -341,14 +352,19 @@ def netmon_fetch_router_info(mac):
 	for r in tree.xpath("/netmon_response/router"):
 		user_netmon_id = int(r.xpath("user_id/text()")[0])
 		user = db.users.find_one({"netmon_id": user_netmon_id})
-		if user:
-			user_id = user["_id"]
-		else:
-			user_id = db.users.insert({
-				"netmon_id": user_netmon_id,
-				"nickname": r.xpath("user/nickname/text()")[0]
-			})
-			user = db.users.find_one({"_id": user_id})
+		if not user:
+			nickname = r.xpath("user/nickname/text()")[0]
+			user = db.users.find_one({"nickname": nickname})
+			if user:
+				# non-netmon user with email key for new routers gets old router
+				db.users.update_one({"_id": user['_id']}, {"$set": {"netmon_id": user_netmon_id}})
+			else:
+				# netmon user gets old user
+				user_id = db.users.insert({
+					"netmon_id": user_netmon_id,
+					"nickname": nickname
+				})
+				user = db.users.find_one({"_id": user_id})
 
 		router = {
 			"netmon_id": int(r.xpath("router_id/text()")[0]),

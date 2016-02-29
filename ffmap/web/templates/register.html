@@ -1,0 +1,46 @@
+{% extends "bootstrap.html" %}
+{% block title %}{{super()}} :: Register{% endblock %}
+{% block content %}
+<div class="row text-center">
+	<div class="col-md-12">
+		<h2>Registration</h2>
+	</div>
+</div>
+<div class="row" style="padding-top: 40px;">
+	<div class="col-xs-12 col-sm-8 col-sm-offset-2">
+		<div class="panel panel-default">
+			<div class="panel-heading">Create User Account</div>
+			<div class="panel-body">
+				<form class="form-horizontal" method="post">
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Nickname</label>
+						<div class="col-sm-8">
+							<input type="text" name="user" class="form-control" placeholder="Nickname" />
+							<p class="help-block">
+								Falls bereits ein Netmon Account existiert, <b>muss</b> hier der gleiche Nickname
+								verwendet werden, damit die alten Router (bis Firmware 0.5.2) dem Account
+								zugeordnet werden k&ouml;nnen.
+							</p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">E-Mail</label>
+						<div class="col-sm-8">
+							<input type="email" name="email" class="form-control" placeholder="Email" />
+							<p class="help-block">
+								Die selbe E-Mail Adresse muss auf den Routern (mit Firmware &gt; 0.5.2) eingegeben werden,
+								damit die Router dem Account zugeordnet werden k&ouml;nnen.
+							</p>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-8">
+							<button type="submit" class="btn btn-success">Register</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

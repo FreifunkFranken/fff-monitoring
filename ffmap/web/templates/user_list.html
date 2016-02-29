@@ -1,0 +1,70 @@
+{% extends "bootstrap.html" %}
+{% block title %}{{super()}} :: Users{% endblock %}
+{% block head %}{{super()}}
+	<script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap.min.js') }}"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables/dataTables.bootstrap.min.css') }}">
+	<style type="text/css">
+		@media(min-width:991px) {
+			.text-nowrap-responsive {
+				white-space: nowrap;
+			}
+		}
+	</style>
+{% endblock %}
+{%- block search %}
+{# FIXME: Search users #}
+{%- endblock %}
+{% block content %}
+<div class="table-responsive">
+	<table id="userlist" class="table table-condensed table-striped table-bordered" style="margin-bottom: 8px;">
+		<thead>
+			<tr>
+				<th style="width: 1%; padding-right: 5px; min-width: 90px;">Nickname</th>
+				<th style="padding-right: 5px;">E-Mail</th>
+				<th style="padding-right: 5px;">Admin</th>
+				<th style="padding-right: 5px;">Created</th>
+				<th style="padding-right: 5px;">Routers</th>
+				<th style="padding-right: 5px;">Clients</th>
+			</tr>
+		</thead>
+		<tbody>
+			{%- for user in users %}
+			<tr>
+				<td class="text-nowrap-responsive"><a href="{{ url_for("user_info", nickname=user.nickname) }}">{{ user.nickname }}</a></td>
+				<td>{{ user.email|anon_email }}</td>
+				<td><span class="glyphicon glyphicon-{%- if user.admin -%}ok{%- else -%}remove{%- endif -%}"></span><span style="display: none;">{{ user.admin }}</span></td>
+				<td class="text-nowrap">
+					{%- if user.created -%}
+						{{ user.created|utc2local|format_dt_date }}
+					{%- else -%}
+						<span class="glyphicon glyphicon-remove" title="Automatically imported stub from netmon"></span>
+					{%- endif -%}
+				</td>
+				<td>{{ user_routers.get(user.nickname, {}).get('routers', 0) }}</td>
+				<td>{{ user_routers.get(user.nickname, {}).get('clients', 0) }}</td>
+			</tr>
+			{%- endfor %}
+		</tbody>
+	</table>
+</div>
+<div style="margin-bottom: 20px;">
+	{{ users.count() }} User{{ "s" if (users.count() > 1) else "" }} found.
+</div>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#userlist").DataTable({
+			"paging": false,
+			"info": false,
+			"searching": false,
+			/*"responsive": {
+				"details": false
+			},*/
+			"columnDefs": [
+				//{"orderable": false, "targets": 1},
+				//{"orderable": false, "targets": -2},
+			]
+		});
+	});
+</script>
+{% endblock %}

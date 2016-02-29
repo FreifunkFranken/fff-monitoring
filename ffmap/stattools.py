@@ -79,3 +79,16 @@ def record_global_stats():
 		"router_status": router_status(),
 		"total_clients": total_clients()
 	})
+
+
+def router_user_sum():
+	r = db.routers.aggregate([{"$group": {
+		"_id": "$user.nickname",
+		"count": {"$sum": 1},
+		"clients": {"$sum": "$system.clients"}
+	}}])
+	result = {}
+	for rs in r:
+		if rs["_id"]:
+			result[rs["_id"]] = {"routers": rs["count"], "clients": rs["clients"]}
+	return result

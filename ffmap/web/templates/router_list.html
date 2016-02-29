@@ -13,7 +13,7 @@
 	</style>
 {% endblock %}
 {%- block search %}
-<form class="navbar-form navbar-right" role="search">
+<form class="navbar-form navbar-left" role="search">
 	<div class="input-group">
 		<input type="text" class="form-control" placeholder="Search routers" name="q" value="{{ query_str }}">
 		<span class="input-group-btn">
@@ -56,7 +56,7 @@
 	</table>
 </div>
 <div style="margin-bottom: 20px;">
-	{{ routers.count() }} Router{{ "s" if (routers.count() > 1) else "" }} found.
+	{{ routers.count() }} Router{{ "s" if (routers.count() == 1) else "" }} found.
 </div>
 <script type="text/javascript">
 	$(document).ready(function() {

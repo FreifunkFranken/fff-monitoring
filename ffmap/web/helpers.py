@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
 import bson
+import re
+import smtplib
+from email.mime.text import MIMEText
 
 def format_query(query_usr):
 	query_list = []
@@ -12,7 +15,18 @@ def format_query(query_usr):
 		query_list.append("%s%s" % (qtag, value))
 	return " ".join(query_list)
 
-allowed_filters = ('status', 'hood', 'community', 'user.nickname', 'hardware.name', 'software.firmware', 'netifs.mac', 'netmon_id', 'hostname')
+allowed_filters = (
+	'status',
+	'hood',
+	'community',
+	'user.nickname',
+	'hardware.name',
+	'software.firmware',
+	'netifs.mac',
+	'netmon_id',
+	'hostname',
+	'system.contact',
+)
 def parse_router_list_search_query(args):
 	query_usr = bson.SON()
 	if "q" in args:
@@ -38,6 +52,27 @@ def parse_router_list_search_query(args):
 			query[key] = {"$regex": value.replace('.', '\.').replace('_', ' '), "$options": 'i'}
 		elif key == 'netmon_id':
 			query[key] = int(value)
+		elif key == 'system.contact':
+			if not '\.' in value:
+				value = re.escape(value)
+			query[key] = {"$regex": value, "$options": 'i'}
 		else:
 			query[key] = value
 	return (query, format_query(query_usr))
+
+def send_email(recipient, subject, content, sender="FFF Monitoring <noreply@monitoring.freifunk-franken.de>"):
+	msg = MIMEText(content)
+	msg['Subject'] = subject
+	msg['From'] = sender
+	msg['To'] = recipient
+	s = smtplib.SMTP('localhost')
+	s.send_message(msg)
+	s.quit()
+
+def is_authorized(owner, session):
+	if owner == session.get("user"):
+		return True
+	elif session.get("admin"):
+		return True
+	else:
+		return False

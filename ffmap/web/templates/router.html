@@ -49,6 +49,8 @@
 					</button>
 					<ul class="dropdown-menu">
 						<li><a href="#" onclick="$('#act').val('netmon_resync'); $('#actform').submit()">Trigger Netmon Sync</a></li>
+						{# FIXME: If authorized #}
+						<li><a href="#" onclick="$('#act').val('delete'); $('#actform').submit()">Delete Router</a></li>
 					</ul>
 				</div>
 			</form>
@@ -94,6 +96,9 @@
 							{%- else %}
 							{{ router.hostname }}
 							{%- endif %}
+							{%- if router.netifs|webui_addr %}
+							(<a href="http://[{{ router.netifs|webui_addr }}]">WebUI</a>)
+							{%- endif %}
 						</td></tr>
 						<tr><th>Status</th><td><span class="{{ router.status|status2css }}">{{ router.status }}</span>
 							{%- if router.status == "online" %}
@@ -123,8 +128,17 @@
 							{%- endif -%}
 						</td></tr>
 						{%- endif %}
-						{%- if router.user %}
-						<tr><th>User</th><td><a href="{{ url_for('router_list') }}?q=user.nickname:{{ router.user.nickname }}">{{ router.user.nickname }}</a></td></tr>
+						{%- if router.user or router.system.contact %}
+						<tr><th>User</th><td>
+						{%- if router.user -%}
+						<a href="{{ url_for('user_info', nickname=router.user.nickname) }}">{{ router.user.nickname }}</a>
+						{%- if router.system.contact %}
+						(<a href="{{ url_for('router_list', q='system.contact:%s' % router.system.contact|anon_email_regex) }}">{{ router.system.contact|anon_email }}</a>)
+						{%- endif -%}
+						{%- else -%}
+						<a href="{{ url_for('router_list', q='system.contact:%s' % router.system.contact|anon_email_regex) }}">{{ router.system.contact|anon_email }}</a>
+						{%- endif -%}
+						</td></tr>
 						{%- endif %}
 						<tr><th>Hardware</th><td><span title="{{ router.hardware.chipset }}">{{ router.hardware.name }}</span></td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.system.has_wan_uplink else "glyphicon glyphicon-remove" }}"></span></td></tr>
@@ -141,9 +155,9 @@
 				<div class="panel-heading">Software</div>
 				<div class="panel-body">
 					<table class="table table-condensed">
+						<tr><th>Firmware</th><td><span title="{{ router.software.firmware_rev }}">{{ router.software.firmware }}</span></td></tr>
 						<tr><th>Operating&nbsp;System</th><td>{{ router.software.os }}</td></tr>
 						<tr><th>Kernel</th><td>{{ router.software.kernel }}</td></tr>
-						<tr><th>Firmware</th><td><span title="{{ router.software.firmware_rev }}">{{ router.software.firmware }}</span></td></tr>
 						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.software.batman_adv }}</td></tr>
 						<tr><th>Nodewatcher</th><td>{{ router.software.nodewatcher }}</td></tr>
 					</table>

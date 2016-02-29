@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
-from flask import Blueprint
+from flask import Blueprint, session
 from dateutil import tz
 from bson.json_util import dumps as bson2json
 import json
 import datetime
 import re
 import pymongo
+import hashlib
 
 filters = Blueprint("filters", __name__)
 
@@ -137,3 +138,39 @@ def status2css(status):
 		"update": "primary",
 	}
 	return "label label-%s" % status_map.get(status, "default")
+
+@filters.app_template_filter('anon_email')
+def anon_email(email, replacement_char='.'):
+	if 'user' in session:
+		return email
+
+	try:
+		def anon_str(s, full=False):
+			if full:
+				return replacement_char * len(s)
+			else:
+				hide_pos = int(len(s)/2)
+				return s[:hide_pos] + replacement_char + s[(hide_pos+1):]
+		prefix, tld = email.rsplit('.', 1)
+		user, domain = prefix.split('@')
+		return '%s@%s.%s' % (anon_str(user), anon_str(domain), anon_str(tld, True))
+	except:
+		return email
+
+@filters.app_template_filter('anon_email_regex')
+def anon_email_regex(email):
+	return anon_email(email, '*').replace('.', '\.').replace('*', '.').replace('+', '\+').replace('_', '\_')
+
+@filters.app_template_filter('gravatar_url')
+def gravatar_url(email):
+	return "https://www.gravatar.com/avatar/%s?d=identicon" % hashlib.md5(email.encode("UTF-8").lower()).hexdigest()
+
+@filters.app_template_filter('webui_addr')
+def webui_addr(router_netifs):
+	try:
+		for br_mesh in filter(lambda n: n["name"] == "br-mesh", router_netifs):
+			for ipv6 in br_mesh["ipv6_addrs"]:
+				if ipv6.startswith("fdff") and len(ipv6) == 20:
+					return ipv6
+	except (KeyError, TypeError):
+		return None
