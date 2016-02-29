@@ -1,0 +1,29 @@
+From: Dominik Heidler <dominik@heidler.eu>
+Date: Mon, 29 Feb 2016 19:07:00 +0100
+Subject: [PATCH] Allow setting the source mac via unix sock
+
+The server will only overwrite the mac if it is zero.
+The alfred client sets the mac to zero by default
+so this shouldn't break existing behaviour.
+---
+ unix_sock.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/unix_sock.c b/unix_sock.c
+index 3c7e583..12a10e6 100644
+--- a/unix_sock.c
++++ b/unix_sock.c
+@@ -119,7 +119,9 @@ static int unix_sock_add_data(struct globals *globals,
+ 
+ 	data = push->data;
+ 	data_len = ntohs(data->header.length);
+-	memcpy(data->source, &interface->hwaddr, sizeof(interface->hwaddr));
++	static const char zero[ETH_ALEN] = { 0 };
++	if (!memcmp(zero, data->source, sizeof(data->source)))
++		memcpy(data->source, &interface->hwaddr, sizeof(interface->hwaddr));
+ 
+ 	if ((int)(data_len + sizeof(*data)) > len)
+ 		goto err;
+-- 
+1.7.10.4
+
