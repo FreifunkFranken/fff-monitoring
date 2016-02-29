@@ -22,6 +22,11 @@ map.addControl(layersControl);
 
 var router_pointer_radius = 7.5; // actually 7 but let's add some rounding tolerance
 
+if (window.matchMedia("(min--moz-device-pixel-ratio: 1.5),(-o-min-device-pixel-ratio: 3/2),(-webkit-min-device-pixel-ratio: 1.5),(min-device-pixel-ratio: 1.5),(min-resolution: 1.5dppx)").matches) {
+	// Retina 2k Display: Make it easier to hit the pointer
+	router_pointer_radius *= 2;
+}
+
 var popup;
 
 function update_mappos_permalink() {
