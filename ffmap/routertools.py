@@ -16,6 +16,7 @@ db = FreifunkDB().handle()
 
 CONFIG = {
 	"vpn_netif": "fffVPN",
+	"vpn_netif_l2tp": "l2tp2",
 	"vpn_netif_aux": "fffauxVPN",
 	"offline_threshold_minutes": 20,
 	"router_stat_days": 15,
@@ -48,7 +49,7 @@ def import_nodewatcher_xml(mac, xml):
 			# router has new position info from netmon
 			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_update["position"]}}})["name"]
 		elif router and "position" in router:
-			# hood might change as well
+			# hoods might change as well
 			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
 
 		if router:
@@ -210,6 +211,7 @@ def parse_nodewatcher_xml(xml):
 				"clients": int(tree.xpath("/data/client_count/text()")[0]),
 				"has_wan_uplink": (
 					len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif"])) > 0
+					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_l2tp"])) > 0
 					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_aux"])) > 0),
 			},
 			"hardware": {
@@ -317,6 +319,8 @@ def parse_nodewatcher_xml(xml):
 			if o_mac.upper() == o_nexthop.upper():
 				# skip vpn server
 				if o_out_if == CONFIG["vpn_netif"]:
+					continue
+				elif o_out_if == CONFIG["vpn_netif_l2tp"]:
 					continue
 				elif o_out_if == CONFIG["vpn_netif_aux"]:
 					continue
