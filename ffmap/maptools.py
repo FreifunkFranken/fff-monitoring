@@ -32,6 +32,7 @@ def update_mapnik_csv():
 
 	with open(os.path.join(CONFIG["csv_dir"], "links.csv"), "w") as csv:
 		csv.write("WKT,quality\n")
+		links = []
 		for router in db.routers.find(
 			{
 				"position.coordinates": {"$exists": True},
@@ -42,13 +43,15 @@ def update_mapnik_csv():
 		):
 			for neighbour in router["neighbours"]:
 				if "position" in neighbour:
-					csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % (
+					links.append((
 						router["position"]["coordinates"][0],
 						router["position"]["coordinates"][1],
 						neighbour["position"]["coordinates"][0],
 						neighbour["position"]["coordinates"][1],
 						neighbour["quality"]
 					))
+		for link in sorted(links, key=lambda l: l[4]):
+			csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % link)
 
 	with open(os.path.join(CONFIG["csv_dir"], "hood-points.csv"), "w", encoding="UTF-8") as csv:
 		csv.write("lng,lat,name\n")
@@ -119,3 +122,6 @@ def update_mapnik_csv():
 	# touch mapnik XML files to trigger tilelite watcher
 	touch("/usr/share/ffmap/hoods.xml")
 	touch("/usr/share/ffmap/links_and_routers.xml")
+
+if __name__ == '__main__':
+	update_mapnik_csv()
