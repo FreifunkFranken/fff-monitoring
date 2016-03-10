@@ -58,8 +58,7 @@ def import_nodewatcher_xml(mac, xml):
 		if router:
 			# statistics
 			calculate_network_io(router, router_update)
-			#FIXME: use _id
-			db.routers.update_one({"netifs.mac": mac.lower()}, {
+			db.routers.update_one({"_id": router_id}, {
 				"$set": router_update,
 				"$push": {"stats": SON([
 					("$each", new_router_stats(router, router_update)),
@@ -241,29 +240,28 @@ def parse_nodewatcher_xml(xml):
 		}
 
 		# data.system_data.model
-		if len(tree.xpath("/data/system_data/model/text()")) > 0:
-			router_update["hardware"]["name"] = tree.xpath("/data/system_data/model/text()")[0]
-		else:
+		with suppress(IndexError):
 			router_update["hardware"]["name"] = "Legacy"
+			router_update["hardware"]["name"] = tree.xpath("/data/system_data/model/text()")[0]
 
 		# data.system_data.description
-		if len(tree.xpath("/data/system_data/description/text()")) > 0:
+		with suppress(IndexError):
 			router_update["description"] = tree.xpath("/data/system_data/description/text()")[0]
 
 		# data.system_data.position_comment
-		if len(tree.xpath("/data/system_data/position_comment/text()")) > 0:
+		with suppress(IndexError):
 			router_update["position_comment"] = tree.xpath("/data/system_data/position_comment/text()")[0]
 
 		# data.system_data.firmware_community
-		if len(tree.xpath("/data/system_data/firmware_community/text()")) > 0:
+		with suppress(IndexError):
 			router_update["community"] = tree.xpath("/data/system_data/firmware_community/text()")[0]
 
 		# data.system_data.status_text
-		if len(tree.xpath("/data/system_data/status_text/text()")) > 0:
+		with suppress(IndexError):
 			router_update["system"]["status_text"] = tree.xpath("/data/system_data/status_text/text()")[0]
 
 		# data.system_data.contact
-		if len(tree.xpath("/data/system_data/contact/text()")) > 0:
+		with suppress(IndexError):
 			router_update["system"]["contact"] = tree.xpath("/data/system_data/contact/text()")[0]
 			user = db.users.find_one({"email": router_update["system"]["contact"]})
 			if user:
@@ -305,13 +303,13 @@ def parse_nodewatcher_xml(xml):
 					"tx_bytes": int(netif.xpath("traffic_tx/text()")[0]),
 				},
 			}
-			if len(netif.xpath("ipv6_link_local_addr/text()")) > 0:
+			with suppress(IndexError):
 				interface["ipv6_fe80_addr"] = netif.xpath("ipv6_link_local_addr/text()")[0].lower().split("/")[0]
 			if len(netif.xpath("ipv6_addr/text()")) > 0:
 				interface["ipv6_addrs"] = []
 				for ipv6_addr in netif.xpath("ipv6_addr/text()"):
 					interface["ipv6_addrs"].append(ipv6_addr.lower().split("/")[0])
-			if len(netif.xpath("ipv4_addr/text()")) > 0:
+			with suppress(IndexError):
 				interface["ipv4_addr"] = netif.xpath("ipv4_addr/text()")[0]
 			router_update["netifs"].append(interface)
 
