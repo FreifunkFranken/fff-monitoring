@@ -23,6 +23,7 @@ allowed_filters = (
 	'hardware.name',
 	'software.firmware',
 	'netifs.mac',
+	'netifs.name',
 	'netmon_id',
 	'hostname',
 	'system.contact',
@@ -46,6 +47,8 @@ def parse_router_list_search_query(args):
 			query[key] = {"$exists": False}
 		elif key == 'netifs.mac':
 			query[key] = value.lower()
+		elif key == 'netifs.name':
+			query[key] = {"$regex": value.replace('.', '\.'), "$options": 'i'}
 		elif key == 'hostname':
 			query[key] = {"$regex": value.replace('.', '\.'), "$options": 'i'}
 		elif key == 'hardware.name':
