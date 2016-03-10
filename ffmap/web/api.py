@@ -54,6 +54,7 @@ def alfred():
 				import_nodewatcher_xml(mac, xml)
 			r.headers['X-API-STATUS'] = "ALFRED data imported"
 		detect_offline_routers()
+		delete_orphaned_routers()
 		record_global_stats()
 		update_mapnik_csv()
 	r.mimetype = 'application/json'

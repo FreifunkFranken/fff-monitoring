@@ -19,6 +19,7 @@ CONFIG = {
 	"vpn_netif_l2tp": "l2tp2",
 	"vpn_netif_aux": "fffauxVPN",
 	"offline_threshold_minutes": 20,
+	"orphan_threshold_days": 100,
 	"router_stat_days": 15,
 }
 
@@ -138,6 +139,12 @@ def detect_offline_routers():
 			"type": "offline"
 		}
 	}})
+
+def delete_orphaned_routers():
+	db.routers.delete_many({
+		"last_contact": {"$lt": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=CONFIG["orphan_threshold_days"])},
+		"status": "offline"
+	})
 
 def new_router_stats(router, router_update):
 	if router["system"]["uptime"] < router_update["system"]["uptime"]:
