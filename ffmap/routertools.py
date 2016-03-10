@@ -33,17 +33,19 @@ def import_nodewatcher_xml(mac, xml):
 
 		router_update = parse_nodewatcher_xml(xml)
 
-		if not router or not "netmon_id" in router:
-			# new router
-			# fetch additional information from netmon as it is not yet contained in xml
-			router_info = netmon_fetch_router_info(mac)
-			if router_info:
-				events.append({
-					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
-					"type": "netmon",
-					"comment": "Fetched metadata from netmon",
-				})
-				router_update.update(router_info)
+		if not "position" in router_update:
+			# pre-webui router
+			if not router or not "netmon_id" in router:
+				# new router
+				# fetch additional information from netmon as it is not yet contained in xml
+				router_info = netmon_fetch_router_info(mac)
+				if router_info:
+					events.append({
+						"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
+						"type": "netmon",
+						"comment": "Fetched metadata from netmon",
+					})
+					router_update.update(router_info)
 
 		# keep hood up to date
 		if "position" in router_update:
