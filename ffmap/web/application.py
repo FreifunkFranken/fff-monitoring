@@ -231,7 +231,11 @@ def register_helpers():
 	}
 
 
-app.secret_key = os.urandom(24)
+if not os.path.isfile("/var/lib/ffmap/secret_key"):
+	open("/var/lib/ffmap/secret_key", "wb").write(os.urandom(24))
+	os.chmod("/var/lib/ffmap/secret_key", 0o600)
+
+app.secret_key = open("/var/lib/ffmap/secret_key", "rb").read()
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
