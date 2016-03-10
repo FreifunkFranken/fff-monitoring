@@ -80,8 +80,22 @@ def import_nodewatcher_xml(mac, xml):
 		import traceback
 		print("Warning: Unable to parse xml from %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
 		if router:
-			db.routers.update_one({"_id": router_id}, {"$set": {"status": "unknown"}})
+			db.routers.update_one({"_id": router_id}, {"$set": {
+				"status": "unknown",
+				"last_contact": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+			}})
 		status = "unknown"
+		status_comment = "Invalid XML"
+	except OverflowError as e:
+		import traceback
+		print("Warning: Overflow Error when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
+		if router:
+			db.routers.update_one({"_id": router_id}, {"$set": {
+				"status": "unknown",
+				"last_contact": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+			}})
+		status = "unknown"
+		status_comment = "Integer Overflow"
 
 	if router_id:
 		# fire events
@@ -118,10 +132,13 @@ def import_nodewatcher_xml(mac, xml):
 
 		with suppress(KeyError, TypeError):
 			if router["status"] != status:
-				events.append({
+				event = {
 					"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
 					"type": status,
-				})
+				}
+				with suppress(NameError):
+					event["comment"] = status_comment
+				events.append(event)
 
 		if len(events) > 0:
 			db.routers.update_one({"_id": router_id}, {"$push": {"events": SON([
