@@ -5,9 +5,9 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.dbtools import FreifunkDB
+from ffmap.misc import *
 
 from werkzeug.security import generate_password_hash, check_password_hash
-import datetime
 
 db = FreifunkDB().handle()
 
@@ -35,7 +35,7 @@ def register_user(nickname, email, password):
 			"nickname": nickname,
 			"password": generate_password_hash(password),
 			"email": email,
-			"created": datetime.datetime.utcnow()
+			"created": utcnow()
 		}
 		if user_with_nick:
 			db.users.update_one({"_id": user_with_nick["_id"]}, {"$set": user_update})

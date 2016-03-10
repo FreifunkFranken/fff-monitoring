@@ -2,10 +2,10 @@
 
 import os
 import sys
-import datetime
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.dbtools import FreifunkDB
+from ffmap.misc import *
 
 db = FreifunkDB().handle()
 
@@ -75,7 +75,7 @@ def hoods_sum():
 
 def record_global_stats():
 	db.stats.insert_one({
-		"time": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc),
+		"time": utcnow(),
 		"router_status": router_status(),
 		"total_clients": total_clients()
 	})

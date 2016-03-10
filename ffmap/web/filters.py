@@ -3,11 +3,16 @@
 from flask import Blueprint, session
 from dateutil import tz
 from bson.json_util import dumps as bson2json
+import os
+import sys
 import json
 import datetime
 import re
 import pymongo
 import hashlib
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
+from ffmap.misc import *
 
 filters = Blueprint("filters", __name__)
 
@@ -46,7 +51,7 @@ def dt2jstimestamp(dt):
 
 @filters.app_template_filter('format_dt_ago')
 def format_dt_ago(dt):
-	diff = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - dt
+	diff = utcnow() - dt
 	s = diff.seconds
 	if diff.days > 1:
 		return '%i days ago' % diff.days
