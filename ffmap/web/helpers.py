@@ -59,6 +59,8 @@ def parse_router_list_search_query(args):
 			if not '\.' in value:
 				value = re.escape(value)
 			query[key] = {"$regex": value, "$options": 'i'}
+		elif value.startswith('!'):
+			query[key] = {"$ne": value.replace('!', '', 1)}
 		else:
 			query[key] = value
 	return (query, format_query(query_usr))
