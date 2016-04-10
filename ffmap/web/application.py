@@ -130,6 +130,11 @@ def user_info(nickname):
 					set_user_admin(nickname, request.form.get("admin") == "true")
 					# force db data reload
 					user = db.users.find_one({"nickname": nickname})
+			elif request.form.get("action") == "deleteaccount":
+				if session.get('admin'):
+					db.users.delete_one({"nickname": nickname})
+					flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
+					return redirect(url_for("user_list"))
 		else:
 			flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers=db.routers.find({"user._id": user["_id"]}, {

@@ -34,6 +34,7 @@
 				<li><a href="#" data-toggle="modal" data-target="#changepw">Change Password</a></li>
 				<li><a href="#" data-toggle="modal" data-target="#changemail">Change E-Mail Address</a></li>
 				{%- if session.admin %}
+				<li><a href="#" onclick="$('#delaccform').submit()">Delete Account</a></li>
 				<li><a href="#" onclick="$('#adminform').submit()">Toggle admin</a></li>
 				{%- endif %}
 			</ul>
@@ -205,6 +206,9 @@
 <form method="post" id="adminform">
 	<input type="hidden" name="action" value="changeadmin" />
 	<input type="hidden" name="admin" value="{{ "false" if user.admin else "true" }}" />
+</form>
+<form method="post" id="delaccform">
+	<input type="hidden" name="action" value="deleteaccount" />
 </form>
 {%- endif %}
 {% endblock %}
