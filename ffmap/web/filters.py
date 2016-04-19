@@ -175,7 +175,7 @@ def webui_addr(router_netifs):
 	try:
 		for br_mesh in filter(lambda n: n["name"] == "br-mesh", router_netifs):
 			for ipv6 in br_mesh["ipv6_addrs"]:
-				if ipv6.startswith("fdff") and len(ipv6) == 20:
+				if ipv6.startswith("fdff") and len(ipv6) > 15 and len(ipv6) <= 20:
 					return ipv6
 	except (KeyError, TypeError):
 		return None
