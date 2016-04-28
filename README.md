@@ -10,6 +10,8 @@ systemctl start mongodb
 systemctl start uwsgi-ffmap
 systemctl start uwsgi-tiles-links_and_routers
 systemctl start uwsgi-tiles-hoods
+cd ffmap/db/
+./init_db.py
 # Then apply NGINX Config
 ```
 
