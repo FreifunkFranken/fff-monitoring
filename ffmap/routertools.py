@@ -241,7 +241,6 @@ def parse_nodewatcher_xml(xml):
 					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_aux"])) > 0),
 			},
 			"hardware": {
-				"chipset": tree.xpath("/data/system_data/chipset/text()")[0],
 				#"name": tree.xpath("/data/system_data/model/text()")[0],
 				"cpu": tree.xpath("/data/system_data/cpu/text()")[0]
 			},
@@ -256,6 +255,11 @@ def parse_nodewatcher_xml(xml):
 				"firmware_rev": tree.xpath("/data/system_data/firmware_revision/text()")[0],
 			}
 		}
+
+		# data.system_data.chipset
+		with suppress(IndexError):
+			router_update["hardware"]["chipset"] = "Unknown"
+			router_update["hardware"]["chipset"] = tree.xpath("/data/system_data/chipset/text()")[0]
 
 		# data.system_data.model
 		with suppress(IndexError):
