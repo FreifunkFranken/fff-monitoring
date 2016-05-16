@@ -117,6 +117,9 @@ def humanize_bytes(num, suffix='B'):
 
 @filters.app_template_filter('mac2fe80')
 def mac_to_ipv6_linklocal(mac):
+	if not mac:
+		return ''
+
 	# Remove the most common delimiters; dots, dashes, etc.
 	mac_bare = re.sub('[%s]+' % re.escape(' .:-'), '', mac)
 	mac_value = int(mac_bare, 16)
