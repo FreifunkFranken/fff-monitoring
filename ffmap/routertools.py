@@ -315,7 +315,6 @@ def parse_nodewatcher_xml(xml):
 			interface = {
 				"name": netif.xpath("name/text()")[0],
 				"mtu": int(netif.xpath("mtu/text()")[0]),
-				"mac": netif.xpath("mac_addr/text()")[0].lower(),
 				"traffic": {
 					"rx_bytes": int(netif.xpath("traffic_rx/text()")[0]),
 					"tx_bytes": int(netif.xpath("traffic_tx/text()")[0]),
@@ -329,6 +328,10 @@ def parse_nodewatcher_xml(xml):
 					interface["ipv6_addrs"].append(ipv6_addr.lower().split("/")[0])
 			with suppress(IndexError):
 				interface["ipv4_addr"] = netif.xpath("ipv4_addr/text()")[0]
+
+			with suppress(IndexError):
+				interface["mac"] = ""
+				interface["mac"] = netif.xpath("mac_addr/text()")[0].lower()
 			router_update["netifs"].append(interface)
 
 		visible_neighbours = 0
