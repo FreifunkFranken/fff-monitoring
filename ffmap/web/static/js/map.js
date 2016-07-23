@@ -1,13 +1,13 @@
 var map = L.map('map');
 
 var tilesosmorg = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	attribution: '<a href="http://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
+	attribution: '<a href="https://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
 	maxNativeZoom: 19,
 	maxZoom: 22
 });
 map.addLayer(tilesosmorg);
 var tilesosmde = new L.TileLayer('https://{s}.osm.rrze.fau.de/osmde/{z}/{x}/{y}.png', {
-	attribution: '<a href="http://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
+	attribution: '<a href="https://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
 	maxNativeZoom: 19,
 	maxZoom: 22
 });
