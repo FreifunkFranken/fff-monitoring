@@ -1,10 +1,21 @@
 var map = L.map('map');
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	attribution: 'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+var tilesosmorg = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	attribution: '<a href="http://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
 	maxNativeZoom: 19,
 	maxZoom: 22
-}).addTo(map);
+});
+map.addLayer(tilesosmorg);
+var tilesosmde = new L.TileLayer('https://{s}.osm.rrze.fau.de/osmde/{z}/{x}/{y}.png', {
+	attribution: '<a href="http://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
+	maxNativeZoom: 19,
+	maxZoom: 22
+});
+var tilestfod = new L.TileLayer('https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png', {
+	attribution: 'Maps &copy; <a href="http://www.thunderforest.com">Thunderforest</a>, Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+	maxNativeZoom: 22,
+	maxZoom: 22
+});
 
 L.control.scale({imperial: false}).addTo(map);
 
@@ -17,7 +28,14 @@ var overlay_config = {
 
 var links_and_routers = new L.TileLayer(tileurls.links_and_routers + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
 var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
-layersControl = new L.Control.Layers({}, {"Links & Routers": links_and_routers, "Hoods": hoods});
+layersControl = new L.Control.Layers({
+	"openstreetmap.org": tilesosmorg,
+	"openstreetmap.de": tilesosmde,
+	"Thunderforest Outdoors": tilestfod
+}, {
+	"Links & Routers": links_and_routers,
+	"Hoods": hoods
+});
 map.addControl(layersControl);
 
 var router_pointer_radius = 7.5; // actually 7 but let's add some rounding tolerance
