@@ -20,8 +20,8 @@ CONFIG = {
 	"vpn_netif_l2tp": "l2tp2",
 	"vpn_netif_aux": "fffauxVPN",
 	"offline_threshold_minutes": 20,
-	"orphan_threshold_days": 100,
-	"router_stat_days": 15,
+	"orphan_threshold_days": 60,
+	"router_stat_days": 7,
 }
 
 def import_nodewatcher_xml(mac, xml):
