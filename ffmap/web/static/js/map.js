@@ -111,12 +111,11 @@ map.on('click', function(pos) {
 			popup_html += '<b>Router <a href="' + url_router_info + router._id.$oid +'">'+router.hostname+'</a></b>';
 			popup_html += "</div>"
 			if (has_neighbours) {
-				popup_html += '<table class="neighbours">';
+				popup_html += '<table class="neighbours" style="width: 100%;">';
 				popup_html += "<tr>";
-				popup_html += "<th>Hostname</th>";
-				popup_html += "<th>MAC Address</th>";
+				popup_html += "<th>Link</th>";
 				popup_html += "<th>Quality</th>";
-				popup_html += "<th>Outgoing Interface</th>";
+				popup_html += "<th>Interface</th>";
 				popup_html += "</tr>";
 				for (neighbour of router.neighbours) {
 					// skip unknown neighbours
@@ -129,10 +128,9 @@ map.on('click', function(pos) {
 						else if (neighbour.quality < 205) { tr_color = "#ffeb79"; }
 						else if (neighbour.quality < 230) { tr_color = "#79ff7c"; }
 						popup_html += "<tr style=\"background-color: "+tr_color+";\">";
-						popup_html += '<td><a href="'+url_router_info+neighbour._id.$oid+'">'+neighbour.hostname+'</a></td>';
-						popup_html += "<td>"+neighbour.mac+"</td>";
+						popup_html += '<td><a href="'+url_router_info+neighbour._id.$oid+'" title="'+escapeHTML(neighbour.mac)+'">'+escapeHTML(neighbour.hostname)+'</a></td>';
 						popup_html += "<td>"+neighbour.quality+"</td>";
-						popup_html += "<td>"+neighbour.net_if+"</td>";
+						popup_html += "<td>"+escapeHTML(neighbour.net_if)+"</td>";
 						popup_html += "</tr>";
 					}
 				}
@@ -161,4 +159,19 @@ function ajax_get_request(url, callback_fkt) {
 function mod(n, m) {
 	// use own modulo function (see http://stackoverflow.com/q/4467539)
 	return ((n % m) + m) % m;
+}
+
+var entityMap = {
+	"&": "&amp;",
+	"<": "&lt;",
+	">": "&gt;",
+	'"': '&quot;',
+	"'": '&#39;',
+	"/": '&#x2F;'
+};
+
+function escapeHTML(string) {
+	return String(string).replace(/[&<>"'\/]/g, function (s) {
+		return entityMap[s];
+	});
 }
