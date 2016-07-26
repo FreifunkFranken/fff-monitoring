@@ -24,7 +24,17 @@ CONFIG = {
 	"router_stat_days": 7,
 }
 
+router_rate_limit_list = {}
+
 def import_nodewatcher_xml(mac, xml):
+	global router_rate_limit_list
+
+	t = utcnow()
+	if mac in router_rate_limit_list:
+		if (t - router_rate_limit_list[mac]) < datetime.timedelta(minutes=5):
+			return
+	router_rate_limit_list[mac] = t
+
 	router_id = None
 	events = []
 	try:
