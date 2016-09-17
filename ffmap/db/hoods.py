@@ -66,7 +66,7 @@ hoods = [
 	"keyxchange_id": 10,
 	"name": "HassbergeSued",
 	"net": "10.50.60.0/22",
-	"position": {"type": "Point", "coordinates": [10.568013390003, 50.08]}
+	"position": {"type": "Point", "coordinates": [10.568013390003, 50.04501]}
 },
 {
 	"keyxchange_id": 11,
