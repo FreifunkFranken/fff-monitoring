@@ -75,7 +75,7 @@ def send_email(recipient, subject, content, sender="FFF Monitoring <noreply@moni
 	s.quit()
 
 def is_authorized(owner, session):
-	if owner == session.get("user"):
+	if ("user" in session) and (owner == session.get("user")):
 		return True
 	elif session.get("admin"):
 		return True

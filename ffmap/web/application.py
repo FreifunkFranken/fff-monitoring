@@ -63,7 +63,11 @@ def router_info(dbid):
 				flash("<b>Netmon Sync triggered!</b>", "success")
 				return redirect(url_for("router_info", dbid=dbid))
 			if request.form.get("act") == "delete":
-				if is_authorized(router["user"]["nickname"], session):
+				user = None
+				# a router may not have a owner, but admin users still can delete it
+				if ("user" in router) and ("nickname" in router["user"]):
+					user = router["user"]["nickname"]
+				if is_authorized(user, session):
 					db.routers.delete_one({"_id": ObjectId(dbid)})
 					flash("<b>Router <i>%s</i> deleted!</b>" % router["hostname"], "success")
 					return redirect(url_for("index"))
