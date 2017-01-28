@@ -107,6 +107,16 @@ def import_nodewatcher_xml(mac, xml):
 			}})
 		status = "unknown"
 		status_comment = "Integer Overflow"
+	except Exception as e:
+		import traceback
+		print("Warning: Exception occurred when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
+		if router:
+			db.routers.update_one({"_id": router_id}, {"$set": {
+				"status": "unknown",
+				"last_contact": utcnow()
+			}})
+		status = "unknown"
+		status_comment = "Exception occurred"
 
 	if router_id:
 		# fire events
