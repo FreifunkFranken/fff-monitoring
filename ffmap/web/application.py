@@ -57,11 +57,6 @@ def router_info(dbid):
 		router = db.routers.find_one({"_id": ObjectId(dbid)})
 		assert router
 		if request.method == 'POST':
-			if request.form.get("act") == "netmon_resync":
-				r = db.routers.update_one({"_id": ObjectId(dbid)}, {"$unset": {"netmon_id": 1}})
-				assert r.matched_count > 0
-				flash("<b>Netmon Sync triggered!</b>", "success")
-				return redirect(url_for("router_info", dbid=dbid))
 			if request.form.get("act") == "delete":
 				user = None
 				# a router may not have a owner, but admin users still can delete it
