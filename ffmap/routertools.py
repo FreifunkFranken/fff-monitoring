@@ -59,12 +59,14 @@ def import_nodewatcher_xml(mac, xml):
 					router_update.update(router_info)
 
 		# keep hood up to date
-		if "position" in router_update:
-			# router has new position info from netmon
-			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_update["position"]}}})["name"]
-		elif router and "position" in router:
-			# hoods might change as well
-			router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
+		if not "hood" in router_update:
+			# router didn't send his hood in XML
+			if "position" in router_update:
+				# router has new position info from netmon
+				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router_update["position"]}}})["name"]
+			elif router and "position" in router:
+				# hoods might change as well
+				router_update["hood"] = db.hoods.find_one({"position": {"$near": {"$geometry": router["position"]}}})["name"]
 
 		if router:
 			# statistics
@@ -301,6 +303,10 @@ def parse_nodewatcher_xml(xml):
 		# data.system_data.firmware_community
 		with suppress(IndexError):
 			router_update["community"] = tree.xpath("/data/system_data/firmware_community/text()")[0]
+
+		# data.system_data.hood
+		with suppress(IndexError):
+			router_update["hood"] = tree.xpath("/data/system_data/hood/text()")[0].lower()
 
 		# data.system_data.status_text
 		with suppress(IndexError):
