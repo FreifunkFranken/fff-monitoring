@@ -53,7 +53,7 @@
 						</tr>
 						{%- for hood, value in hoods|dictsort %}
 						<tr>
-							<td>{{ hood }}</td>
+							<td><a href="{{ url_for('router_list', q='hood:%s' % hood) }}">{{ hood }}</a></td>
 							<td class="success">{{ value["online"] or 0 }}</td>
 							<td class="danger">{{ value["offline"] or 0 }}</td>
 							<td class="warning">{{ value["unknown"] or 0 }}</td>
