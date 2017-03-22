@@ -90,11 +90,7 @@
 				<div class="panel-body">
 					<table class="table table-condensed">
 						<tr><th>Hostname</th><td>
-							{%- if router.netmon_id %}
-							<a href="https://netmon.freifunk-franken.de/router.php?router_id={{ router.netmon_id }}">{{ router.hostname }}</a>
-							{%- else %}
 							{{ router.hostname }}
-							{%- endif %}
 							{%- if router.netifs|webui_addr %}
 							(<a href="http://[{{ router.netifs|webui_addr }}]">WebUI</a>)
 							{%- endif %}
