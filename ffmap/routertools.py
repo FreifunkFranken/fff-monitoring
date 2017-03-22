@@ -44,20 +44,6 @@ def import_nodewatcher_xml(mac, xml):
 
 		router_update = parse_nodewatcher_xml(xml)
 
-		if not "position" in router_update:
-			# pre-webui router
-			if not router or not "netmon_id" in router:
-				# new router
-				# fetch additional information from netmon as it is not yet contained in xml
-				router_info = netmon_fetch_router_info(mac)
-				if router_info:
-					events.append({
-						"time": utcnow(),
-						"type": "netmon",
-						"comment": "Fetched metadata from netmon",
-					})
-					router_update.update(router_info)
-
 		# keep hood up to date
 		if not "hood" in router_update:
 			# router didn't send his hood in XML
@@ -407,59 +393,3 @@ def parse_nodewatcher_xml(xml):
 		return router_update
 	except (AssertionError, lxml.etree.XMLSyntaxError, IndexError) as e:
 		raise ValueError("%s: %s" % (e.__class__.__name__, str(e)))
-
-def netmon_fetch_router_info(mac):
-	mac = mac.replace(":", "").lower()
-	try:
-		tree = lxml.etree.fromstring(requests.get("https://netmon.freifunk-franken.de/api/rest/router/%s" % mac).content)
-	except lxml.etree.XMLSyntaxError:
-		return None
-
-	for r in tree.xpath("/netmon_response/router"):
-		user_netmon_id = int(r.xpath("user_id/text()")[0])
-		user = db.users.find_one({"netmon_id": user_netmon_id})
-		if not user:
-			nickname = r.xpath("user/nickname/text()")[0]
-			user = db.users.find_one({"nickname": nickname})
-			if user:
-				# non-netmon user with email key for new routers gets old router
-				db.users.update_one({"_id": user['_id']}, {"$set": {"netmon_id": user_netmon_id}})
-			else:
-				# netmon user gets old user
-				user_id = db.users.insert({
-					"netmon_id": user_netmon_id,
-					"nickname": nickname
-				})
-				user = db.users.find_one({"_id": user_id})
-
-		router = {
-			"netmon_id": int(r.xpath("router_id/text()")[0]),
-			"user": {"nickname": user["nickname"], "_id": user["_id"]}
-		}
-
-		try:
-			lng = float(r.xpath("longitude/text()")[0])
-			lat = float(r.xpath("latitude/text()")[0])
-			assert lng != 0
-			assert lat != 0
-
-			router["position"] = {
-				"type": "Point",
-				"coordinates": [lng, lat]
-			}
-
-			# try to get comment
-			position_comment = r.xpath("location/text()")[0]
-			if position_comment != "undefined" and position_comment != " ":
-				router["position_comment"] = position_comment
-			else:
-				router["position_comment"] = ""
-		except (IndexError, AssertionError):
-			router["position_comment"] = ""
-
-		try:
-			router["description"] = r.xpath("description/text()")[0]
-		except IndexError:
-			pass
-
-		return router
