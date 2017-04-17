@@ -377,19 +377,59 @@ def parse_nodewatcher_xml(xml):
 					"quality": int(o_link_quality),
 					"net_if": o_out_if,
 				}
-				with suppress(AssertionError, TypeError):
-					neighbour_router = db.routers.find_one({"netifs.mac": neighbour["mac"]}, {"hostname": 1, "position": 1})
-					neighbour["_id"] = neighbour_router["_id"]
-					neighbour["hostname"] = neighbour_router["hostname"]
-					assert "position" in neighbour_router
-					assert "coordinates" in neighbour_router["position"]
-					assert neighbour_router["position"]["coordinates"][0] != 0
-					assert neighbour_router["position"]["coordinates"][1] != 0
-					neighbour["position"] = neighbour_router["position"]
+				set_hostname_and_pos_for_neighbour(neighbour)
 				router_update["neighbours"].append(neighbour)
 
-			router_update["system"]["visible_neighbours"] = visible_neighbours
+		l3_neighbours = get_l3_neighbours(tree)
+		visible_neighbours += len(l3_neighbours)
+		router_update["system"]["visible_neighbours"] = visible_neighbours
+		router_update["neighbours"] += l3_neighbours
 
 		return router_update
 	except (AssertionError, lxml.etree.XMLSyntaxError, IndexError) as e:
 		raise ValueError("%s: %s" % (e.__class__.__name__, str(e)))
+
+
+def set_hostname_and_pos_for_neighbour(neighbour):
+	with suppress(AssertionError, TypeError):
+		neighbour_router = db.routers.find_one(
+			{"netifs.mac": neighbour["mac"]}, {"hostname": 1, "position": 1})
+		neighbour["_id"] = neighbour_router["_id"]
+		neighbour["hostname"] = neighbour_router["hostname"]
+		assert "position" in neighbour_router
+		assert "coordinates" in neighbour_router["position"]
+		assert neighbour_router["position"]["coordinates"][0] != 0
+		assert neighbour_router["position"]["coordinates"][1] != 0
+		neighbour["position"] = neighbour_router["position"]
+
+
+def get_l3_neighbours(tree):
+	l3_neighbours = list()
+	for neighbour in tree.xpath("/data/babel_neighbours/*"):
+		v6_fe80 = neighbour.text
+		out_if = neighbour.xpath("outgoing_interface/text()")[0]
+		neighbour = {
+			"mac": get_mac_from_v6_link_local(v6_fe80).lower(),
+			"quality": -1,
+			"net_if": out_if,
+			"type": "l3"
+		}
+		set_hostname_and_pos_for_neighbour(neighbour)
+		l3_neighbours.append(neighbour)
+	return l3_neighbours
+
+
+def get_mac_from_v6_link_local(v6_fe80):
+	v6_fe80_parts = v6_fe80[6:].split(':')
+	mac = list()
+	for v6_fe80_part in v6_fe80_parts:
+		while len(v6_fe80_part) < 4:
+			v6_fe80_part = '0' + v6_fe80_part
+		mac.append(v6_fe80_part[:2])
+		mac.append(v6_fe80_part[-2:])
+
+	mac[0] = '%02x' % (int(mac[0], 16) ^ 2)
+	del mac[3]
+	del mac[3]
+
+	return ':'.join(mac)

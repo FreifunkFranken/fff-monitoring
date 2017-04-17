@@ -42,7 +42,7 @@ def update_mapnik_csv():
 			{"position": 1, "neighbours": 1}
 		):
 			for neighbour in router["neighbours"]:
-				if "position" in neighbour:
+				if "position" in neighbour and not neighbour.get("type"):
 					links.append((
 						router["position"]["coordinates"][0],
 						router["position"]["coordinates"][1],
@@ -52,6 +52,25 @@ def update_mapnik_csv():
 					))
 		for link in sorted(links, key=lambda l: l[4]):
 			csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % link)
+
+	with open(os.path.join(CONFIG["csv_dir"], "l3_links.csv"), "w") as csv:
+		csv.write("WKT\n")
+		for router in db.routers.find(
+			{
+				"position.coordinates": {"$exists": True},
+				"neighbours": {"$exists": True},
+				"status": "online"
+			},
+			{"position": 1, "neighbours": 1}
+		):
+			for neighbour in router["neighbours"]:
+				if "position" in neighbour and neighbour.get("type") and neighbour["type"] == "l3":
+					csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % (
+						router["position"]["coordinates"][0],
+						router["position"]["coordinates"][1],
+						neighbour["position"]["coordinates"][0],
+						neighbour["position"]["coordinates"][1]
+					))
 
 	with open(os.path.join(CONFIG["csv_dir"], "hood-points.csv"), "w", encoding="UTF-8") as csv:
 		csv.write("lng,lat,name\n")

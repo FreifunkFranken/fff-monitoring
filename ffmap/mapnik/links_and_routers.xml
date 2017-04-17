@@ -48,6 +48,11 @@
 	  <LineSymbolizer stroke-width="3" stroke="#04ff0a" stroke-linecap="butt" clip="false" />
 	</Rule>
   </Style>
+  <Style name="l3_color" filter-mode="first">
+	<Rule>
+	  <LineSymbolizer stroke-width="3" stroke="#0684c4" stroke-linecap="butt" clip="false" />
+	</Rule>
+  </Style>
   <Style name="shadow1">
 	<Rule>
 	  <LineSymbolizer stroke-width="4" stroke="#333333" stroke-linecap="round" stroke-opacity="0.5" />
@@ -60,6 +65,14 @@
     <Datasource>
       <Parameter name="type">csv</Parameter>
       <Parameter name="file">csv/links.csv</Parameter>
+    </Datasource>
+  </Layer>
+  <Layer name="l3_links" srs="+proj=latlong +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>shadow1</StyleName>
+    <StyleName>l3_color</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/l3_links.csv</Parameter>
     </Datasource>
   </Layer>
   <Layer name="routers" srs="+proj=latlong +ellps=WGS84 +datum=WGS84 +no_defs">
