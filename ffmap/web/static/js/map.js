@@ -121,7 +121,8 @@ map.on('click', function(pos) {
 					// skip unknown neighbours
 					if ('_id' in neighbour) {
 						var tr_color = "#04ff0a";
-						if      (neighbour.quality < 105) { tr_color = "#ff1e1e"; }
+						if      (neighbour.quality == -1) { tr_color = "#0684c4"; }
+						else if (neighbour.quality < 105) { tr_color = "#ff1e1e"; }
 						else if (neighbour.quality < 130) { tr_color = "#ff4949"; }
 						else if (neighbour.quality < 155) { tr_color = "#ff6a6a"; }
 						else if (neighbour.quality < 180) { tr_color = "#ffac53"; }
