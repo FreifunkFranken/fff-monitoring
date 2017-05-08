@@ -134,7 +134,7 @@ def mac_to_ipv6_linklocal(mac):
 	low1 = mac_value >> 16 & 0xff
 	low2 = mac_value & 0xffff
 
-	return 'fe80::{:04x}:{:02x}ff:fe{:02x}:{:04x}'.format(high2, high1, low1, low2)
+	return 'fe80::{:x}:{:x}ff:fe{:x}:{:x}'.format(high2, high1, low1, low2)
 
 @filters.app_template_filter('status2css')
 def status2css(status):
