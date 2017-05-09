@@ -95,7 +95,8 @@ map.on('click', function(pos) {
 			// avoid empty tables
 			if (has_neighbours) {
 				has_neighbours = false;
-				for (neighbour of router.neighbours) {
+				for (var i = 0; i < router.neighbours.length; i++) {
+					neighbour = router.neighbours[i];
 					if ('_id' in neighbour) {
 						has_neighbours = true;
 					}
@@ -117,7 +118,8 @@ map.on('click', function(pos) {
 				popup_html += "<th>Quality</th>";
 				popup_html += "<th>Interface</th>";
 				popup_html += "</tr>";
-				for (neighbour of router.neighbours) {
+				for (var i = 0; i < router.neighbours.length; i++) {
+					neighbour = router.neighbours[i];
 					// skip unknown neighbours
 					if ('_id' in neighbour) {
 						var tr_color = "#04ff0a";
