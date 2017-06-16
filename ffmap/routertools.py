@@ -17,7 +17,7 @@ db = FreifunkDB().handle()
 
 CONFIG = {
 	"vpn_netif": "fffVPN",
-	"vpn_netif_l2tp": "l2tp2",
+	"vpn_netif_l2tp": "l2tp",
 	"vpn_netif_aux": "fffauxVPN",
 	"offline_threshold_minutes": 20,
 	"orphan_threshold_days": 60,
@@ -244,8 +244,10 @@ def parse_nodewatcher_xml(xml):
 				},
 				"clients": int(tree.xpath("/data/client_count/text()")[0]),
 				"has_wan_uplink": (
-					len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif"])) > 0
-					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_l2tp"])) > 0
+					(len(tree.xpath("/data/system_data/vpn_active")) > 0
+					and int(tree.xpath("/data/system_data/vpn_active/text()")[0]) == 1)
+					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif"])) > 0
+					or len(tree.xpath("/data/interface_data/*[starts-with(name(), '%s')]" % CONFIG["vpn_netif_l2tp"])) > 0
 					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_aux"])) > 0),
 			},
 			"hardware": {
@@ -368,7 +370,7 @@ def parse_nodewatcher_xml(xml):
 				# skip vpn server
 				if o_out_if == CONFIG["vpn_netif"]:
 					continue
-				elif o_out_if == CONFIG["vpn_netif_l2tp"]:
+				elif o_out_if.startswith(CONFIG["vpn_netif_l2tp"]):
 					continue
 				elif o_out_if == CONFIG["vpn_netif_aux"]:
 					continue
