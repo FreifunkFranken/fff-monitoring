@@ -121,6 +121,12 @@ hoods = [
 	"name": "ErlangenWest",
 	"net": "10.50.152.0/22",
 	"position": {"type": "Point", "coordinates": [10.984488, 49.6035981]}
+},
+{
+	"keyxchange_id": 20,
+	"name": "Ebermannstadt",
+	"net": "10.50.148.0/22",
+	"position": {"type": "Point", "coordinates": [11.18538, 49.78173]}
 }]
 
 for hood in hoods:
