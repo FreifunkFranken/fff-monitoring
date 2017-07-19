@@ -84,7 +84,7 @@ hoods = [
 	"keyxchange_id": 13,
 	"name": "aschaffenburg",
 	"net": "10.50.96.0/22",
-	"position": {"type": "Point", "coordinates": [9.886394, 49.986113]}
+	"position": {"type": "Point", "coordinates": [9.146826, 49.975661]}
 },
 {
 	"keyxchange_id": 14,
@@ -151,6 +151,12 @@ hoods = [
 	"name": "Ebern",
 	"net": "10.50.184.0/22",
 	"position": {"type": "Point", "coordinates": [10.798395, 50.095572]}
+},
+{
+	"keyxchange_id": 27,
+	"name": "Arnstein",
+	"net": "10.50.188.0/22",
+	"position": {"type": "Point", "coordinates": [9.970957, 49.978117]}
 }]
 
 for hood in hoods:
