@@ -152,6 +152,12 @@ hoods = [
 	"net": "10.50.176.0/22",
 	"position": {"type": "Point", "coordinates": [12.035305, 50.247594]}
 },
+	{
+	"keyxchange_id": 25,
+	"name": "Coburg",
+	"net": "10.50.180.0/22",
+	"position": {"type": "Point", "coordinates": [10.964414, 50.259675]}
+},
 {
 	"keyxchange_id": 26,
 	"name": "Ebern",
