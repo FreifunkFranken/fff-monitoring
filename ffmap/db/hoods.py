@@ -11,54 +11,54 @@ db.hoods.create_index([("position", "2dsphere")])
 hoods = [
 {
 	"keyxchange_id": 1,
-	"name": "default",
+	"name": "Default",
 	"net": "10.50.16.0/20"
 },
 {
 	"keyxchange_id": 2,
-	"name": "fuerth",
+	"name": "Fuerth",
 	"net": "10.50.32.0/21",
 	"position": {"type": "Point", "coordinates": [10.966, 49.4814]}
 },
 {
 	"keyxchange_id": 3,
-	"name": "nuernberg",
+	"name": "Nuernberg",
 	"net": "10.50.40.0/21",
 	"position": {"type": "Point", "coordinates": [11.05, 49.444]}
 },
 {
 	"keyxchange_id": 4,
-	"name": "ansbach",
+	"name": "Ansbach",
 	"net": "10.50.48.0/21",
 	"position": {"type": "Point", "coordinates": [10.571667, 49.300833]}
 },
 {
 	"keyxchange_id": 5,
-	"name": "haßberge",
+	"name": "Hassberge",
 	"net": "10.50.56.0/21",
 	"position": {"type": "Point", "coordinates": [10.568013390003, 50.093555895082]}
 },
 {
 	"keyxchange_id": 6,
-	"name": "erlangen",
+	"name": "Erlangen",
 	"net": "10.50.64.0/21",
 	"position": {"type": "Point", "coordinates": [11.0019221, 49.6005981]}
 },
 {
 	"keyxchange_id": 7,
-	"name": "wuerzburg",
+	"name": "Wuerzburg",
 	"net": "10.50.72.0/21",
 	"position": {"type": "Point", "coordinates": [9.93489, 49.79688]}
 },
 {
 	"keyxchange_id": 8,
-	"name": "bamberg",
+	"name": "Bamberg",
 	"net": "10.50.124.0/22",
 	"position": {"type": "Point", "coordinates": [10.95, 49.89]}
 },
 {
 	"keyxchange_id": 9,
-	"name": "bgl",
+	"name": "BGL",
 	"net": "10.50.80.0/21",
 	"position": {"type": "Point", "coordinates": [12.8825, 47.7314]}
 },
@@ -70,43 +70,43 @@ hoods = [
 },
 {
 	"keyxchange_id": 11,
-	"name": "nbgland",
+	"name": "NbgLand",
 	"net": "10.50.88.0/21",
 	"position": {"type": "Point", "coordinates": [11.162796020507812, 49.39200496388418]}
 },
 {
-        "keyxchange_id": 12,
-        "name": "hof",
-        "net": "10.50.104.0/21",
-        "position": {"type": "Point", "coordinates": [11.917545, 50.312209]}
+	"keyxchange_id": 12,
+	"name": "Hof",
+	"net": "10.50.104.0/21",
+	"position": {"type": "Point", "coordinates": [11.917545, 50.312209]}
 },
 {
 	"keyxchange_id": 13,
-	"name": "aschaffenburg",
+	"name": "Aschaffenburg",
 	"net": "10.50.96.0/22",
 	"position": {"type": "Point", "coordinates": [9.146826, 49.975661]}
 },
 {
 	"keyxchange_id": 14,
-	"name": "marktredwitz",
+	"name": "Marktredwitz",
 	"net": "10.50.112.0/22",
 	"position": {"type": "Point", "coordinates": [12.084797, 50.002915]}
 },
 {
 	"keyxchange_id": 15,
-	"name": "forchheim",
+	"name": "Forchheim",
 	"net": "10.50.116.0/22",
 	"position": {"type": "Point", "coordinates": [11.059474, 49.718820]}
 },
 {
 	"keyxchange_id": 16,
-	"name": "muenchberg",
+	"name": "Muenchberg",
 	"net": "10.50.120.0/22",
 	"position": {"type": "Point", "coordinates": [11.79, 50.19]}
 },
 {
 	"keyxchange_id": 17,
-	"name": "adelsdorf",
+	"name": "Adelsdorf",
 	"net": "10.50.144.0/22",
 	"position": {"type": "Point", "coordinates": [10.894235, 49.709945]}
 },
