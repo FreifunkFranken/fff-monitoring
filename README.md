@@ -48,3 +48,13 @@ server {
 
 }
 ```
+
+## Admin anlegen
+* User über WebUI anlegen
+* Dann als root:
+```
+# mongo
+> use freifunk;
+> db.users.update({"nickname": "asdil12"}, {"$set": {"admin": true}});
+> exit
+```
