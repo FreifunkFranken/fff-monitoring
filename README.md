@@ -21,7 +21,12 @@ pip3 install pymongo
 
 ## NGINX Config
 ```nginx
+server {
+	listen 443 ssl default_server;
+	listen [::]:443 ssl default_server;
+
 ...
+
 	location / {
 		include uwsgi_params;
 		uwsgi_pass 127.0.0.1:3031;
@@ -32,5 +37,14 @@ pip3 install pymongo
 		include uwsgi_params;
 		uwsgi_pass 127.0.0.1:3032;
 	}
+	
+	location /static/ {
+		root /usr/share/ffmap/;
+		expires max;
+		add_header Cache-Control "public";
+	}
+
 ...
+
+}
 ```
