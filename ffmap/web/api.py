@@ -64,26 +64,26 @@ def alfred():
 # https://github.com/ffansbach/de-map/blob/master/schema/nodelist-schema-1.0.0.json
 @api.route('/nodelist')
 def nodelist():
-    router_data = db.routers.find(projection=['_id', 'hostname', 'status', 'system.clients', 'position.coordinates', 'last_contact'])
-    nodelist_data = {'version': '1.0.0'}
-    nodelist_data['nodes'] = list()
-    for router in router_data:
-        nodelist_data['nodes'].append(
-            {
-                'id': str(router['_id']),
-                'name': router['hostname'],
-                'node_type': 'AccessPoint',
-                'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['_id']),
-                'status': {
-                    'online': router['status'] == 'online',
-                    'clients': router['system']['clients'],
-                    'lastcontact': router['last_contact'].isoformat()
-                }
-            }
-        )
-        if 'position' in router:
-            nodelist_data['nodes'][-1]['position'] = {
-                'lat': router['position']['coordinates'][1],
-                'long': router['position']['coordinates'][0]
-            }
-    return jsonify(nodelist_data)
+	router_data = db.routers.find(projection=['_id', 'hostname', 'status', 'system.clients', 'position.coordinates', 'last_contact'])
+	nodelist_data = {'version': '1.0.0'}
+	nodelist_data['nodes'] = list()
+	for router in router_data:
+		nodelist_data['nodes'].append(
+			{
+				'id': str(router['_id']),
+				'name': router['hostname'],
+				'node_type': 'AccessPoint',
+				'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['_id']),
+				'status': {
+					'online': router['status'] == 'online',
+					'clients': router['system']['clients'],
+					'lastcontact': router['last_contact'].isoformat()
+				}
+			}
+		)
+		if 'position' in router:
+			nodelist_data['nodes'][-1]['position'] = {
+				'lat': router['position']['coordinates'][1],
+				'long': router['position']['coordinates'][0]
+			}
+	return jsonify(nodelist_data)
