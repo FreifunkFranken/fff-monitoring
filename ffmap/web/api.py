@@ -3,7 +3,7 @@
 from ffmap.routertools import *
 from ffmap.maptools import *
 from ffmap.dbtools import FreifunkDB
-from ffmap.stattools import record_global_stats
+from ffmap.stattools import record_global_stats, record_hood_stats
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from pymongo import MongoClient
@@ -56,6 +56,7 @@ def alfred():
 		detect_offline_routers()
 		delete_orphaned_routers()
 		record_global_stats()
+		record_hood_stats()
 		update_mapnik_csv()
 	r.mimetype = 'application/json'
 	return r

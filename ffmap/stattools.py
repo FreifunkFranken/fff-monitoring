@@ -26,6 +26,23 @@ def router_status():
 		result[rs["_id"]] = rs["count"]
 	return result
 
+def total_clients_hood(selecthood):
+	r = db.routers.aggregate([{"$match": { "hood": selecthood }}, {"$group": {
+		"_id": None,
+		"clients": {"$sum": "$system.clients"}
+	}}])
+	return next(r)["clients"]
+
+def router_status_hood(selecthood):
+	r = db.routers.aggregate([{"$match": { "hood": selecthood }}, {"$group": {
+		"_id": "$status",
+		"count": {"$sum": 1}
+	}}])
+	result = {}
+	for rs in r:
+		result[rs["_id"]] = rs["count"]
+	return result
+
 def router_models():
 	r = db.routers.aggregate([{"$group": {
 		"_id": "$hardware.name",
@@ -36,8 +53,28 @@ def router_models():
 		result[rs["_id"]] = rs["count"]
 	return result
 
+def router_models_hood(selecthood):
+	r = db.routers.aggregate([{"$match": { "hood": selecthood }}, {"$group": {
+		"_id": "$hardware.name",
+		"count": {"$sum": 1}
+	}}])
+	result = {}
+	for rs in r:
+		result[rs["_id"]] = rs["count"]
+	return result
+
 def router_firmwares():
 	r = db.routers.aggregate([{"$group": {
+		"_id": "$software.firmware",
+		"count": {"$sum": 1}
+	}}])
+	result = {}
+	for rs in r:
+		result[rs["_id"]] = rs["count"]
+	return result
+
+def router_firmwares_hood(selecthood):
+	r = db.routers.aggregate([{"$match": { "hood": selecthood }}, {"$group": {
 		"_id": "$software.firmware",
 		"count": {"$sum": 1}
 	}}])
@@ -79,6 +116,16 @@ def record_global_stats():
 		"router_status": router_status(),
 		"total_clients": total_clients()
 	})
+
+def record_hood_stats():
+	allhoods = hoods()
+	for hood in allhoods:
+		db.hoodstats.insert_one({
+			"time": utcnow(),
+			"hood": hood,
+			"router_status": router_status_hood(hood),
+			"total_clients": total_clients_hood(hood)
+		})
 
 
 def router_user_sum():
