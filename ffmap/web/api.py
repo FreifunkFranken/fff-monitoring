@@ -5,7 +5,7 @@ from ffmap.maptools import *
 from ffmap.dbtools import FreifunkDB
 from ffmap.stattools import record_global_stats
 
-from flask import Blueprint, request, make_response, redirect, url_for, jsonify
+from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from pymongo import MongoClient
 from bson.json_util import dumps as bson2json
 import json
@@ -87,3 +87,38 @@ def nodelist():
 				'long': router['position']['coordinates'][0]
 			}
 	return jsonify(nodelist_data)
+
+
+@api.route('/wifianal/<selecthood>')
+def wifianal(selecthood):
+	router_data = db.routers.find({'hood': selecthood},projection=['hostname','netifs'])
+	
+	s = "#----------WifiAnalyzer alias file----------\n"
+	s += "# \n"
+	s += "#Freifunk Franken\n"
+	s += "#Hood: " + selecthood + "\n"
+	s += "# \n"
+	s += "#Encoding: UTF-8.\n"
+	s += "#The line starts with # is comment.\n"
+	s += "# \n"
+	s += "#Content line format:\n"
+	s += "#bssid1|alias of bssid1\n"
+	s += "#bssid2|alias of bssid2\n"
+	s += "# \n"
+	
+	for router in router_data:
+		if not 'netifs' in router:
+			continue
+		for netif in router['netifs']:
+			if not 'mac' in netif:
+				continue
+			if netif['name'] == 'br-mesh':
+				s += netif["mac"] + "|Mesh_" + router['hostname'] + "\n"
+			elif netif['name'] == 'w2ap':
+				s += netif["mac"] + "|" + router['hostname'] + "\n"
+			elif netif['name'] == 'w5ap':
+				s += netif["mac"] + "|W5_" + router['hostname'] + "\n"
+			elif netif['name'] == 'w5mesh':
+				s += netif["mac"] + "|W5Mesh_" + router['hostname'] + "\n"
+	
+	return Response(s,mimetype='text/plain')
