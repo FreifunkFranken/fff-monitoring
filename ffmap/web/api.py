@@ -88,7 +88,6 @@ def nodelist():
 			}
 	return jsonify(nodelist_data)
 
-
 @api.route('/wifianal/<selecthood>')
 def wifianal(selecthood):
 	router_data = db.routers.find({'hood': selecthood}, projection=['hostname','netifs'])
@@ -122,3 +121,59 @@ def wifianal(selecthood):
 				s += netif["mac"] + "|W5Mesh_" + router['hostname'] + "\n"
 	
 	return Response(s,mimetype='text/plain')
+
+@api.route('/routers')
+def routers():
+	router_data = db.routers.find(projection=['_id', 'hostname', 'status', 'hood', 'user.nickname', 'hardware.name', 'software.firmware', 'system.clients', 'position.coordinates', 'last_contact', 'netifs'])
+	nodelist_data = {'version': '1.0.0'}
+	nodelist_data['nodes'] = list()
+	
+	for router in router_data:
+		hood = ""
+		user = ""
+		firmware = ""
+		mac = ""
+		fastd = 0
+		l2tp = 0
+		
+		if 'hood' in router:
+			hood = router['hood']
+		if 'user' in router:
+			user = router['user']['nickname']
+		if 'software' in router:
+			firmware = router['software']['firmware']
+		
+		if 'netifs' in router:
+			for netif in router['netifs']:
+				if netif['name'] == 'fffVPN':
+					fastd += 1
+				elif netif['name'].startswith('l2tp'):
+					l2tp += 1
+				elif netif['name'] == 'br-mesh' and 'mac' in netif:
+					mac = netif["mac"]
+		
+		nodelist_data['nodes'].append(
+			{
+				'id': str(router['_id']),
+				'name': router['hostname'],
+				'mac': mac,
+				'hood': hood,
+				'status': router['status'],
+				'user': user,
+				'hardware': router['hardware']['name'],
+				'firmware': firmware,
+				'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['_id']),
+				'clients': router['system']['clients'],
+				'lastcontact': router['last_contact'].isoformat(),
+				'uplink': {
+					'fastd': fastd,
+					'l2tp': l2tp
+				}
+			}
+		)
+		if 'position' in router:
+			nodelist_data['nodes'][-1]['position'] = {
+				'lat': router['position']['coordinates'][1],
+				'lng': router['position']['coordinates'][0]
+			}
+	return jsonify(nodelist_data)
