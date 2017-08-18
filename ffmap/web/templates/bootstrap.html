@@ -38,6 +38,7 @@
 					                      (["router_list", "router_info"], "Routers"),
 					                      (["user_list", "user_info"], "Users"),
 					                      (["global_statistics"], "Statistics"),
+					                      (["apidoc"], "API"),
 					] %}
 					<li class="{{ "active" if request.endpoint in fkt }}"><a href="{{ url_for(fkt[0]) }}">{{ text }}</a></li>
 					{%- endfor %}
