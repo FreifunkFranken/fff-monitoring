@@ -91,7 +91,7 @@ def nodelist():
 
 @api.route('/wifianal/<selecthood>')
 def wifianal(selecthood):
-	router_data = db.routers.find({'hood': selecthood},projection=['hostname','netifs'])
+	router_data = db.routers.find({'hood': selecthood}, projection=['hostname','netifs'])
 	
 	s = "#----------WifiAnalyzer alias file----------\n"
 	s += "# \n"
