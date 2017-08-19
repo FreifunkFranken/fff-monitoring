@@ -1,0 +1,100 @@
+{% extends "bootstrap.html" %}
+{% block title %}{{super()}} :: API Guide{% endblock %}
+{% block head %}{{super()}}
+	<style type="text/css">
+		.jumbotron h1 {
+			font-size:30px;
+			font-weight:bold;
+			margin-top:16px;
+			margin-bottom:40px;
+		}
+		.jumbotron h2 {
+			font-size:18px;
+			font-weight:bold;
+			font-style:italic;
+			margin:6px 0;
+		}
+		.jumbotron p {
+			font-size:16px;
+			margin:6px 0;
+		}
+		.jumbotron td {
+			padding:10px 20px;
+			vertical-align:top;
+		}
+		.jumbotron th {
+			padding:10px 20px;
+			font-size:18px;
+		}
+		.jumbotron .apilink {
+			font-weight: bold;
+			font-style: normal;
+			white-space: pre;
+			font-family: monospace;
+		}
+		.jumbotron .apidesc {
+			font-weight: normal;
+		}
+		.jumbotron .uneven {
+			background-color:#FFFFFF;
+		}
+	</style>
+{% endblock %}
+{% block content %}
+	<div class="jumbotron">
+		<h1>Freifunk Franken Monitoring - API Guide</h1>
+		<table>
+		<tr>
+			<th style="width:240px">Function</th>
+			<th>Details</th>
+		</tr>
+		<tr class="uneven">
+			<td>
+				<h2>Nearest router</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/get_nearest_router?lat=&lt;latitude&gt;&amp;lng=&lt;longitude&gt;</p>
+				<p class="apidesc">Returns JSON file with basic data of router next to coordinates.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<h2>Router by mac address</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/get_router_by_mac/&lt;mac_with_colon_separators&gt;</p>
+				<p class="apidesc">Redirects to router page.</p>
+			</td>
+		</tr>
+		<tr class="uneven">
+			<td>
+				<h2>Nodelist based on FF Ansbach scheme</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/nodelist</p>
+				<p class="apidesc">Returns JSON file of all routers based on scheme of FF Ansbach (<a href="https://github.com/ffansbach/de-map/blob/master/schema/nodelist-schema-1.0.0.json">GitHub</a>).</p>
+				<p class="apidesc">This includes the following information: <span style="font-style:italic">Monitoring ID, hostname, Monitoring Link, on/off, clients, last contact and coordinates.</span></p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<h2>Extended router list</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/routers</p>
+				<p class="apidesc">Returns JSON file of all routers with the following information: <span style="font-style:italic">Monitoring ID, hostname, MAC address, hood, status, user nickname, hardware, firmware, Monitoring link, clients, last contact, uplink interfaces and coordinates.</span></p>
+			</td>
+		</tr>
+		<tr class="uneven">
+			<td>
+				<h2>Wifi Analyzer node list</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/wifianal/&lt;hood&gt;</p>
+				<p class="apidesc">Returns configuration file (text/plain) for the Wifi Analyzer app (<a href="https://play.google.com/store/apps/details?id=com.farproc.wifi.analyzer&hl=en">PlayStore</a>).</p>
+				<p class="apidesc">The file contains all routers of the selected &lt;hood&gt;.</p>
+			</td>
+		</tr>
+		</table>
+	</div>
+{% endblock %}

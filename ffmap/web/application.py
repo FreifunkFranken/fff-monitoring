@@ -33,6 +33,10 @@ tileurls = {
 def index():
 	return render_template("index.html")
 
+@app.route('/apidoc')
+def apidoc():
+	return render_template("apidoc.html")
+
 @app.route('/map')
 def router_map():
 	return render_template("map.html", tileurls=tileurls)
