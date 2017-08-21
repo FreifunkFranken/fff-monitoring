@@ -6,6 +6,7 @@ client = MongoClient()
 db = client.freifunk
 
 # create db indexes
+db.hoods.delete_many({})
 db.hoods.create_index([("position", "2dsphere")])
 
 hoods = [

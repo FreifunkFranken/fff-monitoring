@@ -10,6 +10,8 @@ from pymongo import MongoClient
 from bson.json_util import dumps as bson2json
 import json
 
+from operator import itemgetter
+
 api = Blueprint("api", __name__)
 
 db = FreifunkDB().handle()
@@ -26,6 +28,7 @@ def get_nearest_router():
 			"hostname": 1,
 			"neighbours": 1,
 			"position": 1,
+			"description": 1,
 		}
 	)
 	r = make_response(bson2json(res_router))
@@ -46,6 +49,9 @@ def alfred():
 	#set_alfred_data = {65: "hallo", 66: "welt"}
 	set_alfred_data = {}
 	r = make_response(json.dumps(set_alfred_data))
+	#import cProfile, pstats, io
+	#pr = cProfile.Profile()
+	#pr.enable()
 	if request.method == 'POST':
 		alfred_data = request.get_json()
 		if alfred_data:
@@ -57,6 +63,12 @@ def alfred():
 		delete_orphaned_routers()
 		record_global_stats()
 		update_mapnik_csv()
+	#pr.disable()
+	#s = io.StringIO()
+	#sortby = 'cumulative'
+	#ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+	#ps.print_stats()
+	#print(s.getvalue())
 	r.mimetype = 'application/json'
 	return r
 
@@ -177,3 +189,95 @@ def routers():
 				'lng': router['position']['coordinates'][0]
 			}
 	return jsonify(nodelist_data)
+
+@api.route('/nopos')
+def no_position():
+    router_data = db.routers.find(filter={'position': { '$exists': False}}, projection=['_id', 'hostname', 'system.contact', 'user.nickname', 'software.firmware'])
+    #nodelist_data = dict()
+    nodelist_data = list()
+    for router in router_data:
+        nodelist_data.append(
+            {
+                'name': router['hostname'],
+                'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['_id']),
+                'firmware': router['software']['firmware']
+            }
+        )
+        if 'system' in router and 'contact' in router['system']:
+            nodelist_data[-1]['contact'] = router['system']['contact']
+        if 'user' in router and 'nickname' in router['user']:
+            nodelist_data[-1]['owner'] = router['user']['nickname']
+        else:
+            nodelist_data[-1]['owner'] = ''
+
+
+    nodelist_data2 = sorted(nodelist_data, key=itemgetter('owner'), reverse=False)
+    nodes = dict()
+    nodes['nodes'] = list(nodelist_data2)
+
+    return jsonify(nodes)
+
+import pymongo
+@api.route('/routers_by_nickname/<nickname>')
+def get_routers_by_nickname(nickname):
+    try:
+        user = db.users.find_one({"nickname": nickname})
+        assert user
+    except AssertionError:
+        return "User not found"
+
+    nodelist_data = dict()
+    nodelist_data['nodes'] = list()
+    routers=db.routers.find({"user._id": user["_id"]}, {"hostname": 1, "netifs": 1, "_id": 1}).sort("hostname", pymongo.ASCENDING)
+    for router in routers:
+        #print(router['hostname'])
+        for netif in router['netifs']:
+            if netif['name'] == 'br-mesh':
+                #print(netif['ipv6_fe80_addr'])
+                nodelist_data['nodes'].append(
+                {
+                        'name': router['hostname'],
+                        'oid': str(router['_id']),
+                        'ipv6_fe80_addr': netif['ipv6_fe80_addr']
+                    }
+                )
+    return jsonify(nodelist_data)
+
+
+@api.route('/routers_by_keyxchange_id/<keyxchange_id>')
+def get_routers_by_keyxchange_id(keyxchange_id):
+    try:
+        hood = db.hoods.find_one({"keyxchange_id": int(keyxchange_id)})
+        assert hood
+    except AssertionError:
+        return "Hood not found"
+    nodelist_data = dict()
+    nodelist_data['nodes'] = list()
+    routers = db.routers.find({"hood": hood["name"]}, {"hostname": 1, "hardware": 1, "netifs": 1, "_id": 1, "software": 1, "position": 1, "system": 1, "position_comment": 1, "description": 1}).sort("hostname", pymongo.ASCENDING)
+    for router in routers:
+        for netif in router['netifs']:
+            if netif['name'] == 'br-mesh':
+                if 'ipv6_fe80_addr' not in netif:
+                    continue
+                nodelist_data['nodes'].append(
+                    {
+                        'name': router['hostname'],
+                        'ipv6_fe80_addr': netif['ipv6_fe80_addr'],
+                        'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['_id']),
+                        'firmware': router['software']['firmware'],
+                        'hardware': router['hardware']['name']
+                    }
+                )
+                if 'position' in router:
+                    nodelist_data['nodes'][-1]['position'] = {
+                        'lat': router['position']['coordinates'][1],
+                        'long': router['position']['coordinates'][0]
+                    }
+                if 'system' in router and 'contact' in router['system']:
+                    nodelist_data['nodes'][-1]['contact'] = router['system']['contact']
+                if 'description' in router:
+                    nodelist_data['nodes'][-1]['description'] = router['description']
+
+                if 'position_comment' in router:
+                    nodelist_data['nodes'][-1]['position']['comment'] = router['position_comment']
+    return jsonify(nodelist_data)
