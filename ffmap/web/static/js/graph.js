@@ -236,6 +236,35 @@ function client_graph() {
 	setup_plot_zoom(plot, pdata, len);
 }
 
+function loadavg_graph() {
+	var loadstat = $("#loadstat");
+	var loadavg = [];
+	var len, i;
+	for (len=router_stats.length, i=0; i<len; i++) {
+		try {
+			var load_value = router_stats[i].loadavg;
+			var date_value = router_stats[i].time.$date;
+			if(load_value != null) {
+				loadavg.push([date_value, load_value]);
+			}
+		}
+		catch(TypeError) {
+			// pass
+		}
+	}
+	var pdata = [
+		{"label": "loadavg", "data": loadavg, "color": "#FF2626", lines: {fill: true}}
+	];
+	var plot = $.plot(loadstat, pdata, {
+		xaxis: {mode: "time", timezone: "browser"},
+		selection: {mode: "x"},
+		yaxis: {min: 0},
+		legend: {hideable: true},
+		series: {downsample: {threshold: Math.floor(loadstat.width() * points_per_px)}}
+	});
+	setup_plot_zoom(plot, pdata, len);
+}
+
 
 // Global statistics
 
