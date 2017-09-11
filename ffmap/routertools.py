@@ -190,6 +190,7 @@ def new_router_stats(router, router_update):
 			"netifs": netifs,
 			"neighbours": neighbours,
 			"memory": router_update["system"]["memory"],
+			"loadavg": router_update["system"]["loadavg"],
 			"processes": router_update["system"]["processes"],
 			"clients": router_update["system"]["clients"],
 		}]
