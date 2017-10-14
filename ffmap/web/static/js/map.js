@@ -28,13 +28,15 @@ var overlay_config = {
 
 var links_and_routers = new L.TileLayer(tileurls.links_and_routers + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
 var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
+var hoodsv2 = new L.TileLayer(tileurls.hoodsv2 + '/{z}/{x}/{y}.png', overlay_config);
 layersControl = new L.Control.Layers({
 	"openstreetmap.org": tilesosmorg,
 	"openstreetmap.de": tilesosmde,
 	"Thunderforest Outdoors": tilestfod
 }, {
 	"Links & Routers": links_and_routers,
-	"Hoods": hoods
+	"Hoods": hoods,
+	"Hoods v2": hoodsv2
 });
 map.addControl(layersControl);
 

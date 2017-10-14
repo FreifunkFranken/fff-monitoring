@@ -27,6 +27,7 @@ db = FreifunkDB().handle()
 tileurls = {
 	"links_and_routers": "/tiles/links_and_routers",
 	"hoods": "/tiles/hoods",
+	"hoodsv2": "/tiles/hoodsv2",
 }
 
 @app.route('/')
