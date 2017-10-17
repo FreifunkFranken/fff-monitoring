@@ -161,6 +161,7 @@ def user_info(nickname):
 def global_statistics():
 	hoods = stattools.hoods()
 	return render_template("statistics.html",
+		selecthood = "All Hoods",
 		stats = db.stats.find({}, {"_id": 0}),
 		clients = stattools.total_clients(),
 		router_status = stattools.router_status(),
@@ -169,6 +170,21 @@ def global_statistics():
 		hoods = hoods,
 		hoods_sum = stattools.hoods_sum(),
 		newest_routers = db.routers.find({"hardware.name": {"$ne": "Legacy"}}, {"hostname": 1, "hood": 1, "created": 1}).sort("created", pymongo.DESCENDING).limit(len(hoods)+1)
+	)
+
+@app.route('/hoodstatistics/<selecthood>')
+def global_hoodstatistics(selecthood):
+	hoods = stattools.hoods()
+	return render_template("statistics.html",
+		selecthood = selecthood,
+		stats = db.hoodstats.find({"hood": selecthood}, {"_id": 0, "hood": 0}),
+		clients = stattools.total_clients(),
+		router_status = stattools.router_status(),
+		router_models = stattools.router_models_hood(selecthood),
+		router_firmwares = stattools.router_firmwares_hood(selecthood),
+		hoods = hoods,
+		hoods_sum = stattools.hoods_sum(),
+		newest_routers = db.routers.find({"hardware.name": {"$ne": "Legacy"},"hood": selecthood}, {"hostname": 1, "hood": 1, "created": 1}).sort("created", pymongo.DESCENDING).limit(len(hoods)+1)
 	)
 
 @app.route('/register', methods=['GET', 'POST'])
