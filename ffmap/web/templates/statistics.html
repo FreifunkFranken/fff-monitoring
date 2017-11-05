@@ -86,7 +86,7 @@
 							</tr>
 							{%- for router in newest_routers|reverse %}
 							<tr>
-								<td><a href="{{ url_for('router_info', dbid=router._id) }}">{{ router.hostname }}</a></td>
+								<td><a href="{{ url_for('router_info', dbid=router.id) }}">{{ router.hostname }}</a></td>
 								<td>{{ router.hood }}</td>
 								<td class="text-nowrap">{{ router.created|utc2local|format_dt }}</td>
 							</tr>

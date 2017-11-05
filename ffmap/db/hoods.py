@@ -1,182 +1,33 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from pymongo import MongoClient
-client = MongoClient()
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 
-db = client.freifunk
+from ffmap.mysqltools import FreifunkMySQL
 
-# create db indexes
-db.hoods.delete_many({})
-db.hoods.create_index([("position", "2dsphere")])
+mysql = FreifunkMySQL()
 
-hoods = [
-{
-	"keyxchange_id": 1,
-	"name": "Default",
-	"net": "10.50.16.0/20"
-},
-{
-	"keyxchange_id": 2,
-	"name": "Fuerth",
-	"net": "10.50.32.0/21",
-	"position": {"type": "Point", "coordinates": [10.966, 49.4814]}
-},
-{
-	"keyxchange_id": 3,
-	"name": "Nuernberg",
-	"net": "10.50.40.0/21",
-	"position": {"type": "Point", "coordinates": [11.05, 49.444]}
-},
-{
-	"keyxchange_id": 4,
-	"name": "Ansbach",
-	"net": "10.50.48.0/21",
-	"position": {"type": "Point", "coordinates": [10.571667, 49.300833]}
-},
-{
-	"keyxchange_id": 5,
-	"name": "Hassberge",
-	"net": "10.50.56.0/21",
-	"position": {"type": "Point", "coordinates": [10.568013390003, 50.093555895082]}
-},
-{
-	"keyxchange_id": 6,
-	"name": "Erlangen",
-	"net": "10.50.64.0/21",
-	"position": {"type": "Point", "coordinates": [11.0019221, 49.6005981]}
-},
-{
-	"keyxchange_id": 7,
-	"name": "Wuerzburg",
-	"net": "10.50.72.0/21",
-	"position": {"type": "Point", "coordinates": [9.93489, 49.79688]}
-},
-{
-	"keyxchange_id": 8,
-	"name": "Bamberg",
-	"net": "10.50.124.0/22",
-	"position": {"type": "Point", "coordinates": [10.95, 49.89]}
-},
-{
-	"keyxchange_id": 9,
-	"name": "BGL",
-	"net": "10.50.80.0/21",
-	"position": {"type": "Point", "coordinates": [12.8825, 47.7314]}
-},
-{
-	"keyxchange_id": 10,
-	"name": "HassbergeSued",
-	"net": "10.50.60.0/22",
-	"position": {"type": "Point", "coordinates": [10.568013390003, 50.04501]}
-},
-{
-	"keyxchange_id": 11,
-	"name": "NbgLand",
-	"net": "10.50.88.0/21",
-	"position": {"type": "Point", "coordinates": [11.162796020507812, 49.39200496388418]}
-},
-{
-	"keyxchange_id": 12,
-	"name": "Hof",
-	"net": "10.50.104.0/21",
-	"position": {"type": "Point", "coordinates": [11.917545, 50.312209]}
-},
-{
-	"keyxchange_id": 13,
-	"name": "Aschaffenburg",
-	"net": "10.50.96.0/22",
-	"position": {"type": "Point", "coordinates": [9.146826, 49.975661]}
-},
-{
-	"keyxchange_id": 14,
-	"name": "Marktredwitz",
-	"net": "10.50.112.0/22",
-	"position": {"type": "Point", "coordinates": [12.084797, 50.002915]}
-},
-{
-	"keyxchange_id": 15,
-	"name": "Forchheim",
-	"net": "10.50.116.0/22",
-	"position": {"type": "Point", "coordinates": [11.059474, 49.718820]}
-},
-{
-	"keyxchange_id": 16,
-	"name": "Muenchberg",
-	"net": "10.50.120.0/22",
-	"position": {"type": "Point", "coordinates": [11.79, 50.19]}
-},
-{
-	"keyxchange_id": 17,
-	"name": "Adelsdorf",
-	"net": "10.50.144.0/22",
-	"position": {"type": "Point", "coordinates": [10.894235, 49.709945]}
-},
-{
-	"keyxchange_id": 18,
-	"name": "Schweinfurt",
-	"net": "10.50.160.0/22",
-	"position": {"type": "Point", "coordinates": [10.21267, 50.04683]}
-},
-{
-	"keyxchange_id": 19,
-	"name": "ErlangenWest",
-	"net": "10.50.152.0/22",
-	"position": {"type": "Point", "coordinates": [10.984488, 49.6035981]}
-},
-{
-	"keyxchange_id": 20,
-	"name": "Ebermannstadt",
-	"net": "10.50.148.0/22",
-	"position": {"type": "Point", "coordinates": [11.18538, 49.78173]}
-},
-{
-	"keyxchange_id": 21,
-	"name": "Lauf",
-	"net": "10.50.156.0/22",
-	"position": {"type": "Point", "coordinates": [11.278789, 49.509972]}
-},
-{
-	"keyxchange_id": 22,
-	"name": "Bayreuth",
-	"net": "10.50.168.0/22",
-	"position": {"type": "Point", "coordinates": [11.580566, 49.94814]}
-},
-{
-	"keyxchange_id": 23,
-	"name": "Fichtelberg",
-	"net": "10.50.172.0/22",
-	"position": {"type": "Point", "coordinates": [11.852292, 49.998920]}
-},
-{
-	"keyxchange_id": 24,
-	"name": "Rehau",
-	"net": "10.50.176.0/22",
-	"position": {"type": "Point", "coordinates": [12.035305, 50.247594]}
-},
-	{
-	"keyxchange_id": 25,
-	"name": "Coburg",
-	"net": "10.50.180.0/22",
-	"position": {"type": "Point", "coordinates": [10.964414, 50.259675]}
-},
-{
-	"keyxchange_id": 26,
-	"name": "Ebern",
-	"net": "10.50.184.0/22",
-	"position": {"type": "Point", "coordinates": [10.798395, 50.095572]}
-},
-{
-	"keyxchange_id": 27,
-	"name": "Arnstein",
-	"net": "10.50.188.0/22",
-	"position": {"type": "Point", "coordinates": [9.970957, 49.978117]}
-},
-{
-	"keyxchange_id": 28,
-	"name": "Erlenbach",
-	"net": "10.50.192.0/22",
-	"position": {"type": "Point", "coordinates": [9.157491, 49.803930]}
-}]
+mysql.execute("""
+	CREATE TABLE hoods (
+		`id` int(11) NOT NULL,
+		`name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+		`lat` double DEFAULT NULL,
+		`lng` double DEFAULT NULL,
+		`cos_lat` double DEFAULT NULL,
+		`sin_lat` double DEFAULT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
 
-for hood in hoods:
-	db.hoods.insert_one(hood)
+mysql.execute("""
+	ALTER TABLE hoods
+		ADD PRIMARY KEY (`id`),
+		ADD KEY `name` (`name`),
+		ADD KEY `lat` (`lat`),
+		ADD KEY `lng` (`lng`),
+		ADD KEY `cos_lat` (`cos_lat`),
+		ADD KEY `sin_lat` (`sin_lat`)
+""")
+
+mysql.close()

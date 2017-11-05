@@ -4,15 +4,13 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
-from ffmap.dbtools import FreifunkDB
+from ffmap.mysqltools import FreifunkMySQL
 
 import math
 import numpy as np
 from scipy.spatial import Voronoi
 
 import urllib.request, json
-
-db = FreifunkDB().handle()
 
 CONFIG = {
 	"csv_dir": "/var/lib/ffmap/csv"
@@ -73,83 +71,88 @@ def draw_voronoi_lines(csv, hoods):
 			csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % (lng1, lat1, lng2, lat2))
 
 
-def update_mapnik_csv():
+def update_mapnik_csv(mysql):
 	with open(os.path.join(CONFIG["csv_dir"], "routers.csv"), "w") as csv:
 		csv.write("lng,lat,status\n")
-		for router in db.routers.find({"position.coordinates": {"$exists": True}}, {"status": 1, "position": 1}):
+		routers = mysql.fetchall("""
+			SELECT status, lat, lng FROM router
+			WHERE lat IS NOT NULL AND lng IS NOT NULL
+		""")
+		for router in routers:
 			csv.write("%f,%f,%s\n" % (
-				router["position"]["coordinates"][0],
-				router["position"]["coordinates"][1],
+				router["lng"],
+				router["lat"],
 				router["status"]
 			))
 
+	dblinks = mysql.fetchall("""
+		SELECT r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, quality
+		FROM router AS r1
+		INNER JOIN router_neighbor AS n ON r1.id = n.router
+		INNER JOIN (
+			SELECT router, mac FROM router_netif GROUP BY mac, router
+			) AS net ON n.mac = net.mac
+		INNER JOIN router AS r2 ON net.router = r2.id
+		WHERE r1.lat IS NOT NULL AND r1.lng IS NOT NULL AND r2.lat IS NOT NULL AND r2.lng IS NOT NULL
+		AND r1.status = 'online'
+	""")
+	links = []
+	linksl3 = []
+	for row in dblinks:
+		if row.get("type")=="l3":
+			linksl3.append((
+				row["rlng"],
+				row["rlat"],
+				row["nlng"],
+				row["nlat"]
+			))
+		else:
+			links.append((
+				row["rlng"],
+				row["rlat"],
+				row["nlng"],
+				row["nlat"],
+				row["quality"]
+			))
 	with open(os.path.join(CONFIG["csv_dir"], "links.csv"), "w") as csv:
 		csv.write("WKT,quality\n")
-		links = []
-		for router in db.routers.find(
-			{
-				"position.coordinates": {"$exists": True},
-				"neighbours": {"$exists": True},
-				"status": "online"
-			},
-			{"position": 1, "neighbours": 1}
-		):
-			for neighbour in router["neighbours"]:
-				if "position" in neighbour and not neighbour.get("type"):
-					links.append((
-						router["position"]["coordinates"][0],
-						router["position"]["coordinates"][1],
-						neighbour["position"]["coordinates"][0],
-						neighbour["position"]["coordinates"][1],
-						neighbour["quality"]
-					))
 		for link in sorted(links, key=lambda l: l[4]):
 			csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % link)
 
 	with open(os.path.join(CONFIG["csv_dir"], "l3_links.csv"), "w") as csv:
 		csv.write("WKT\n")
-		for router in db.routers.find(
-			{
-				"position.coordinates": {"$exists": True},
-				"neighbours": {"$exists": True},
-				"status": "online"
-			},
-			{"position": 1, "neighbours": 1}
-		):
-			for neighbour in router["neighbours"]:
-				if "position" in neighbour and neighbour.get("type") and neighbour["type"] == "l3":
-					csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % (
-						router["position"]["coordinates"][0],
-						router["position"]["coordinates"][1],
-						neighbour["position"]["coordinates"][0],
-						neighbour["position"]["coordinates"][1]
-					))
+		for link in linksl3:
+			csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % link)
 
+	dbhoods = mysql.fetchall("""
+		SELECT name, lat, lng FROM hoods
+		WHERE lat IS NOT NULL AND lng IS NOT NULL
+	""")
 	with open(os.path.join(CONFIG["csv_dir"], "hood-points.csv"), "w", encoding="UTF-8") as csv:
 		csv.write("lng,lat,name\n")
-		for hood in db.hoods.find({"position": {"$exists": True}}):
+		for hood in dbhoods:
 			csv.write("%f,%f,\"%s\"\n" % (
-				hood["position"]["coordinates"][0],
-				hood["position"]["coordinates"][1],
+				hood["lng"],
+				hood["lat"],
 				hood["name"]
 			))
 
 	with open(os.path.join(CONFIG["csv_dir"], "hoods.csv"), "w") as csv:
 		csv.write("WKT\n")
 		hoods = []
-		for hood in db.hoods.find({"position": {"$exists": True}}):
+		for hood in dbhoods:
 			# convert coordinates info marcator sphere as voronoi doesn't work with lng/lat
-			x, y = merc_sphere(hood["position"]["coordinates"][0], hood["position"]["coordinates"][1])
+			x, y = merc_sphere(hood["lng"], hood["lat"])
 			hoods.append([x, y])
 		draw_voronoi_lines(csv, hoods)
 
+	with urllib.request.urlopen("http://keyserver.freifunk-franken.de/v2/hoods.php") as url:
+		dbhoodsv2 = json.loads(url.read().decode())
+	
 	with open(os.path.join(CONFIG["csv_dir"], "hood-points-v2.csv"), "w", encoding="UTF-8") as csv:
 		csv.write("lng,lat,name\n")
 		
-		with urllib.request.urlopen("http://keyserver.freifunk-franken.de/v2/hoods.php") as url:
-			data = json.loads(url.read().decode())
-		
-		for hood in data:
+		for hood in dbhoodsv2:
 			if not ( 'lon' in hood and 'lat' in hood ):
 				continue
 			csv.write("%f,%f,\"%s\"\n" % (
@@ -161,10 +164,8 @@ def update_mapnik_csv():
 	with open(os.path.join(CONFIG["csv_dir"], "hoodsv2.csv"), "w") as csv:
 		csv.write("WKT\n")
 		hoods = []
-		with urllib.request.urlopen("http://keyserver.freifunk-franken.de/v2/hoods.php") as url:
-			data = json.loads(url.read().decode())
 		
-		for hood in data:
+		for hood in dbhoodsv2:
 			if not ( 'lon' in hood and 'lat' in hood ):
 				continue
 			# convert coordinates info marcator sphere as voronoi doesn't work with lng/lat
