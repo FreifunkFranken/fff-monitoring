@@ -146,9 +146,9 @@ function memory_graph() {
 	var len, i;
 	for (len=router_stats.length, i=0; i<len; i++) {
 		try {
-			var free_value = router_stats[i].memory.free*1024;
-			var caching_value = router_stats[i].memory.caching*1024;
-			var buffering_value = router_stats[i].memory.buffering*1024;
+			var free_value = router_stats[i].sys_memfree*1024;
+			var caching_value = router_stats[i].sys_memcache*1024;
+			var buffering_value = router_stats[i].sys_membuff*1024;
 			var date_value = router_stats[i].time.$date;
 			if(free_value != null && caching_value != null && buffering_value != null) {
 				free.push([date_value, free_value]);
@@ -181,8 +181,8 @@ function process_graph() {
 		var len, i;
 		for (len=router_stats.length, i=0; i<len; i++) {
 			try {
-				var runnable_value = router_stats[i].processes.runnable;
-				var total_value = router_stats[i].processes.total;
+				var runnable_value = router_stats[i].sys_procrun;
+				var total_value = router_stats[i].sys_proctot;
 				var date_value = router_stats[i].time.$date;
 				if(runnable_value != null && total_value != null) {
 					runnable.push([date_value, runnable_value]);
@@ -274,7 +274,7 @@ function global_client_graph() {
 	var len, i;
 	for (len=global_stats.length, i=0; i<len; i++) {
 		try {
-			var client_value = global_stats[i].total_clients;
+			var client_value = global_stats[i].clients;
 			var date_value = global_stats[i].time.$date;
 			if(client_value != null) {
 				clients.push([date_value, client_value]);
@@ -304,9 +304,9 @@ function global_router_graph() {
 	var len, i;
 	for (len=global_stats.length, i=0; i<len; i++) {
 		try {
-			var offline_value = global_stats[i].router_status.offline;
-			var online_value = global_stats[i].router_status.online;
-			var unknown_value = global_stats[i].router_status.unknown;
+			var offline_value = global_stats[i].offline;
+			var online_value = global_stats[i].online;
+			var unknown_value = global_stats[i].unknown;
 			var date_value = global_stats[i].time.$date;
 			if (offline_value == null) offline_value = 0;
 			if (online_value == null) online_value = 0;
@@ -354,7 +354,7 @@ function global_router_firmwares_graph() {
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
 		if (obj && obj.series.label != "Other") {
-			window.location.href = routers_page_url + "?q=software.firmware:" + obj.series.label;
+			window.location.href = routers_page_url + "?q=firmware:" + obj.series.label;
 		}
 	});
 }
@@ -379,7 +379,7 @@ function global_router_models_graph() {
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
 		if (obj && obj.series.label != "Other") {
-			window.location.href = routers_page_url + "?q=hardware.name:" + obj.series.label.replace(/ /g, '_');
+			window.location.href = routers_page_url + "?q=hardware:" + obj.series.label.replace(/ /g, '_');
 		}
 	});
 }

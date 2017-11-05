@@ -42,21 +42,21 @@
 		<tbody>
 			{%- for router in routers %}
 			<tr>
-				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
+				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router.id) }}">{{ router.hostname }}</a></td>
 				<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
 				<td>{{ router.hood }}</td>
-				<td>{{ router.user.nickname if router.user }}</td>
-				<td class="text-nowrap">{{ router.get("hardware", {}).get("name", "") }}</td>
+				<td>{{ router.nickname if router.nickname else "" }}</td>
+				<td class="text-nowrap">{{ router.hardware }}</td>
 				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
-				<td class="text-nowrap">{{ router.system.uptime|format_ts_diff }}</td>
-				<td>{{ router.system.clients }}</td>
+				<td class="text-nowrap">{{ router.sys_uptime|format_ts_diff }}</td>
+				<td>{{ router.clients }}</td>
 			</tr>
 			{%- endfor %}
 		</tbody>
 	</table>
 </div>
 <div style="margin-bottom: 20px;">
-	{{ routers.count() }} Router{{ "s" if (routers.count() == 1) else "" }} found.
+	{{ numrouters }} Router{{ "s" if (numrouters == 1) else "" }} found.
 </div>
 <script type="text/javascript">
 	$(document).ready(function() {

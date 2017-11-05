@@ -75,8 +75,8 @@ map.on('click', function(pos) {
 
 	ajax_get_request(url_get_nearest_router + "?lng=" + lng + "&lat=" + lat, function(router) {
 		// decide if router is close enough
-		var lng_delta = Math.abs(lng - router.position.coordinates[0])
-		var lat_delta = Math.abs(lat - router.position.coordinates[1])
+		var lng_delta = Math.abs(lng - router.lng)
+		var lat_delta = Math.abs(lat - router.lat)
 
 		// convert degree distances into px distances on the map
 		var x_delta_px = lng_delta * px_per_deg_lng;
@@ -99,19 +99,21 @@ map.on('click', function(pos) {
 				has_neighbours = false;
 				for (var i = 0; i < router.neighbours.length; i++) {
 					neighbour = router.neighbours[i];
-					if ('_id' in neighbour) {
+					if ('id' in neighbour) {
 						has_neighbours = true;
 					}
 				}
 			}
 						
 			if (has_neighbours) {
+				console.log("Has "+router.neighbours.length+" neighbours.");
 				popup_html += "<div class=\"popup-headline with-neighbours\">";
 			}
 			else {
+				console.log("Has no neighbours.");
 				popup_html += "<div class=\"popup-headline\">";
 			}
-			popup_html += '<b>Router <a href="' + url_router_info + router._id.$oid +'">'+router.hostname+'</a></b>';
+			popup_html += '<b>Router <a href="' + url_router_info + router.id +'">'+router.hostname+'</a></b>';
 			popup_html += "</div>"
 			if (has_neighbours) {
 				popup_html += '<table class="neighbours" style="width: 100%;">';
@@ -123,7 +125,7 @@ map.on('click', function(pos) {
 				for (var i = 0; i < router.neighbours.length; i++) {
 					neighbour = router.neighbours[i];
 					// skip unknown neighbours
-					if ('_id' in neighbour) {
+					if ('id' in neighbour) {
 						var tr_color = "#04ff0a";
 						if      (neighbour.quality == -1) { tr_color = "#0684c4"; }
 						else if (neighbour.quality < 105) { tr_color = "#ff1e1e"; }
@@ -133,7 +135,7 @@ map.on('click', function(pos) {
 						else if (neighbour.quality < 205) { tr_color = "#ffeb79"; }
 						else if (neighbour.quality < 230) { tr_color = "#79ff7c"; }
 						popup_html += "<tr style=\"background-color: "+tr_color+";\">";
-						popup_html += '<td><a href="'+url_router_info+neighbour._id.$oid+'" title="'+escapeHTML(neighbour.mac)+'">'+escapeHTML(neighbour.hostname)+'</a></td>';
+						popup_html += '<td><a href="'+url_router_info+neighbour.id+'" title="'+escapeHTML(neighbour.mac)+'">'+escapeHTML(neighbour.hostname)+'</a></td>';
 						popup_html += "<td>"+neighbour.quality+"</td>";
 						popup_html += "<td>"+escapeHTML(neighbour.net_if)+"</td>";
 						popup_html += "</tr>";
@@ -142,7 +144,7 @@ map.on('click', function(pos) {
 				popup_html += "</table>";
 			}
 			popup = L.popup({offset: new L.Point(1, 1), maxWidth: 500})
-				.setLatLng([router.position.coordinates[1], router.position.coordinates[0]])
+				.setLatLng([router.lat, router.lng])
 				.setContent(popup_html)
 				.openOn(map);
 		}

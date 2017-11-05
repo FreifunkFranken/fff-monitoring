@@ -57,12 +57,11 @@
 				<table class="table table-condensed">
 					<tr><th>Nickname</th><td>
 						{{ user.nickname }}
-						(<a href="{{ url_for('router_list', q='user.nickname:%s' % user.nickname) }}">Filter</a>)
+						(<a href="{{ url_for('router_list', q='nickname:%s' % user.nickname) }}">Filter</a>)
 					</td></tr>
 					{%- if user.email %}
 					<tr><th>E-Mail</th><td>
 						{{ user.email|anon_email }}
-						(<a href="{{ url_for('router_list', q='system.contact:%s' % user.email|anon_email_regex) }}">Filter</a>)
 					</td></tr>
 					{%- endif %}
 					<tr><th>Created</th><td>
@@ -99,22 +98,22 @@
 			{%- set total_clients = 0 %}
 			{%- for router in routers %}
 			<tr>
-				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router._id) }}">{{ router.hostname }}</a></td>
+				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router.id) }}">{{ router.hostname }}</a></td>
 				<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
 				<td>{{ router.hood }}</td>
-				<td>{{ router.software.firmware }}</td>
-				<td class="text-nowrap">{{ router.get("hardware", {}).get("name", "") }}</td>
+				<td>{{ router.firmware }}</td>
+				<td class="text-nowrap">{{ router.get("hardware", "") }}</td>
 				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
-				<td class="text-nowrap">{{ router.system.uptime|format_ts_diff }}</td>
-				<td>{{ router.system.clients }}</td>
-				{%- set total_clients = total_clients + router.system.clients %}
+				<td class="text-nowrap">{{ router.sys_uptime|format_ts_diff }}</td>
+				<td>{{ router.clients }}</td>
+				{%- set total_clients = total_clients + router.clients %}
 			</tr>
 			{%- endfor %}
 		</tbody>
 	</table>
 </div>
 <div style="margin-bottom: 20px;">
-	{{ routers.count() }} Router{{ "s" if (routers.count() == 1) else "" }} found.
+	{{ routers_count }} Router{{ "s" if (routers_count == 1) else "" }} found.
 </div>
 <script type="text/javascript">
 	$(document).ready(function() {

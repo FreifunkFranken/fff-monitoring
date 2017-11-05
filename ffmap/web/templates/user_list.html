@@ -41,15 +41,15 @@
 						<span class="glyphicon glyphicon-remove" title="Automatically imported stub from netmon"></span>
 					{%- endif -%}
 				</td>
-				<td>{{ user_routers.get(user.nickname, {}).get('routers', 0) }}</td>
-				<td>{{ user_routers.get(user.nickname, {}).get('clients', 0) }}</td>
+				<td>{{ user_routers.get(user.email, {}).get('routers', 0) }}</td>
+				<td>{{ user_routers.get(user.email, {}).get('clients', 0) }}</td>
 			</tr>
 			{%- endfor %}
 		</tbody>
 	</table>
 </div>
 <div style="margin-bottom: 20px;">
-	{{ users.count() }} User{{ "s" if (users.count() > 1) else "" }} found.
+	{{ users_count }} User{{ "s" if (users_count > 1) else "" }} found.
 </div>
 <script type="text/javascript">
 	$(document).ready(function() {

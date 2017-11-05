@@ -1,9 +1,26 @@
 #!/usr/bin/python3
 
-from pymongo import MongoClient
-client = MongoClient()
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 
-db = client.freifunk
+from ffmap.mysqltools import FreifunkMySQL
 
-# create capped collection
-db.create_collection("stats", capped=True, size=10*1024*1024, max=4320)
+mysql = FreifunkMySQL()
+
+mysql.execute("""
+	CREATE TABLE `stats_global` (
+		`time` datetime NOT NULL,
+		`clients` int(11) NOT NULL,
+		`online` int(11) NOT NULL,
+		`offline` int(11) NOT NULL,
+		`unknown` int(11) NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE `stats_global`
+		ADD PRIMARY KEY (`time`)
+""")
+
+mysql.close()
