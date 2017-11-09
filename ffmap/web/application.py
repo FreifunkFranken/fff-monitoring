@@ -249,6 +249,7 @@ def global_statistics():
 	mysql.close()
 	
 	return render_template("statistics.html",
+		selecthood = "All Hoods",
 		stats = stats,
 		clients = clients,
 		router_status = router_status,
@@ -258,7 +259,42 @@ def global_statistics():
 		hoods_sum = hoods_sum,
 		newest_routers = newest_routers
 	)
+
+@app.route('/hoodstatistics/<selecthood>')
+def global_hoodstatistics(selecthood):
+	mysql = FreifunkMySQL()
+	hoods = stattools.hoods(mysql)
+	
+	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
+	mysql.utcawaretuple(stats,"time")
+	
+	newest_routers = mysql.fetchall("""
+		SELECT id, hostname, hood, created
+		FROM router
+		WHERE hardware <> 'Legacy' AND hood = %s
+		ORDER BY created DESC
+		LIMIT %s
+	""",(selecthood,len(hoods)+1,))
+	mysql.utcawaretuple(newest_routers,"created")
+	
+	clients = stattools.total_clients(mysql)
+	router_status = stattools.router_status(mysql)
+	router_models = stattools.router_models(mysql,selecthood)
+	router_firmwares = stattools.router_firmwares(mysql,selecthood)
+	hoods_sum = stattools.hoods_sum(mysql)
 	mysql.close()
+	
+	return render_template("statistics.html",
+		selecthood = selecthood,
+		stats = stats,
+		clients = clients,
+		router_status = router_status,
+		router_models = router_models,
+		router_firmwares = router_firmwares,
+		hoods = hoods,
+		hoods_sum = hoods_sum,
+		newest_routers = newest_routers
+	)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

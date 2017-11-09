@@ -11,32 +11,83 @@ CONFIG = {
 	"global_stat_days": 30,
 }
 
-def total_clients(mysql):
-	return mysql.findone("""
-		SELECT SUM(clients) AS clients
-		FROM router
-	""",(),"clients")
+def total_clients(mysql,selecthood=None):
+	if selecthood:
+		return mysql.findone("""
+			SELECT SUM(clients) AS clients
+			FROM router
+			WHERE hood = %s
+		""",(selecthood,),"clients")
+	else:
+		return mysql.findone("""
+			SELECT SUM(clients) AS clients
+			FROM router
+		""",(),"clients")
 
-def router_status(mysql):
-	return mysql.fetchdict("""
-		SELECT status, COUNT(id) AS count
-		FROM router
-		GROUP BY status
-	""",(),"status","count")
+def router_status(mysql,selecthood=None):
+	if selecthood:
+		return mysql.fetchdict("""
+			SELECT status, COUNT(id) AS count
+			FROM router
+			WHERE hood = %s
+			GROUP BY status
+		""",(selecthood,),"status","count")
+	else:
+		return mysql.fetchdict("""
+			SELECT status, COUNT(id) AS count
+			FROM router
+			GROUP BY status
+		""",(),"status","count")
 
-def router_models(mysql):
+def total_clients_hood(mysql):
 	return mysql.fetchdict("""
-		SELECT hardware, COUNT(id) AS count
+		SELECT hood, SUM(clients) AS clients
 		FROM router
-		GROUP BY hardware
-	""",(),"hardware","count")
+		GROUP BY hood
+	""",(),"hood","clients")
 
-def router_firmwares(mysql):
-	return mysql.fetchdict("""
-		SELECT firmware, COUNT(id) AS count
+def router_status_hood(mysql):
+	data = mysql.fetchall("""
+		SELECT hood, status, COUNT(id) AS count
 		FROM router
-		GROUP BY firmware
-	""",(),"firmware","count")
+		GROUP BY hood, status
+	""")
+	dict = {}
+	for d in data:
+		if not d["hood"] in dict:
+			dict[d["hood"]] = {}
+		dict[d["hood"]][d["status"]] = d["count"]
+	return dict
+
+def router_models(mysql,selecthood=None):
+	if selecthood:
+		return mysql.fetchdict("""
+			SELECT hardware, COUNT(id) AS count
+			FROM router
+			WHERE hood = %s
+			GROUP BY hardware
+		""",(selecthood,),"hardware","count")
+	else:
+		return mysql.fetchdict("""
+			SELECT hardware, COUNT(id) AS count
+			FROM router
+			GROUP BY hardware
+		""",(),"hardware","count")
+
+def router_firmwares(mysql,selecthood=None):
+	if selecthood:
+		return mysql.fetchdict("""
+			SELECT firmware, COUNT(id) AS count
+			FROM router
+			WHERE hood = %s
+			GROUP BY firmware
+		""",(selecthood,),"firmware","count")
+	else:
+		return mysql.fetchdict("""
+			SELECT firmware, COUNT(id) AS count
+			FROM router
+			GROUP BY firmware
+		""",(),"firmware","count")
 
 def hoods(mysql):
 	data = mysql.fetchall("""
@@ -87,6 +138,34 @@ def record_global_stats(mysql):
 	
 	mysql.execute("""
 		DELETE FROM stats_global
+		WHERE time < %s
+	""",(threshold,))
+
+	mysql.commit()
+
+def record_hood_stats(mysql):
+	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"]))
+	time = mysql.utcnow()
+	status = router_status_hood(mysql)
+	clients = total_clients_hood(mysql)
+	
+	for hood in clients.keys():
+		old = mysql.findone("SELECT time FROM stats_hood WHERE time = %s AND hood = %s LIMIT 1",(time,hood,))
+		
+		if old:
+			mysql.execute("""
+				UPDATE stats_hood
+				SET clients = %s, online = %s, offline = %s, unknown = %s
+				WHERE time = %s AND hood = %s
+			""",(clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),time,hood,))
+		else:
+			mysql.execute("""
+				INSERT INTO stats_hood (time, hood, clients, online, offline, unknown)
+				VALUES (%s, %s, %s, %s, %s, %s)
+			""",(time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),))
+	
+	mysql.execute("""
+		DELETE FROM stats_hood
 		WHERE time < %s
 	""",(threshold,))
 

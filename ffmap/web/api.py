@@ -3,7 +3,7 @@
 from ffmap.routertools import *
 from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
-from ffmap.stattools import record_global_stats
+from ffmap.stattools import record_global_stats, record_hood_stats
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from bson.json_util import dumps as bson2json
@@ -91,6 +91,7 @@ def alfred():
 				delete_orphaned_routers(mysql)
 				delete_old_stats(mysql)
 				record_global_stats(mysql)
+				record_hood_stats(mysql)
 				update_mapnik_csv(mysql)
 			mysql.close()
 		#pr.disable()
