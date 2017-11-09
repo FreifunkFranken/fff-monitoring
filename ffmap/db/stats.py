@@ -23,4 +23,20 @@ mysql.execute("""
 		ADD PRIMARY KEY (`time`)
 """)
 
+mysql.execute("""
+	CREATE TABLE stats_hood (
+		`hood` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+		`time` datetime NOT NULL,
+		`clients` int(11) NOT NULL,
+		`online` int(11) NOT NULL,
+		`offline` int(11) NOT NULL,
+		`unknown` int(11) NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE stats_hood
+		ADD PRIMARY KEY (`hood`,`time`)
+""")
+
 mysql.close()

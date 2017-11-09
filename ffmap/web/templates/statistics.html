@@ -1,5 +1,5 @@
 {% extends "bootstrap.html" %}
-{% block title %}{{super()}} :: Statistics{% endblock %}
+{% block title %}{{super()}} :: Statistics for {{ selecthood }}{% endblock %}
 {% block head %}{{super()}}
 	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
@@ -33,6 +33,15 @@
 				padding-right: 3px !important;
 			}
 		}
+		.table-hoods th {
+			text-align: center;
+		}  
+		.table-hoods td {
+			text-align: center;
+		}
+		.table-hoods .firstrow {
+			text-align: left;
+		}
 	</style>
 {% endblock %}
 
@@ -42,32 +51,35 @@
 			<div class="panel panel-default">
 				<div class="panel-heading">Hoods</div>
 				<div class="panel-body">
-					<table class="table table-condensed">
+					<table class="table table-condensed table-hoods">
 						<tr>
-							<th>Hood</th>
+							<th class="firstrow">Hood</th>
 							<th class="success" title="Online Routers">Online</th>
 							<th class="danger" title="Offline Routers">Offline</th>
 							<th class="warning" title="Unknown Routers">Unknown</th>
 							<th class="active" title="Total Routers">Total</th>
 							<th class="info">Clients</th>
+							<th class="stats">Stats</th>
 						</tr>
 						{%- for hood, value in hoods|dictsort %}
 						<tr>
-							<td><a href="{{ url_for('router_list', q='hood:%s' % hood) }}">{{ hood }}</a></td>
+							<td class="firstrow"><a href="{{ url_for('router_list', q='hood:%s' % hood) }}">{{ hood }}</a></td>
 							<td class="success">{{ value["online"] or 0 }}</td>
 							<td class="danger">{{ value["offline"] or 0 }}</td>
 							<td class="warning">{{ value["unknown"] or 0 }}</td>
 							<td class="active">{{ hoods_sum[hood]["routers"] or 0 }}</td>
 							<td class="info">{{ hoods_sum[hood]["clients"] or 0 }}</td>
+							<td class="stats"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hood) }}">Hood</a></td> 
 						</tr>
 						{%- endfor %}
 						<tr>
-							<th>Sum</th>
+							<th class="firstrow">Sum</th>
 							<td class="success">{{ router_status.online or 0 }}</td>
 							<td class="danger">{{ router_status.offline or 0 }}</td>
 							<td class="warning">{{ router_status.unknown or 0 }}</td>
 							<td class="active">{{ (router_status.online or 0) + (router_status.offline or 0) + (router_status.unknown or 0) }}</td>
 							<td class="info">{{ clients }}</td>
+							<td class="stats"><a href="{{ url_for('global_statistics') }}">Global</a></td> 
 						</tr>
 					</table>
 				</div>
@@ -75,7 +87,7 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Newest Routers</div>
+				<div class="panel-heading">Newest Routers @ {{ selecthood }}</div>
 				<div class="panel-body">
 					<div class="table-responsive">
 						<table class="table table-condensed">
@@ -100,7 +112,7 @@
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Routers</div>
+				<div class="panel-heading">Routers @ {{ selecthood }}</div>
 				<div class="panel-body">
 					<div id="globrouterstat" class="graph"></div>
 				</div>
@@ -108,7 +120,7 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Clients</div>
+				<div class="panel-heading">Clients @ {{ selecthood }}</div>
 				<div class="panel-body">
 					<div id="globclientstat" class="graph"></div>
 				</div>
@@ -118,7 +130,7 @@
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Routers Firmwares</div>
+				<div class="panel-heading">Router Firmwares @ {{ selecthood }}</div>
 				<div class="panel-body">
 					<div id="globrouterfwstat" class="graph"></div>
 				</div>
@@ -126,7 +138,7 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Routers Models</div>
+				<div class="panel-heading">Router Models @ {{ selecthood }}</div>
 				<div class="panel-body">
 					<div id="globroutermodelsstat" class="graph"></div>
 				</div>
