@@ -153,10 +153,26 @@ def wifianal(selecthood):
 	""",(selecthood,))
 	mysql.close()
 	
+	return wifianalhelper(router_data,"Hood: " + selecthood)
+
+@api.route('/wifianalall')
+def wifianalall():
+	mysql = FreifunkMySQL()
+	router_data = mysql.fetchall("""
+		SELECT hostname, mac, netif
+		FROM router
+		INNER JOIN router_netif ON router.id = router_netif.router
+		GROUP BY id, netif
+	""",())
+	mysql.close()
+	
+	return wifianalhelper(router_data,"ALL hoods")
+
+def wifianalhelper(router_data, headline):
 	s = "#----------WifiAnalyzer alias file----------\n"
 	s += "# \n"
 	s += "#Freifunk Franken\n"
-	s += "#Hood: " + selecthood + "\n"
+	s += "#" + headline + "\n"
 	s += "# \n"
 	s += "#Encoding: UTF-8.\n"
 	s += "#The line starts with # is comment.\n"
