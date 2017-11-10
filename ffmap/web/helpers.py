@@ -18,33 +18,13 @@ def format_query(query_usr):
 allowed_filters = (
 	'status',
 	'hood',
-	'community',
 	'nickname',
 	'hardware',
 	'firmware',
 	'mac',
-	'netif',
-	'netmon_id',
 	'hostname',
 	'contact',
 )
-
-def query2where(query):
-	s = ""
-	t = []
-	i = 0
-	for k, v in query.items():
-		if not k in allowed_filters:
-			# prevent SQL injection
-			continue
-		if i==0:
-			prefix = " WHERE "
-		else:
-			prefix = " AND "
-		i += 1
-		s += prefix + k + " = %s"
-		t.append(v)
-	return (s,tuple(t))
 
 def parse_router_list_search_query(args):
 	query_usr = bson.SON()
@@ -60,33 +40,42 @@ def parse_router_list_search_query(args):
 				key, value = word.split(':', 1)
 			if key in allowed_filters:
 				query_usr[key] = query_usr.get(key, "") + value
-	query = {}
+	s = ""
+	t = []
+	i = 0
 	for key, value in query_usr.items():
-		#if value == "EXISTS":
-		#	query[key] = {"$exists": True}
-		#elif value == "EXISTS_NOT":
-		#	query[key] = {"$exists": False}
-		if key == 'mac':
-			query[key] = value.lower()
-		#elif key == 'netif':
-		#	query[key] = {"$regex": value.replace('.', '\.'), "$options": 'i'}
-		elif key == 'hostname':
-			query[key] = value.replace('\\', '')
-		elif key == 'hardware':
-			query[key] = value.replace('\\', '').replace('_', ' ')
-		#elif key == 'netmon_id':
-		#	query[key] = int(value)
-		elif key == 'contact':
-			query[key] = value.replace('\\', '')
-		#elif key == 'contact':
-		#	if not '\.' in value:
-		#		value = re.escape(value)
-		#	query[key] = {"$regex": value, "$options": 'i'}
-		#elif value.startswith('!'):
-		#	query[key] = {"$ne": value.replace('!', '', 1)}
+		if i==0:
+			prefix = " WHERE "
 		else:
-			query[key] = value
-	return (query, format_query(query_usr))
+			prefix = " AND "
+		if value.startswith('!'):
+			no = "NOT "
+			value = value[1:]
+		else:
+			no = ""
+		
+		if value == "EXISTS":
+			k = key + ' <> "" AND ' + key + " IS NOT NULL"
+		elif value == "EXISTS_NOT":
+			k = key + ' = "" OR ' + key + " IS NULL"
+		elif key == 'mac':
+			k = no + "mac = %s"
+			t.append(value.lower())
+		elif key == 'hardware':
+			k = key + " {} REGEXP %s".format(no)
+			t.append(value.replace("_"," "))
+		elif (key == 'hostname') or (key == 'firmware'):
+			k = key + " {} REGEXP %s".format(no)
+			t.append(value)
+		elif key == 'contact':
+			k = "contact {} REGEXP %s".format(no)
+			t.append(value)
+		else:
+			k = no + key + " = %s"
+			t.append(value)
+		i += 1
+		s += prefix + k
+	return (s, tuple(t), format_query(query_usr))
 
 def send_email(recipient, subject, content, sender="FFF Monitoring <noreply@monitoring.freifunk-franken.de>"):
 	msg = MIMEText(content)

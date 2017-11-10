@@ -43,8 +43,7 @@ def router_map():
 
 @app.route('/routers')
 def router_list():
-	query, query_str = parse_router_list_search_query(request.args)
-	where, tuple = query2where(query)
+	where, tuple, query_str = parse_router_list_search_query(request.args)
 	mysql = FreifunkMySQL()
 	
 	routers = mysql.fetchall("""
