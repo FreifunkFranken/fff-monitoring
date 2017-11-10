@@ -66,6 +66,17 @@ def router_info(dbid):
 		router = mysql.findone("""SELECT * FROM router WHERE id = %s LIMIT 1""",(dbid,))
 		
 		if router:
+			if request.args.get('fffconfig', None) != None:
+				mysql.close()
+				s = "\nconfig fff 'system'\n"
+				s += "        option hostname '{}'\n".format(router["hostname"])
+				s += "        option description '{}'\n".format(router["description"])
+				s += "        option latitude '{}'\n".format(router["lat"] if router["lat"] else "")
+				s += "        option longitude '{}'\n".format(router["lng"] if router["lng"] else "")
+				s += "        option position_comment '{}'\n".format(router["position_comment"])
+				s += "        option contact '{}'\n".format(router["contact"])
+				return Response(s,mimetype='text/plain')
+
 			mysql.utcaware(router,["created","last_contact"])
 
 			router["user"] = mysql.findone("SELECT nickname FROM users WHERE email = %s",(router["contact"],),"nickname")
