@@ -20,6 +20,7 @@ CONFIG = {
 	"offline_threshold_minutes": 20,
 	"orphan_threshold_days": 120,
 	"router_stat_days": 7,
+	"event_num_entries": 20,
 }
 
 router_rate_limit_list = {}
@@ -287,6 +288,21 @@ def delete_old_stats(mysql):
 		DELETE FROM router_stats_netif
 		WHERE time < %s
 	""",(threshold,))
+
+	events = mysql.fetchall("""
+		SELECT router, COUNT(time) AS count FROM router_events
+		GROUP BY router
+	""")
+	
+	for e in events:
+		delnum = int(e["count"] - CONFIG["event_num_entries"])
+		if delnum > 0:
+			mysql.execute("""
+				DELETE FROM router_events
+				WHERE router = %s
+				ORDER BY time ASC
+				LIMIT %s
+			""",(e["router"],delnum,))
 
 	mysql.commit()
 
