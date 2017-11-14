@@ -1,7 +1,15 @@
 ## Debian Dependencies
 ```bash
-apt-get install mysql-server python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python-mapnik python3-pip uwsgi-plugin-python uwsgi-plugin-python3 nginx tilestache
-pip3 install pymongo
+apt-get install mysql-server python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx
+pip3 install pymongo pillow modestmaps simplejson werkzeug
+```
+
+## When updating
+```bash
+apt-get install mysql-server python3-mysqldb python3-mapnik
+apt-get uninstall mongodb python-mapnik uwsgi-plugin-python tilestache
+pip3 install pillow modestmaps simplejson werkzeug
+pip3 uninstall uuid
 ```
 
 ## Prerequisites
@@ -9,6 +17,7 @@ pip3 install pymongo
 * Git vorbereiten:
 ```bash
 git clone https://github.com/asdil12/fff-monitoring
+git clone https://github.com/TileStache/TileStache
 cd fff-monitoring
 cp ffmap/mysqlconfig.example.py ffmap/mysqlconfig.py
 ```
