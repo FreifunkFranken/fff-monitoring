@@ -61,7 +61,10 @@ def parse_router_list_search_query(args):
 		elif key == 'mac':
 			k = no + "mac = %s"
 			t.append(value.lower())
-		elif (key == 'hostname') or (key == 'hardware') or (key == 'firmware'):
+		elif key == 'hardware':
+			k = key + " {} REGEXP %s".format(no)
+			t.append(value.replace("_"," "))
+		elif (key == 'hostname') or (key == 'firmware'):
 			k = key + " {} REGEXP %s".format(no)
 			t.append(value)
 		elif key == 'contact':
