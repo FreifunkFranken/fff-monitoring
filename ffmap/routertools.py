@@ -394,108 +394,95 @@ def calculate_network_io(cur, router_id, uptime, router_update):
 	
 	return uptime
 
+def evalxpath(tree,p,default=""):
+	tmp = default
+	with suppress(IndexError):
+		tmp = tree.xpath(p)[0]
+	return tmp
+
+def evalxpathbase(tree,p):
+	tmp = ""
+	with suppress(IndexError):
+		tmp = tree.xpath(p)[0]
+	return tmp
+
+def evalxpathfloat(tree,p):
+	tmp = 0
+	with suppress(IndexError):
+		tmp = float(tree.xpath(p)[0])
+	return tmp
+
+def evalxpathint(tree,p):
+	tmp = 0
+	with suppress(IndexError):
+		tmp = int(tree.xpath(p)[0])
+	return tmp
+
 def parse_nodewatcher_xml(xml):
 	try:
 		assert xml != ""
 		tree = lxml.etree.fromstring(xml)
 
 		router_update = {
-			"status": tree.xpath("/data/system_data/status/text()")[0],
-			"hostname": tree.xpath("/data/system_data/hostname/text()")[0],
+			"status": evalxpath(tree,"/data/system_data/status/text()"),
+			"hostname": evalxpath(tree,"/data/system_data/hostname/text()"),
 			"last_contact": utcnow().strftime('%Y-%m-%d %H:%M:%S'),
 			"neighbours": [],
 			"netifs": [],
 			"system": {
-				"time": datetime.datetime.fromtimestamp(int(tree.xpath("/data/system_data/local_time/text()")[0])).strftime('%Y-%m-%d %H:%M:%S'),
-				"uptime": int(float(tree.xpath("/data/system_data/uptime/text()")[0])),
+				"time": datetime.datetime.fromtimestamp(evalxpathint(tree,"/data/system_data/local_time/text()")).strftime('%Y-%m-%d %H:%M:%S'),
+				"uptime": int(evalxpathfloat(tree,"/data/system_data/uptime/text()")),
 				"memory": {
-					"free": int(tree.xpath("/data/system_data/memory_free/text()")[0]),
-					"buffering": int(tree.xpath("/data/system_data/memory_buffering/text()")[0]),
-					"caching": int(tree.xpath("/data/system_data/memory_caching/text()")[0]),
+					"free": evalxpathint(tree,"/data/system_data/memory_free/text()"),
+					"buffering": evalxpathint(tree,"/data/system_data/memory_buffering/text()"),
+					"caching": evalxpathint(tree,"/data/system_data/memory_caching/text()"),
 				},
-				"loadavg": float(tree.xpath("/data/system_data/loadavg/text()")[0]),
+				"loadavg": evalxpathfloat(tree,"/data/system_data/loadavg/text()"),
 				"processes": {
-					"runnable": int(tree.xpath("/data/system_data/processes/text()")[0].split("/")[0]),
-					"total": int(tree.xpath("/data/system_data/processes/text()")[0].split("/")[1]),
+					"runnable": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[0]),
+					"total": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[1]),
 				},
-				"clients": int(tree.xpath("/data/client_count/text()")[0]),
+				"clients": evalxpathint(tree,"/data/client_count/text()"),
 				"has_wan_uplink": (
 					(len(tree.xpath("/data/system_data/vpn_active")) > 0
-					and int(tree.xpath("/data/system_data/vpn_active/text()")[0]) == 1)
+					and evalxpathint(tree,"/data/system_data/vpn_active/text()") == 1)
 					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif"])) > 0
 					or len(tree.xpath("/data/interface_data/*[starts-with(name(), '%s')]" % CONFIG["vpn_netif_l2tp"])) > 0
 					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_aux"])) > 0),
 			},
 			"hardware": {
-				"cpu": tree.xpath("/data/system_data/cpu/text()")[0]
+				"cpu": evalxpath(tree,"/data/system_data/cpu/text()")
 			},
 			"software": {
-				"os": "%s (%s)" % (tree.xpath("/data/system_data/distname/text()")[0],
-						   tree.xpath("/data/system_data/distversion/text()")[0]),
-				"batman_adv": tree.xpath("/data/system_data/batman_advanced_version/text()")[0],
-				"kernel": tree.xpath("/data/system_data/kernel_version/text()")[0],
-				"nodewatcher": tree.xpath("/data/system_data/nodewatcher_version/text()")[0],
-				#"fastd": tree.xpath("/data/system_data/fastd_version/text()")[0],
-				"firmware": tree.xpath("/data/system_data/firmware_version/text()")[0],
-				"firmware_rev": tree.xpath("/data/system_data/firmware_revision/text()")[0],
+				"os": "%s (%s)" % (evalxpath(tree,"/data/system_data/distname/text()"),
+						   evalxpath(tree,"/data/system_data/distversion/text()")),
+				"batman_adv": evalxpath(tree,"/data/system_data/batman_advanced_version/text()"),
+				"kernel": evalxpath(tree,"/data/system_data/kernel_version/text()"),
+				"nodewatcher": evalxpath(tree,"/data/system_data/nodewatcher_version/text()"),
+				#"fastd": evalxpath(tree,"/data/system_data/fastd_version/text()"),
+				"firmware": evalxpath(tree,"/data/system_data/firmware_version/text()"),
+				"firmware_rev": evalxpath(tree,"/data/system_data/firmware_revision/text()"),
 			}
 		}
 
-		# data.system_data.chipset
-		with suppress(IndexError):
-			router_update["hardware"]["chipset"] = "Unknown"
-			router_update["hardware"]["chipset"] = tree.xpath("/data/system_data/chipset/text()")[0]
+		router_update["hardware"]["chipset"] = evalxpath(tree,"/data/system_data/chipset/text()","Unknown")
+		router_update["hardware"]["name"] = evalxpath(tree,"/data/system_data/model/text()","Legacy")
+		router_update["description"] = evalxpath(tree,"/data/system_data/description/text()")
+		router_update["position_comment"] = evalxpath(tree,"/data/system_data/position_comment/text()")
+		router_update["community"] = evalxpath(tree,"/data/system_data/firmware_community/text()")
+		router_update["hood"] = evalxpath(tree,"/data/system_data/hood/text()").lower()
+		router_update["system"]["status_text"] = evalxpath(tree,"/data/system_data/status_text/text()")
+		router_update["system"]["contact"] = evalxpath(tree,"/data/system_data/contact/text()")
 
-		# data.system_data.model
-		with suppress(IndexError):
-			router_update["hardware"]["name"] = "Legacy"
-			router_update["hardware"]["name"] = tree.xpath("/data/system_data/model/text()")[0]
+		lng = evalxpathfloat(tree,"/data/system_data/geo/lng/text()")
+		lat = evalxpathfloat(tree,"/data/system_data/geo/lat/text()")
+		if lng == 0:
+			lng = None
+		if lat == 0:
+			lat = None
 
-		# data.system_data.description
-		with suppress(IndexError):
-			router_update["description"] = ""
-			router_update["description"] = tree.xpath("/data/system_data/description/text()")[0]
-
-		# data.system_data.position_comment
-		with suppress(IndexError):
-			router_update["position_comment"] = ""
-			router_update["position_comment"] = tree.xpath("/data/system_data/position_comment/text()")[0]
-
-		# data.system_data.firmware_community
-		with suppress(IndexError):
-			router_update["community"] = ""
-			router_update["community"] = tree.xpath("/data/system_data/firmware_community/text()")[0]
-
-		# data.system_data.hood
-		with suppress(IndexError):
-			router_update["hood"] = ""
-			router_update["hood"] = tree.xpath("/data/system_data/hood/text()")[0].lower()
-
-		# data.system_data.status_text
-		with suppress(IndexError):
-			router_update["system"]["status_text"] = ""
-			router_update["system"]["status_text"] = tree.xpath("/data/system_data/status_text/text()")[0]
-
-		# data.system_data.contact
-		with suppress(IndexError):
-			router_update["system"]["contact"] = ""
-			#router_update["user"] = ""
-			router_update["system"]["contact"] = tree.xpath("/data/system_data/contact/text()")[0]
-			#user = db.users.find_one({"email": router_update["system"]["contact"]})
-			#if user:
-			#	# post-netmon router gets its user assigned
-			#	#router_update["user"] = {"nickname": user["nickname"], "_id": user["_id"]}
-			#	router_update["user"] = user["nickname"]
-
-		# data.system_data.geo
-		with suppress(AssertionError, IndexError):
-			lng = float(tree.xpath("/data/system_data/geo/lng/text()")[0])
-			lat = float(tree.xpath("/data/system_data/geo/lat/text()")[0])
-			assert lng != 0
-			assert lat != 0
-
-			router_update["lng"] = lng
-			router_update["lat"] = lat
+		router_update["lng"] = lng
+		router_update["lat"] = lat
 
 		#FIXME: tmp workaround to get similar hardware names
 		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("nanostation-m", "Ubiquiti Nanostation M")
@@ -512,11 +499,11 @@ def parse_nodewatcher_xml(xml):
 
 		for netif in tree.xpath("/data/interface_data/*"):
 			interface = {
-				"name": netif.xpath("name/text()")[0],
-				"mtu": int(netif.xpath("mtu/text()")[0]),
+				"name": evalxpath(netif,"name/text()"),
+				"mtu": evalxpathint(netif,"mtu/text()"),
 				"traffic": {
-					"rx_bytes": int(netif.xpath("traffic_rx/text()")[0]),
-					"tx_bytes": int(netif.xpath("traffic_tx/text()")[0]),
+					"rx_bytes": evalxpathint(netif,"traffic_rx/text()"),
+					"tx_bytes": evalxpathint(netif,"traffic_tx/text()"),
 					"rx": 0,
 					"tx": 0,
 				},
@@ -528,25 +515,21 @@ def parse_nodewatcher_xml(xml):
 			if len(netif.xpath("ipv6_addr/text()")) > 0:
 				for ipv6_addr in netif.xpath("ipv6_addr/text()"):
 					interface["ipv6_addrs"].append(ipv6_addr.lower().split("/")[0])
-			with suppress(IndexError):
-				interface["ipv4_addr"] = ""
-				interface["ipv4_addr"] = netif.xpath("ipv4_addr/text()")[0]
+			interface["ipv4_addr"] = evalxpath(netif,"ipv4_addr/text()")
 
-			with suppress(IndexError):
-				interface["mac"] = ""
-				interface["mac"] = netif.xpath("mac_addr/text()")[0].lower()
+			interface["mac"] = evalxpath(netif,"mac_addr/text()").lower()
 			router_update["netifs"].append(interface)
 
 		visible_neighbours = 0
 
 		for originator in tree.xpath("/data/batman_adv_originators/*"):
 			visible_neighbours += 1
-			o_mac = originator.xpath("originator/text()")[0]
-			o_nexthop = originator.xpath("nexthop/text()")[0]
+			o_mac = evalxpath(originator,"originator/text()")
+			o_nexthop = evalxpath(originator,"nexthop/text()")
 			# mac is the mac of the neighbour w2/5mesh if
 			# (which might also be called wlan0-1)
-			o_link_quality = originator.xpath("link_quality/text()")[0]
-			o_out_if = originator.xpath("outgoing_interface/text()")[0]
+			o_link_quality = evalxpath(originator,"link_quality/text()")
+			o_out_if = evalxpath(originator,"outgoing_interface/text()")
 			if o_mac.upper() == o_nexthop.upper():
 				# skip vpn server
 				if o_out_if == CONFIG["vpn_netif"]:
