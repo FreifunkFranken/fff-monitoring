@@ -67,7 +67,7 @@
 					</script>
 					<script src="{{ url_for('static', filename='js/map.js') }}"></script>
 					<script type="text/javascript">
-						{%- if router.lng!="" and router.lat!="" %}
+						{%- if router.lng and router.lat %}
 						var router_pos = [{{ router.lat }}, {{ router.lng }}];
 						map.setView(router_pos, 18);
 						var marker = L.marker(router_pos, {
