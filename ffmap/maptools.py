@@ -195,7 +195,7 @@ def update_mapnik_csv(mysql):
 				hood["name"]
 			))
 
-	with open(os.path.join(CONFIG["csv_dir"], "hoodsv2.csv"), "w") as csv:
+	with open(os.path.join(CONFIG["csv_dir"], "hoods_v2.csv"), "w") as csv:
 		csv.write("WKT\n")
 		hoods = []
 		
@@ -209,7 +209,7 @@ def update_mapnik_csv(mysql):
 
 	# touch mapnik XML files to trigger tilelite watcher
 	touch("/usr/share/ffmap/hoods.xml")
-	touch("/usr/share/ffmap/hoodsv2.xml")
+	touch("/usr/share/ffmap/hoods_v2.xml")
 	touch("/usr/share/ffmap/routers.xml")
 	touch("/usr/share/ffmap/routers_v2.xml")
 

@@ -15,7 +15,7 @@
     <StyleName>hoodborder</StyleName>
     <Datasource>
       <Parameter name="type">csv</Parameter>
-      <Parameter name="file">csv/hoodsv2.csv</Parameter>
+      <Parameter name="file">csv/hoods_v2.csv</Parameter>
     </Datasource>
   </Layer>
   <Layer name="points" srs="+proj=latlong +ellps=WGS84 +datum=WGS84 +no_defs">
