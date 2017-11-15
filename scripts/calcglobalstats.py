@@ -16,6 +16,7 @@ start_time = time.time()
 
 mysql = FreifunkMySQL()
 detect_offline_routers(mysql)
+detect_orphaned_routers(mysql)
 delete_orphaned_routers(mysql)
 #delete_old_stats(mysql) # Only execute once daily, takes 2 minutes
 record_global_stats(mysql)
