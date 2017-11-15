@@ -18,7 +18,8 @@ CONFIG = {
 	"vpn_netif_l2tp": "l2tp",
 	"vpn_netif_aux": "fffauxVPN",
 	"offline_threshold_minutes": 20,
-	"orphan_threshold_days": 120,
+	"orphan_threshold_days": 7,
+	"delete_threshold_days": 180,
 	"router_stat_days": 7,
 	"event_num_entries": 20,
 }
@@ -231,6 +232,8 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				#events.append(event)
 
 def detect_offline_routers(mysql):
+	# Offline after X minutes (online -> offline)
+	
 	cur = mysql.cursor()
 	
 	threshold=mysql.formatdt(utcnow() - datetime.timedelta(minutes=CONFIG["offline_threshold_minutes"]))
@@ -255,10 +258,26 @@ def detect_offline_routers(mysql):
 	""",(threshold,))
 	mysql.commit()
 
-def delete_orphaned_routers(mysql):
+def detect_orphaned_routers(mysql):
+	# Orphan after X days (offline -> orphaned)
+	
 	cur = mysql.cursor()
 	
 	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["orphan_threshold_days"]))
+	
+	cur.execute("""
+		UPDATE router
+		SET status = 'orphaned'
+		WHERE last_contact < %s AND status = 'offline'
+	""",(threshold,))
+	mysql.commit()
+
+def delete_orphaned_routers(mysql):
+	# Deleted after X days (orphaned -> deletion)
+	
+	cur = mysql.cursor()
+	
+	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["delete_threshold_days"]))
 	
 	cur.execute("""
 		DELETE r, e, i, nb, net FROM router AS r

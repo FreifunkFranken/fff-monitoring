@@ -17,6 +17,10 @@
 	  <Filter>([status] = 'unknown')</Filter>
 	  <PointSymbolizer file="static/img/router_yellow.svg" allow-overlap="true" />
 	</Rule>
+	<Rule>
+	  <Filter>([status] = 'orphaned')</Filter>
+	  <PointSymbolizer file="static/img/router_grey.svg" allow-overlap="true" />
+	</Rule>
   </Style>
   <Style name="color" filter-mode="first">
 	<Rule>

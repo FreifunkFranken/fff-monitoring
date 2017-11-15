@@ -26,18 +26,20 @@ def total_clients(mysql,selecthood=None):
 
 def router_status(mysql,selecthood=None):
 	if selecthood:
-		return mysql.fetchdict("""
+		tmp = mysql.fetchdict("""
 			SELECT status, COUNT(id) AS count
 			FROM router
 			WHERE hood = %s
 			GROUP BY status
 		""",(selecthood,),"status","count")
 	else:
-		return mysql.fetchdict("""
+		tmp = mysql.fetchdict("""
 			SELECT status, COUNT(id) AS count
 			FROM router
 			GROUP BY status
 		""",(),"status","count")
+	tmp["sum"] = sum(tmp.values())
+	return tmp
 
 def total_clients_hood(mysql):
 	return mysql.fetchdict("""
