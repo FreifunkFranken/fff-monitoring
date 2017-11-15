@@ -92,7 +92,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 					LIMIT 1
 				""",(lat,lng,lat,),"name")
 			else:
-				router_update["hood"] = ""
+				router_update["hood"] = None
 		
 		if router_id:
 			# statistics
