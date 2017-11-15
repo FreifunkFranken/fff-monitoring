@@ -98,7 +98,7 @@ def hoods(mysql):
 	result = {}
 	for rs in data:
 		if not rs["hood"]:
-			rs["hood"] = "default"
+			rs["hood"] = "Default"
 		if not rs["hood"] in result:
 			result[rs["hood"]] = {}
 		result[rs["hood"]][rs["status"]] = rs["count"]
@@ -113,7 +113,7 @@ def hoods_sum(mysql):
 	result = {}
 	for rs in data:
 		if not rs["hood"]:
-			rs["hood"] = "default"
+			rs["hood"] = "Default"
 		result[rs["hood"]] = {"routers": rs["count"], "clients": rs["clients"]}
 	return result
 

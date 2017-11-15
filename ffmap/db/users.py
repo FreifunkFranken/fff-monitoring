@@ -11,9 +11,9 @@ mysql = FreifunkMySQL()
 mysql.execute("""
 	CREATE TABLE `users` (
 		`id` int(11) NOT NULL,
-		`nickname` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-		`password` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
-		`token` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`nickname` varchar(200) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+		`password` varchar(250) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+		`token` varchar(250) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
 		`email` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`created` datetime NOT NULL,
 		`admin` tinyint(4) NOT NULL DEFAULT '0'

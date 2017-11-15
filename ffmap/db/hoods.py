@@ -11,7 +11,7 @@ mysql = FreifunkMySQL()
 mysql.execute("""
 	CREATE TABLE hoods (
 		`id` int(11) NOT NULL,
-		`name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+		`name` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
 		`lat` double DEFAULT NULL,
 		`lng` double DEFAULT NULL,
