@@ -150,6 +150,9 @@ def record_hood_stats(mysql):
 	clients = total_clients_hood(mysql)
 	
 	for hood in clients.keys():
+		if not hood:
+			hood = "Default"
+		
 		old = mysql.findone("SELECT time FROM stats_hood WHERE time = %s AND hood = %s LIMIT 1",(time,hood,))
 		
 		if old:
