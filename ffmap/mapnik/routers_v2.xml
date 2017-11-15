@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map>
+<Map background-color="transparent" srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
+  <Style name="routerpoint" filter-mode="first">
+	<Rule>
+	  <Filter>([status] = 'online')</Filter>
+	  <!-- For directed antenna
+		<PointSymbolizer file="static/img/router_direct_green.svg" allow-overlap="true" transform="rotate(45)" />
+	  -->
+	  <PointSymbolizer file="static/img/router_green.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'offline')</Filter>
+	  <PointSymbolizer file="static/img/router_red.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'unknown')</Filter>
+	  <PointSymbolizer file="static/img/router_yellow.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'orphaned')</Filter>
+	  <PointSymbolizer file="static/img/router_grey.svg" allow-overlap="true" />
+	</Rule>
+  </Style>
+  <Style name="color" filter-mode="first">
+	<Rule>
+	  <Filter>([quality] &lt; 105)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff1e1e" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 130)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff4949" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 155)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ff6a6a" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 180)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ffac53" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 205)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#ffeb79" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 230)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#79ff7c" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
+	  <Filter>([quality] &lt; 300)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#04ff0a" stroke-linecap="butt" clip="false" />
+	</Rule>
+  </Style>
+  <Style name="l3_color" filter-mode="first">
+	<Rule>
+	  <LineSymbolizer stroke-width="3" stroke="#0684c4" stroke-linecap="butt" clip="false" />
+	</Rule>
+  </Style>
+  <Style name="shadow1">
+	<Rule>
+	  <LineSymbolizer stroke-width="4" stroke="#333333" stroke-linecap="round" stroke-opacity="0.5" />
+	</Rule>
+  </Style>
+  
+  <Layer name="links" srs="+proj=latlong +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>shadow1</StyleName>
+    <StyleName>color</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/links_v2.csv</Parameter>
+    </Datasource>
+  </Layer>
+  <Layer name="l3_links" srs="+proj=latlong +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>shadow1</StyleName>
+    <StyleName>l3_color</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/l3_links_v2.csv</Parameter>
+    </Datasource>
+  </Layer>
+  <Layer name="routers" srs="+proj=latlong +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>routerpoint</StyleName>
+    <Datasource>
+      <Parameter name="type">csv</Parameter>
+      <Parameter name="file">csv/routers_v2.csv</Parameter>
+    </Datasource>
+  </Layer>
+</Map>

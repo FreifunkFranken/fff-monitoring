@@ -72,22 +72,35 @@ def draw_voronoi_lines(csv, hoods):
 
 
 def update_mapnik_csv(mysql):
+	routers = mysql.fetchall("""
+		SELECT router.status, router.lat, router.lng, hoods.name AS hood FROM router
+		LEFT JOIN hoods ON router.hood = hoods.name
+		WHERE router.lat IS NOT NULL AND router.lng IS NOT NULL
+	""")
+
+	rv1 = "lng,lat,status\n"
+	rv2 = "lng,lat,status\n"
+	
+	for router in routers:
+		tmp = "%f,%f,%s\n" % (
+			router["lng"],
+			router["lat"],
+			router["status"]
+		)
+		if router["hood"]:
+			rv1 += tmp
+		else:
+			rv2 += tmp
+
 	with open(os.path.join(CONFIG["csv_dir"], "routers.csv"), "w") as csv:
-		csv.write("lng,lat,status\n")
-		routers = mysql.fetchall("""
-			SELECT status, lat, lng FROM router
-			WHERE lat IS NOT NULL AND lng IS NOT NULL
-		""")
-		for router in routers:
-			csv.write("%f,%f,%s\n" % (
-				router["lng"],
-				router["lat"],
-				router["status"]
-			))
+		csv.write(rv1)
+	with open(os.path.join(CONFIG["csv_dir"], "routers_v2.csv"), "w") as csv:
+		csv.write(rv2)
 
 	dblinks = mysql.fetchall("""
-		SELECT r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, quality
+		SELECT r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, quality, hoods.name AS hood
 		FROM router AS r1
+		LEFT JOIN hoods ON r1.hood = hoods.name
 		INNER JOIN router_neighbor AS n ON r1.id = n.router
 		INNER JOIN (
 			SELECT router, mac FROM router_netif GROUP BY mac, router
@@ -98,30 +111,51 @@ def update_mapnik_csv(mysql):
 	""")
 	links = []
 	linksl3 = []
+	linksv2 = []
+	linksl3v2 = []
 	for row in dblinks:
 		if row.get("type")=="l3":
-			linksl3.append((
+			tmp = (
 				row["rlng"],
 				row["rlat"],
 				row["nlng"],
 				row["nlat"]
-			))
+			)
+			if row["hood"]:
+				linksl3.append(tmp)
+			else:
+				linksl3v2.append(tmp)
 		else:
-			links.append((
+			tmp = (
 				row["rlng"],
 				row["rlat"],
 				row["nlng"],
 				row["nlat"],
 				row["quality"]
-			))
+			)
+			if row["hood"]:
+				links.append(tmp)
+			else:
+				linksv2.append(tmp)
+	
 	with open(os.path.join(CONFIG["csv_dir"], "links.csv"), "w") as csv:
 		csv.write("WKT,quality\n")
 		for link in sorted(links, key=lambda l: l[4]):
 			csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % link)
 
+	with open(os.path.join(CONFIG["csv_dir"], "links_v2.csv"), "w") as csv:
+		csv.write("WKT,quality\n")
+		for link in sorted(linksv2, key=lambda l: l[4]):
+			csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % link)
+
 	with open(os.path.join(CONFIG["csv_dir"], "l3_links.csv"), "w") as csv:
 		csv.write("WKT\n")
 		for link in linksl3:
+			csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % link)
+
+	with open(os.path.join(CONFIG["csv_dir"], "l3_links_v2.csv"), "w") as csv:
+		csv.write("WKT\n")
+		for link in linksl3v2:
 			csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % link)
 
 	dbhoods = mysql.fetchall("""
@@ -176,7 +210,8 @@ def update_mapnik_csv(mysql):
 	# touch mapnik XML files to trigger tilelite watcher
 	touch("/usr/share/ffmap/hoods.xml")
 	touch("/usr/share/ffmap/hoodsv2.xml")
-	touch("/usr/share/ffmap/links_and_routers.xml")
+	touch("/usr/share/ffmap/routers.xml")
+	touch("/usr/share/ffmap/routers_v2.xml")
 
 if __name__ == '__main__':
 	update_mapnik_csv()

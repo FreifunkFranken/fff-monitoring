@@ -24,7 +24,8 @@ app.register_blueprint(api, url_prefix='/api')
 app.register_blueprint(filters)
 
 tileurls = {
-	"links_and_routers": "/tiles/links_and_routers",
+	"routers": "/tiles/routers",
+	"routers_v2": "/tiles/routers_v2",
 	"hoods": "/tiles/hoods",
 	"hoodsv2": "/tiles/hoodsv2",
 }
