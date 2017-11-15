@@ -1,22 +1,40 @@
+## Debian Dependencies
+```bash
+apt-get install mysql-server python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx
+pip3 install pymongo pillow modestmaps simplejson werkzeug
+```
+
+## When updating
+```bash
+apt-get install mysql-server python3-mysqldb python3-mapnik
+apt-get uninstall mongodb python-mapnik uwsgi-plugin-python tilestache
+pip3 install pillow modestmaps simplejson werkzeug
+pip3 uninstall uuid
+```
+
+## Prerequisites
+* Datenbank in MySQL anlegen
+* Git vorbereiten:
+```bash
+git clone https://github.com/asdil12/fff-monitoring
+git clone https://github.com/TileStache/TileStache
+cd fff-monitoring
+cp ffmap/mysqlconfig.example.py ffmap/mysqlconfig.py
+```
+* MySQL Zugangsdaten in mysqlconfig.py eintragen
+
+
 ## Installation
 ```bash
 ./install.sh
 systemctl daemon-reload
-systemctl enable mongodb
 systemctl enable uwsgi-ffmap
 systemctl enable uwsgi-tiles
-systemctl start mongodb
 systemctl start uwsgi-ffmap
 systemctl start uwsgi-tiles
 cd ffmap/db/
 ./init_db.py
 # Then apply NGINX Config
-```
-
-## Debian Dependencies
-```bash
-apt-get install python python3 mongodb python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python-mapnik python3-pip uwsgi-plugin-python uwsgi-plugin-python3 nginx tilestache
-pip3 install pymongo
 ```
 
 ## NGINX Config
@@ -51,10 +69,4 @@ server {
 
 ## Admin anlegen
 * User über WebUI anlegen
-* Dann als root:
-```
-# mongo
-> use freifunk;
-> db.users.update({"nickname": "asdil12"}, {"$set": {"admin": true}});
-> exit
-```
+* Dann über z.B. phpmyadmin in der Tabelle users 'admin' auf 1 setzen

@@ -8,7 +8,6 @@ import sys
 import json
 import datetime
 import re
-import pymongo
 import hashlib
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
@@ -99,8 +98,6 @@ def bson_to_json(bsn):
 
 @filters.app_template_filter('statbson2json')
 def statbson_to_json(bsn):
-	if isinstance(bsn, pymongo.cursor.Cursor):
-		bsn = list(bsn)
 	for point in bsn:
 		point["time"] = {"$date": int(point["time"].timestamp()*1000)}
 	return json.dumps(bsn)
@@ -178,7 +175,7 @@ def gravatar_url(email):
 @filters.app_template_filter('webui_addr')
 def webui_addr(router_netifs):
 	try:
-		for br_mesh in filter(lambda n: n["name"] == "br-mesh", router_netifs):
+		for br_mesh in filter(lambda n: n["netif"] == "br-mesh", router_netifs):
 			for ipv6 in br_mesh["ipv6_addrs"]:
 				if ipv6.startswith("fd") and len(ipv6) > 25:
 					# This selects the first ULA address, if present

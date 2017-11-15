@@ -21,4 +21,4 @@ systemctl daemon-reload
 
 python3 setup.py install --force
 
-(cd ffmap/mapnik; python2 setup.py install)
+(cd ffmap/mapnik; python3 setup.py install)

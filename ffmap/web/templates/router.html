@@ -67,8 +67,8 @@
 					</script>
 					<script src="{{ url_for('static', filename='js/map.js') }}"></script>
 					<script type="text/javascript">
-						{%- if router.position %}
-						var router_pos = [{{ router.position.coordinates[1] }}, {{ router.position.coordinates[0] }}];
+						{%- if router.lng!="" and router.lat!="" %}
+						var router_pos = [{{ router.lat }}, {{ router.lng }}];
 						map.setView(router_pos, 18);
 						var marker = L.marker(router_pos, {
 							icon: L.icon({
@@ -97,7 +97,7 @@
 						</td></tr>
 						<tr><th>Status</th><td><span class="{{ router.status|status2css }}">{{ router.status }}</span>
 							{%- if router.status == "online" %}
-							({{ router.system.uptime|format_ts_diff }} up)
+							({{ router.sys_uptime|format_ts_diff }} up)
 							{%- endif -%}
 						</td></tr>
 						<tr><th>Created</th><td>
@@ -105,10 +105,10 @@
 						</td></tr>
 						<tr><th class="text-nowrap">Last contact</th><td>
 							{{ router.last_contact|utc2local|format_dt }}
-							({{ router.last_contact|format_dt_ago }}){{- "" -}}
+							({{ router.last_contact|utc2local|format_dt_ago }}){{- "" -}}
 						</td></tr>
-						{%- if router.system.status_text %}
-						<tr><th>Status Text</th><td>{{ router.system.status_text }}</td></tr>
+						{%- if router.status_text %}
+						<tr><th>Status Text</th><td>{{ router.status_text }}</td></tr>
 						{%- endif %}
 						{%- if router.description %}
 						<tr><th>Description</th><td>{{ router.description }}</td></tr>
@@ -123,46 +123,42 @@
 							{%- endif -%}
 						</td></tr>
 						{%- endif %}
-						{%- if router.user or router.system.contact %}
+						{%- if router.user or router.contact %}
 						<tr><th>User</th><td>
 						{%- if router.user -%}
-						<a href="{{ url_for('user_info', nickname=router.user.nickname) }}">{{ router.user.nickname }}</a>
-						{%- if router.system.contact %}
-						(<a href="{{ url_for('router_list', q='system.contact:%s' % router.system.contact|anon_email_regex) }}">{{ router.system.contact|anon_email }}</a>)
+						<a href="{{ url_for('user_info', nickname=router.user) }}">{{ router.user }}</a>
+						{%- if router.contact %}
+						(<a href="{{ url_for('router_list', q='contact:%s' % router.contact|anon_email_regex) }}">{{ router.contact|anon_email }}</a>)
 						{%- endif -%}
 						{%- else -%}
-						<a href="{{ url_for('router_list', q='system.contact:%s' % router.system.contact|anon_email_regex) }}">{{ router.system.contact|anon_email }}</a>
+						<a href="{{ url_for('router_list', q='contact:%s' % router.contact|anon_email_regex) }}">{{ router.contact|anon_email }}</a>
 						{%- endif -%}
 						</td></tr>
 						{%- endif %}
-						<tr><th>Hardware</th><td><span title="{{ router.hardware.chipset }}">{{ router.hardware.name }}</span></td></tr>
-						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.system.has_wan_uplink else "glyphicon glyphicon-remove" }}"></span></td></tr>
-						<tr><th>Clients</th><td>{{ router.system.clients }}</td></tr>
+						<tr><th>Hardware</th><td><span title="{{ router.chipset }}">{{ router.hardware }}</span></td></tr>
+						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.wan_uplink else "glyphicon glyphicon-remove" }}"></span></td></tr>
+						<tr><th>Clients</th><td>{{ router.clients }}</td></tr>
 					</table>
 				</div>
 			</div>
 		</div>
 	</div>
 	<div class="row" style="display: flex;">
-		{%- if router.software is defined %}
 		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
 			<div class="panel panel-default">
 				<div class="panel-heading">Software</div>
 				<div class="panel-body">
 					<table class="table table-condensed">
-						<tr><th>Firmware</th><td><span title="{{ router.software.firmware_rev }}">{{ router.software.firmware }}</span></td></tr>
-						<tr><th>Operating&nbsp;System</th><td>{{ router.software.os }}</td></tr>
-						<tr><th>Kernel</th><td>{{ router.software.kernel }}</td></tr>
-						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.software.batman_adv }}</td></tr>
-						<tr><th>Nodewatcher</th><td>{{ router.software.nodewatcher }}</td></tr>
+						<tr><th>Firmware</th><td><span title="{{ router.firmware_rev }}">{{ router.firmware }}</span></td></tr>
+						<tr><th>Operating&nbsp;System</th><td>{{ router.os }}</td></tr>
+						<tr><th>Kernel</th><td>{{ router.kernel }}</td></tr>
+						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.batman }}</td></tr>
+						<tr><th>Nodewatcher</th><td>{{ router.nodewatcher }}</td></tr>
 					</table>
 				</div>
 			</div>
 		{%- if not router.neighbours|length > 0 %}
 		</div>
-		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
-		{%- endif %}
-		{%- else %}
 		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
 		{%- endif %}
 			<div class="panel panel-default" style="flex: 1 1 auto;">
@@ -195,7 +191,7 @@
 							</tr>
 							{%- for neighbour in router.neighbours %}
 							<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
-								<td><a href="{{ url_for('router_info', dbid=neighbour._id) }}">{{ neighbour.hostname }}</a></td>
+								<td><a href="{{ url_for('router_info', dbid=neighbour.id) }}">{{ neighbour.hostname }}</a></td>
 								<td>{{ neighbour.mac }}</td>
 								<td>{{ neighbour.quality }}</td>
 								<td>{{ neighbour.net_if }}</td>
@@ -224,10 +220,10 @@
 				</div>
 				<ul class="list-group" id="netif-list">
 				{# make sure that br-mesh is on top of the list #}
-				{%- for netif in router.netifs if netif.name == 'br-mesh' %}
-					<li class="list-group-item active" data-name="{{ netif.name|replace('.', '')|replace('$', '') }}">
+				{%- for netif in router.netifs if netif.netif == 'br-mesh' %}
+					<li class="list-group-item active" data-name="{{ netif.netif|replace('.', '')|replace('$', '') }}">
 						<h4 class="list-group-item-heading"><div class="row">
-							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
+							<div class="col-xs-6 col-sm-6">{{ netif.netif }}</div>
 							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;">{{ netif.mac }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
@@ -244,19 +240,19 @@
 								<br />{{ ipv6_addr }}
 								{%- endfor -%}
 							</div>
-							{%- if netif.traffic.rx is defined %}
+							{%- if netif.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
-								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
-								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.traffic.tx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.rx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|humanize_bytes }}/s
 							</div>
 							{%- endif %}
 						</div></p>
 					</li>
 				{%- endfor %}
-				{%- for netif in router.netifs if netif.name != 'br-mesh' %}
-					<li class="list-group-item" data-name="{{ netif.name|replace('.', '')|replace('$', '') }}">
+				{%- for netif in router.netifs if netif.netif != 'br-mesh' %}
+					<li class="list-group-item" data-name="{{ netif.netif|replace('.', '')|replace('$', '') }}">
 						<h4 class="list-group-item-heading"><div class="row">
-							<div class="col-xs-6 col-sm-6">{{ netif.name }}</div>
+							<div class="col-xs-6 col-sm-6">{{ netif.netif }}</div>
 							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;">{{ netif.mac }}</div>
 						</div></h4>
 						<p class="list-group-item-text"><div class="row">
@@ -273,10 +269,10 @@
 								<br />{{ ipv6_addr }}
 								{%- endfor -%}
 							</div>
-							{%- if netif.traffic.rx is defined %}
+							{%- if netif.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
-								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.traffic.rx|humanize_bytes }}/s
-								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.traffic.tx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.rx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|humanize_bytes }}/s
 							</div>
 							{%- endif %}
 						</div></p>
