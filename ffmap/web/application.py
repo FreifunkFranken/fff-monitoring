@@ -147,7 +147,7 @@ def router_info(dbid):
 @app.route('/users')
 def user_list():
 	mysql = FreifunkMySQL()
-	users = mysql.fetchall("SELECT id, nickname, email, created, admin FROM users ORDER BY nickname ASC")
+	users = mysql.fetchall("SELECT id, nickname, email, created, admin FROM users ORDER BY nickname COLLATE utf8_unicode_ci ASC")
 	user_routers = stattools.router_user_sum(mysql)
 	mysql.close()
 	mysql.utcawaretuple(users,"created")
