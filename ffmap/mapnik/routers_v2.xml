@@ -7,11 +7,11 @@
 	  <!-- For directed antenna
 		<PointSymbolizer file="static/img/router_direct_green.svg" allow-overlap="true" transform="rotate(45)" />
 	  -->
-	  <PointSymbolizer file="static/img/router_green.svg" allow-overlap="true" />
+	  <PointSymbolizer file="static/img/router_green_v2.svg" allow-overlap="true" />
 	</Rule>
 	<Rule>
 	  <Filter>([status] = 'offline')</Filter>
-	  <PointSymbolizer file="static/img/router_red.svg" allow-overlap="true" />
+	  <PointSymbolizer file="static/img/router_red_v2.svg" allow-overlap="true" />
 	</Rule>
 	<Rule>
 	  <Filter>([status] = 'unknown')</Filter>

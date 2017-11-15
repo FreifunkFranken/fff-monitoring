@@ -15,7 +15,7 @@
    id="svg4142"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="router_green.svg">
+   sodipodi:docname="router_green_v2.svg">
   <defs
      id="defs4144" />
   <sodipodi:namedview
@@ -56,7 +56,7 @@
      id="layer1"
      transform="translate(0,-1038.3621)">
     <circle
-       style="fill:#0f7014;fill-opacity:1"
+       style="fill:#2fbb34;fill-opacity:1"
        id="path4690"
        cx="7"
        cy="1045.3621"
