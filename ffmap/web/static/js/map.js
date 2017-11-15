@@ -26,7 +26,8 @@ var overlay_config = {
 	maximumAge: 1000*3600*24*10
 }
 
-var links_and_routers = new L.TileLayer(tileurls.links_and_routers + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
+var routers = new L.TileLayer(tileurls.routers + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
+var routers_v2 = new L.TileLayer(tileurls.routers_v2 + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
 var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
 var hoodsv2 = new L.TileLayer(tileurls.hoodsv2 + '/{z}/{x}/{y}.png', overlay_config);
 layersControl = new L.Control.Layers({
@@ -34,7 +35,8 @@ layersControl = new L.Control.Layers({
 	"openstreetmap.de": tilesosmde,
 	"Thunderforest Outdoors": tilestfod
 }, {
-	"Links & Routers": links_and_routers,
+	"Routers": routers,
+	"Routers v2 und dezentral": routers_v2,
 	"Hoods": hoods,
 	"Hoods v2": hoodsv2
 });
