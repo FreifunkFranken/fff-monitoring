@@ -115,7 +115,7 @@ with open("csv/hood-points-v2.csv", "w", encoding="UTF-8") as csv:
 			hood["name"]
 		))
 
-with open("csv/hoodsv2.csv", "w") as csv:
+with open("csv/hoods_v2.csv", "w") as csv:
 	csv.write("WKT\n")
 	hoods = []
 	with urllib.request.urlopen("http://keyserver.freifunk-franken.de/v2/hoods.php") as url:

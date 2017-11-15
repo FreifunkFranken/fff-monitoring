@@ -27,7 +27,7 @@ tileurls = {
 	"routers": "/tiles/routers",
 	"routers_v2": "/tiles/routers_v2",
 	"hoods": "/tiles/hoods",
-	"hoodsv2": "/tiles/hoodsv2",
+	"hoods_v2": "/tiles/hoods_v2",
 }
 
 @app.route('/')
