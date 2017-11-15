@@ -470,7 +470,7 @@ def parse_nodewatcher_xml(xml):
 		router_update["description"] = evalxpath(tree,"/data/system_data/description/text()")
 		router_update["position_comment"] = evalxpath(tree,"/data/system_data/position_comment/text()")
 		router_update["community"] = evalxpath(tree,"/data/system_data/firmware_community/text()")
-		router_update["hood"] = evalxpath(tree,"/data/system_data/hood/text()").lower()
+		router_update["hood"] = evalxpath(tree,"/data/system_data/hood/text()")
 		router_update["system"]["status_text"] = evalxpath(tree,"/data/system_data/status_text/text()")
 		router_update["system"]["contact"] = evalxpath(tree,"/data/system_data/contact/text()")
 
