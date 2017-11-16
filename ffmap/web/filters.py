@@ -19,7 +19,7 @@ filters = Blueprint("filters", __name__)
 def neighbour_color(quality):
 	color = "#04ff0a"
 	if quality == -1:
-		color = "#0684c4"
+		color = "#06a4f4"
 	elif quality < 105:
 		color = "#ff1e1e"
 	elif quality < 130:
