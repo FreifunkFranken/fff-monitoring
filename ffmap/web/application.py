@@ -55,7 +55,7 @@ def router_list():
 		ORDER BY hostname ASC
 	""".format(where),tuple)
 	mysql.close()
-	mysql.utcawaretuple(routers,"created")
+	routers = mysql.utcawaretuple(routers,"created")
 	
 	return render_template("router_list.html", query_str=query_str, routers=routers, numrouters=len(routers))
 
@@ -77,7 +77,7 @@ def router_info(dbid):
 				s += "        option contact '{}'\n".format(router["contact"])
 				return Response(s,mimetype='text/plain')
 
-			mysql.utcaware(router,["created","last_contact"])
+			router = mysql.utcaware(router,["created","last_contact"])
 
 			router["user"] = mysql.findone("SELECT nickname FROM users WHERE email = %s",(router["contact"],),"nickname")
 			router["netifs"] = mysql.fetchall("""SELECT * FROM router_netif WHERE router = %s""",(dbid,))
@@ -95,25 +95,25 @@ def router_info(dbid):
 			# FIX SQL: only one from router_netif
 			
 			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
-			mysql.utcawaretuple(router["events"],"time")
+			router["events"] = mysql.utcawaretuple(router["events"],"time")
 			
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
-				mysql.utcaware(s["time"])
+				s["time"] = mysql.utcaware(s["time"])
 			
 			netiffetch = mysql.fetchall("""
 				SELECT netif, rx, tx, time FROM router_stats_netif WHERE router = %s
 			""",(dbid,))
 			
 			for ns in netiffetch:
-				mysql.utcaware(ns["time"])
+				ns["time"] = mysql.utcaware(ns["time"])
 			
 			neighfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s
 			""",(dbid,))
 			
 			for ns in neighfetch:
-				mysql.utcaware(ns["time"])
+				ns["time"] = mysql.utcaware(ns["time"])
 
 			if request.method == 'POST':
 				if request.form.get("act") == "delete":
@@ -151,7 +151,7 @@ def user_list():
 	users = mysql.fetchall("SELECT id, nickname, email, created, admin FROM users ORDER BY nickname COLLATE utf8_unicode_ci ASC")
 	user_routers = stattools.router_user_sum(mysql)
 	mysql.close()
-	mysql.utcawaretuple(users,"created")
+	users = mysql.utcawaretuple(users,"created")
 	
 	return render_template("user_list.html",
 		user_routers = user_routers,
@@ -227,7 +227,7 @@ def user_info(nickname):
 			ORDER BY hostname ASC
 		""",(user["email"],))
 		mysql.close()
-		mysql.utcawaretuple(routers,"created")
+		routers = mysql.utcawaretuple(routers,"created")
 		return render_template("user.html", user=user, routers=routers, routers_count=len(routers))
 	except Exception as e:
 		logf = open("/data/fff/fail626.txt", "a")
@@ -241,7 +241,7 @@ def global_statistics():
 	hoods = stattools.hoods(mysql)
 	
 	stats = mysql.fetchall("SELECT * FROM stats_global")
-	mysql.utcawaretuple(stats,"time")
+	stats = mysql.utcawaretuple(stats,"time")
 	
 	newest_routers = mysql.fetchall("""
 		SELECT id, hostname, hood, created
@@ -250,7 +250,7 @@ def global_statistics():
 		ORDER BY created DESC
 		LIMIT %s
 	""",(len(hoods)+1,))
-	mysql.utcawaretuple(newest_routers,"created")
+	newest_routers = mysql.utcawaretuple(newest_routers,"created")
 	
 	clients = stattools.total_clients(mysql)
 	router_status = stattools.router_status(mysql)
@@ -277,7 +277,7 @@ def global_hoodstatistics(selecthood):
 	hoods = stattools.hoods(mysql)
 	
 	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
-	mysql.utcawaretuple(stats,"time")
+	stats = mysql.utcawaretuple(stats,"time")
 	
 	newest_routers = mysql.fetchall("""
 		SELECT id, hostname, hood, created
@@ -286,7 +286,7 @@ def global_hoodstatistics(selecthood):
 		ORDER BY created DESC
 		LIMIT %s
 	""",(selecthood,len(hoods)+1,))
-	mysql.utcawaretuple(newest_routers,"created")
+	newest_routers = mysql.utcawaretuple(newest_routers,"created")
 	
 	clients = stattools.total_clients(mysql)
 	router_status = stattools.router_status(mysql)

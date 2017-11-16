@@ -117,7 +117,7 @@ def nodelist():
 		SELECT id, hostname, status, clients, last_contact, lat, lng
 		FROM router
 	""",())
-	mysql.utcawaretuple(router_data,"last_contact")
+	router_data = mysql.utcawaretuple(router_data,"last_contact")
 	mysql.close()
 	nodelist_data = {'version': '1.0.0'}
 	nodelist_data['nodes'] = list()
@@ -208,7 +208,7 @@ def routers():
 		LEFT JOIN users ON router.contact = users.email
 		WHERE netif = 'br-mesh'
 	""")
-	mysql.utcawaretuple(router_data,"last_contact")
+	router_data = mysql.utcawaretuple(router_data,"last_contact")
 	router_net = mysql.fetchall("""
 		SELECT id, netif, COUNT(router) AS count
 		FROM router
