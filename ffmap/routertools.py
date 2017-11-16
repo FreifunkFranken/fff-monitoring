@@ -26,21 +26,18 @@ CONFIG = {
 router_rate_limit_list = {}
 
 def delete_router(mysql,dbid):
-	cur = mysql.cursor()
-	cur.execute("DELETE FROM router WHERE id = %s",(dbid,))
-	cur.execute("DELETE FROM router_netif WHERE router = %s",(dbid,))
-	cur.execute("DELETE FROM router_ipv6 WHERE router = %s",(dbid,))
-	cur.execute("DELETE FROM router_neighbor WHERE router = %s",(dbid,))
-	cur.execute("DELETE FROM router_events WHERE router = %s",(dbid,))
-	cur.execute("DELETE FROM router_stats WHERE router = %s",(dbid,))
-	cur.execute("DELETE FROM router_stats_neighbor WHERE router = %s",(dbid,))
-	cur.execute("DELETE FROM router_stats_netif WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router WHERE id = %s",(dbid,))
+	mysql.execute("DELETE FROM router_netif WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_events WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_stats WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_stats_neighbor WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_stats_netif WHERE router = %s",(dbid,))
 	mysql.commit()
 
 def import_nodewatcher_xml(mysql, mac, xml):
 	global router_rate_limit_list
-
-	cur = mysql.cursor()
 
 	t = utcnow()
 	if mac in router_rate_limit_list:
@@ -55,14 +52,11 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	status_comment = ""
 	
 	try:
-		cur.execute("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
-		result = cur.fetchall()
-		if len(result)>0:
-			router_id = result[0]["router"]
-			cur.execute("SELECT sys_uptime AS uptime, firmware, hostname, hood, status, lat, lng FROM router WHERE id = %s LIMIT 1",(router_id,))
-			result = cur.fetchall()
-			if len(result)>0:
-				olddata = result[0]
+		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
+		if findrouter:
+			router_id = findrouter["router"]
+			olddata = mysql.findone("SELECT sys_uptime AS uptime, firmware, hostname, hood, status, lat, lng FROM router WHERE id = %s LIMIT 1",(router_id,))
+			if olddata:
 				uptime = olddata["uptime"]
 		router_update = parse_nodewatcher_xml(xml)
 
@@ -96,12 +90,12 @@ def import_nodewatcher_xml(mysql, mac, xml):
 		
 		if router_id:
 			# statistics
-			calculate_network_io(cur, router_id, uptime, router_update)
+			calculate_network_io(mysql, router_id, uptime, router_update)
 			ru = router_update
 			rus = router_update["system"]
 			ruh = router_update["hardware"]
 			ruso = router_update["software"]
-			cur.execute("""
+			mysql.execute("""
 				UPDATE router
 				SET status = %s, hostname = %s, last_contact = %s, sys_time = %s, sys_uptime = %s, sys_memfree = %s, sys_membuff = %s, sys_memcache = %s,
 				sys_loadavg = %s, sys_procrun = %s, sys_proctot = %s, clients = %s, wan_uplink = %s, cpu = %s, chipset = %s, hardware = %s, os = %s,
@@ -114,9 +108,9 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				ruso["batman_adv"],ruso["kernel"],ruso["nodewatcher"],ruso["firmware"],ruso["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
 				ru["system"]["status_text"],ru["system"]["contact"],ru["lng"],ru["lat"],rus["visible_neighbours"],router_id,))
 			
-			cur.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
-			cur.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
-			cur.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
+			mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
+			mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
+			mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
 			
 			uptime = 0
 			new_router_stats(mysql, router_id, uptime, router_update)
@@ -133,7 +127,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			ruh = router_update["hardware"]
 			ruso = router_update["software"]
 			
-			cur.execute("""
+			mysql.execute("""
 				INSERT INTO router (status, hostname, created, last_contact, sys_time, sys_uptime, sys_memfree, sys_membuff, sys_memcache,
 				sys_loadavg, sys_procrun, sys_proctot, clients, wan_uplink, cpu, chipset, hardware, os,
 				batman, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood,
@@ -144,21 +138,21 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				rus["loadavg"],rus["processes"]["runnable"],rus["processes"]["total"],rus["clients"],rus["has_wan_uplink"],ruh["cpu"],ruh["chipset"],ruh["name"],ruso["os"],
 				ruso["batman_adv"],ruso["kernel"],ruso["nodewatcher"],ruso["firmware"],ruso["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
 				ru["system"]["status_text"],ru["system"]["contact"],ru["lng"],ru["lat"],rus["visible_neighbours"],))
-			router_id = cur.lastrowid
+			router_id = mysql.cursor().lastrowid
 			
 			events_append(mysql,router_id,"created","")
 		
 		for n in router_update["netifs"]:
-			cur.execute("""
+			mysql.execute("""
 				INSERT INTO router_netif (router, netif, mtu, rx_bytes, tx_bytes, rx, tx, fe80_addr, ipv4_addr, mac)
 				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
 				router_id,n["name"],n["mtu"],n["traffic"]["rx_bytes"],n["traffic"]["tx_bytes"],n["traffic"]["rx"],n["traffic"]["tx"],n["ipv6_fe80_addr"],n["ipv4_addr"],n["mac"],))
 			for a in n["ipv6_addrs"]:
-				cur.execute("INSERT INTO router_ipv6 (router, netif, ipv6) VALUES (%s, %s, %s)",(router_id,n["name"],a,))
+				mysql.execute("INSERT INTO router_ipv6 (router, netif, ipv6) VALUES (%s, %s, %s)",(router_id,n["name"],a,))
 		
 		for n in router_update["neighbours"]:
-			cur.execute("INSERT INTO router_neighbor (router, mac, quality, net_if, type) VALUES (%s, %s, %s, %s, %s)",(router_id,n["mac"],n["quality"],n["net_if"],n["type"],))
+			mysql.execute("INSERT INTO router_neighbor (router, mac, quality, net_if, type) VALUES (%s, %s, %s, %s, %s)",(router_id,n["mac"],n["quality"],n["net_if"],n["type"],))
 		
 		status = router_update["status"]
 	except ValueError as e:
@@ -231,24 +225,21 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				#events.append(event)
 
 def detect_offline_routers(mysql):
-	cur = mysql.cursor()
-	
 	threshold=mysql.formatdt(utcnow() - datetime.timedelta(minutes=CONFIG["offline_threshold_minutes"]))
 	now=mysql.utcnow()
 	
-	cur.execute("""
+	result = mysql.fetchall("""
 		SELECT id
 		FROM router
 		WHERE last_contact < %s AND status <> 'offline'
 	""",(threshold,))
-	result = cur.fetchall()
 	for r in result:
-		cur.execute("""
+		mysql.execute("""
 			INSERT INTO router_events ( router, time, type, comment )
 			VALUES (%s, %s, 'offline', '')
 		""",(r["id"],now,))
 	
-	cur.execute("""
+	mysql.execute("""
 		UPDATE router
 		SET status = 'offline', clients = 0
 		WHERE last_contact < %s AND status <> 'offline'
@@ -256,11 +247,9 @@ def detect_offline_routers(mysql):
 	mysql.commit()
 
 def delete_orphaned_routers(mysql):
-	cur = mysql.cursor()
-	
 	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["orphan_threshold_days"]))
 	
-	cur.execute("""
+	mysql.execute("""
 		DELETE r, e, i, nb, net FROM router AS r
 		INNER JOIN router_events AS e ON r.id = e.router
 		INNER JOIN router_ipv6 AS i ON r.id = i.router
@@ -268,7 +257,6 @@ def delete_orphaned_routers(mysql):
 		INNER JOIN router_netif AS net ON r.id = net.router
 		WHERE r.last_contact < %s AND r.status <> 'offline'
 	""",(threshold,))
-	
 	mysql.commit()
 
 def delete_old_stats(mysql):
@@ -368,13 +356,12 @@ def new_router_stats(mysql, router_id, uptime, router_update):
 					time,
 					neighbour["quality"],))
 
-def calculate_network_io(cur, router_id, uptime, router_update):
+def calculate_network_io(mysql, router_id, uptime, router_update):
 	"""
 	router: old router dict
 	router_update: new router dict (which will be updated with new data)
 	"""
-	cur.execute("SELECT netif, rx_bytes, tx_bytes, rx, tx FROM router_netif WHERE router = %s",(router_id,));
-	results = cur.fetchall()
+	results = mysql.fetchall("SELECT netif, rx_bytes, tx_bytes, rx, tx FROM router_netif WHERE router = %s",(router_id,));
 	
 	with suppress(KeyError, StopIteration):
 		if uptime < router_update["system"]["uptime"]:
