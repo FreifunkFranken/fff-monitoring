@@ -142,17 +142,24 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			
 			events_append(mysql,router_id,"created","")
 		
+		ndata = []
+		adata = []
 		for n in router_update["netifs"]:
-			mysql.execute("""
-				INSERT INTO router_netif (router, netif, mtu, rx_bytes, tx_bytes, rx, tx, fe80_addr, ipv4_addr, mac)
-				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-			""",(
-				router_id,n["name"],n["mtu"],n["traffic"]["rx_bytes"],n["traffic"]["tx_bytes"],n["traffic"]["rx"],n["traffic"]["tx"],n["ipv6_fe80_addr"],n["ipv4_addr"],n["mac"],))
+			ndata.append((router_id,n["name"],n["mtu"],n["traffic"]["rx_bytes"],n["traffic"]["tx_bytes"],n["traffic"]["rx"],n["traffic"]["tx"],n["ipv6_fe80_addr"],n["ipv4_addr"],n["mac"],))
 			for a in n["ipv6_addrs"]:
-				mysql.execute("INSERT INTO router_ipv6 (router, netif, ipv6) VALUES (%s, %s, %s)",(router_id,n["name"],a,))
+				adata.append((router_id,n["name"],a,))
 		
+		mysql.executemany("""
+			INSERT INTO router_netif (router, netif, mtu, rx_bytes, tx_bytes, rx, tx, fe80_addr, ipv4_addr, mac)
+			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+		""",ndata)
+		mysql.executemany("INSERT INTO router_ipv6 (router, netif, ipv6) VALUES (%s, %s, %s)",adata)
+		
+		nbdata = []
 		for n in router_update["neighbours"]:
-			mysql.execute("INSERT INTO router_neighbor (router, mac, quality, net_if, type) VALUES (%s, %s, %s, %s, %s)",(router_id,n["mac"],n["quality"],n["net_if"],n["type"],))
+			nbdata.append((router_id,n["mac"],n["quality"],n["net_if"],n["type"],))
+		
+		mysql.executemany("INSERT INTO router_neighbor (router, mac, quality, net_if, type) VALUES (%s, %s, %s, %s, %s)",nbdata)
 		
 		status = router_update["status"]
 	except ValueError as e:
@@ -233,11 +240,14 @@ def detect_offline_routers(mysql):
 		FROM router
 		WHERE last_contact < %s AND status <> 'offline'
 	""",(threshold,))
+	
+	rdata = []
 	for r in result:
-		mysql.execute("""
-			INSERT INTO router_events ( router, time, type, comment )
-			VALUES (%s, %s, 'offline', '')
-		""",(r["id"],now,))
+		rdata.append((r["id"],now,))
+	mysql.executemany("""
+		INSERT INTO router_events ( router, time, type, comment )
+		VALUES (%s, %s, 'offline', '')
+	""",rdata)
 	
 	mysql.execute("""
 		UPDATE router
@@ -332,29 +342,25 @@ def new_router_stats(mysql, router_id, uptime, router_update):
 			router_update["system"]["processes"]['total'],
 			router_update["system"]["clients"],))
 		
+		ndata = []
 		for netif in router_update["netifs"]:
 			# sanitize name
 			name = netif["name"].replace(".", "").replace("$", "")
 			with suppress(KeyError):
-				mysql.execute("""
-					INSERT INTO router_stats_netif (router, netif, time, rx, tx)
-					VALUES (%s, %s, %s, %s, %s)
-				""",(
-					router_id,
-					name,
-					time,
-					netif["traffic"]["rx"],
-					netif["traffic"]["tx"],))
+				ndata.append((router_id,name,time,netif["traffic"]["rx"],netif["traffic"]["tx"],))
+		mysql.executemany("""
+			INSERT INTO router_stats_netif (router, netif, time, rx, tx)
+			VALUES (%s, %s, %s, %s, %s)
+		""",ndata)
+		
+		nbdata = []
 		for neighbour in router_update["neighbours"]:
 			with suppress(KeyError):
-				mysql.execute("""
-					INSERT INTO router_stats_neighbor (router, mac, time, quality)
-					VALUES (%s, %s, %s, %s)
-				""",(
-					router_id,
-					neighbour["mac"],
-					time,
-					neighbour["quality"],))
+				nbdata.append((router_id,neighbour["mac"],time,neighbour["quality"],))
+		mysql.executemany("""
+			INSERT INTO router_stats_neighbor (router, mac, time, quality)
+			VALUES (%s, %s, %s, %s)
+		""",nbdata)
 
 def calculate_network_io(mysql, router_id, uptime, router_update):
 	"""
