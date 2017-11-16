@@ -91,7 +91,9 @@ def router_info(dbid):
 					SELECT router, mac FROM router_netif GROUP BY mac, router
 					) AS net ON nb.mac = net.mac
 				LEFT JOIN router as r ON net.router = r.id
-				WHERE nb.router = %s""",(dbid,))
+				WHERE nb.router = %s
+				ORDER BY nb.quality DESC
+			""",(dbid,))
 			# FIX SQL: only one from router_netif
 			
 			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
