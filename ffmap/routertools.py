@@ -242,7 +242,7 @@ def detect_offline_routers(mysql):
 	cur.execute("""
 		SELECT id
 		FROM router
-		WHERE last_contact < %s AND status <> 'offline'
+		WHERE last_contact < %s AND status <> 'offline' AND status <> 'orphaned'
 	""",(threshold,))
 	result = cur.fetchall()
 	for r in result:
@@ -254,7 +254,7 @@ def detect_offline_routers(mysql):
 	cur.execute("""
 		UPDATE router
 		SET status = 'offline', clients = 0
-		WHERE last_contact < %s AND status <> 'offline'
+		WHERE last_contact < %s AND status <> 'offline' AND status <> 'orphaned'
 	""",(threshold,))
 	mysql.commit()
 
