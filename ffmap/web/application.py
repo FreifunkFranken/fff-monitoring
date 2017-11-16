@@ -212,7 +212,7 @@ def user_info(nickname):
 						mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
 				elif request.form.get("action") == "deleteaccount":
 					if session.get('admin'):
-						cur.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+						mysql.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
 						mysql.commit()
 						flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
 						mysql.close()
