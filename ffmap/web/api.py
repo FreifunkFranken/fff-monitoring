@@ -11,6 +11,8 @@ import json
 
 from operator import itemgetter
 
+import time
+
 api = Blueprint("api", __name__)
 
 # map ajax
@@ -70,6 +72,7 @@ def get_router_by_mac(mac):
 @api.route('/alfred', methods=['GET', 'POST'])
 def alfred():
 	try:
+		start_time = time.time()
 		mysql = FreifunkMySQL()
 		#cur = mysql.cursor()
 		#set_alfred_data = {65: "hallo", 66: "welt"}
@@ -83,9 +86,13 @@ def alfred():
 			
 			if alfred_data:
 				# load router status xml data
+				i = 1
 				for mac, xml in alfred_data.get("64", {}).items():
 					import_nodewatcher_xml(mysql, mac, xml)
-					mysql.commit()
+					if (i%100 == 0):
+						mysql.commit()
+					i += 1
+				mysql.commit()
 				r.headers['X-API-STATUS'] = "ALFRED data imported"
 				#detect_offline_routers(mysql)
 				#detect_orphaned_routers(mysql)
@@ -101,6 +108,8 @@ def alfred():
 		#ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 		#ps.print_stats()
 		#print(s.getvalue())
+		with open("/data/fff/apitime.txt", "a") as csv:
+			csv.write("- %s seconds\n" % (time.time() - start_time))
 		r.mimetype = 'application/json'
 		return r
 	except Exception as e:     # most generic exception you can catch
