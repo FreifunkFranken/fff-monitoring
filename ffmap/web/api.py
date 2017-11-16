@@ -89,7 +89,7 @@ def alfred():
 				i = 1
 				for mac, xml in alfred_data.get("64", {}).items():
 					import_nodewatcher_xml(mysql, mac, xml)
-					if (i%100 == 0):
+					if (i%500 == 0):
 						mysql.commit()
 					i += 1
 				mysql.commit()
@@ -108,8 +108,8 @@ def alfred():
 		#ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 		#ps.print_stats()
 		#print(s.getvalue())
-		with open("/data/fff/apitime.txt", "a") as csv:
-			csv.write("- %s seconds\n" % (time.time() - start_time))
+		#with open("/data/fff/apitime.txt", "a") as csv:
+		#	csv.write("- %s seconds\n" % (time.time() - start_time))
 		r.mimetype = 'application/json'
 		return r
 	except Exception as e:     # most generic exception you can catch
