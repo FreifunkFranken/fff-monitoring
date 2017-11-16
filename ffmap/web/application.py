@@ -87,10 +87,10 @@ def router_info(dbid):
 			router["neighbours"] = mysql.fetchall("""
 				SELECT nb.mac, nb.quality, nb.net_if, r.hostname, r.id
 				FROM router_neighbor AS nb
-				INNER JOIN (
+				LEFT JOIN (
 					SELECT router, mac FROM router_netif GROUP BY mac, router
 					) AS net ON nb.mac = net.mac
-				INNER JOIN router as r ON net.router = r.id
+				LEFT JOIN router as r ON net.router = r.id
 				WHERE nb.router = %s""",(dbid,))
 			# FIX SQL: only one from router_netif
 			
