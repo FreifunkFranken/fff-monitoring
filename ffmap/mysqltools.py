@@ -59,6 +59,9 @@ class FreifunkMySQL:
 		else:
 			return False
 	
+	def executemany(self,a,b):
+		return self.cur.executemany(a,b)
+	
 	def execute(self,a,b=None):
 		if b:
 			return self.cur.execute(a,b)
