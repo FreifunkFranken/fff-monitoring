@@ -310,6 +310,8 @@
 	</div>
 	<script type="text/javascript">
 		var router_stats = {{ router.stats|statbson2json|safe }};
+		var netif_stats = {{ netifstats|statbson2json|safe }};
+		var neigh_stats = {{ neighstats|statbson2json|safe }};
 		var neighbours = [
 		{%- for neighbour in router.neighbours %}
 			{"name": "{{ neighbour.hostname or neighbour.mac }}", "mac": "{{ neighbour.mac }}", "net_if": "{{ neighbour.net_if }}"},
