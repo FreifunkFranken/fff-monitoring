@@ -374,7 +374,7 @@ def new_router_stats(mysql, router_id, uptime, router_update):
 		for neighbour in router_update["neighbours"]:
 			with suppress(KeyError):
 				nbdata.append((router_id,neighbour["mac"],time,neighbour["quality"],))
-		mysql.execute("""
+		mysql.executemany("""
 			INSERT INTO router_stats_neighbor (router, mac, time, quality)
 			VALUES (%s, %s, %s, %s)
 		""",nbdata)
