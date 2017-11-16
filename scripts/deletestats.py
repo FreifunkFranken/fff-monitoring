@@ -4,7 +4,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.routertools import delete_old_stats
 from ffmap.mysqltools import FreifunkMySQL
