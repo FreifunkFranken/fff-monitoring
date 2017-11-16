@@ -98,21 +98,21 @@ def router_info(dbid):
 			
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
-				s["netifs"] = mysql.fetchdict("""
-					SELECT netif, rx, tx FROM router_stats_netif WHERE router = %s AND time = %s
-				""",(dbid,s["time"],),"netif")
-				s["neighbours"] = mysql.fetchdict("""
-					SELECT quality, mac FROM router_stats_neighbor WHERE router = %s AND time = %s
-				""",(dbid,s["time"],),"mac","quality")
-				#s["neighbours"] = mysql.fetchdict("""
-				#	SELECT nb.mac, nb.quality, r.hostname, r.id
-				#	FROM router_stats_neighbor AS nb
-				#	INNER JOIN (
-				#		SELECT router, mac FROM router_netif GROUP BY mac, router
-				#		) AS net ON nb.mac = net.mac
-				#	INNER JOIN router as r ON net.router = r.id
-				#	WHERE nb.router = %s AND time = %s""",(dbid,s["time"],),"mac")
 				mysql.utcaware(s["time"])
+			
+			netiffetch = mysql.fetchall("""
+				SELECT netif, rx, tx, time FROM router_stats_netif WHERE router = %s
+			""",(dbid,))
+			
+			for ns in netiffetch:
+				mysql.utcaware(ns["time"])
+			
+			neighfetch = mysql.fetchall("""
+				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s
+			""",(dbid,))
+			
+			for ns in neighfetch:
+				mysql.utcaware(ns["time"])
 
 			if request.method == 'POST':
 				if request.form.get("act") == "delete":
@@ -138,7 +138,7 @@ def router_info(dbid):
 			#FIXME: Only as admin
 			return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 		else:
-			return render_template("router.html", router=router, tileurls=tileurls)
+			return render_template("router.html", router=router, tileurls=tileurls, netifstats=netiffetch, neighstats=neighfetch)
 	except Exception as e:     # most generic exception you can catch
 		logf = open("/data/fff/fail3.txt", "a")
 		logf.write("{}\n".format(str(e)))

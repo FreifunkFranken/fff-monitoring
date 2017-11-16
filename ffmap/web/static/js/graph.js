@@ -70,11 +70,12 @@ function network_graph(netif) {
 	var netstat = $("#netstat");
 	var tx = [], rx = [];
 	var len, i;
-	for (len=router_stats.length, i=0; i<len; i++) {
+	for (len=netif_stats.length, i=0; i<len; i++) {
+		if (netif_stats[i].netif != netif) { continue; }
 		try {
-			var tx_value = router_stats[i].netifs[netif].tx;
-			var rx_value = router_stats[i].netifs[netif].rx;
-			var date_value = router_stats[i].time.$date;
+			var tx_value = netif_stats[i].tx;
+			var rx_value = netif_stats[i].rx;
+			var date_value = netif_stats[i].time.$date;
 			if(tx_value != null && rx_value != null) {
 				tx.push([date_value, tx_value]);
 				rx.push([date_value, rx_value]);
@@ -115,10 +116,11 @@ function neighbour_graph(neighbours) {
 		var mac = neighbours[j].mac;
 		var data = [];
 		var len, i;
-		for (len=router_stats.length, i=0; i<len; i++) {
+		for (len=neigh_stats.length, i=0; i<len; i++) {
+			if (neigh_stats[i].mac != mac) { continue; }
 			try {
-				var quality = router_stats[i].neighbours[mac];
-				var date_value = router_stats[i].time.$date;
+				var quality = neigh_stats[i].quality;
+				var date_value = neigh_stats[i].time.$date;
 				if(quality == null) {
 					quality = 0;
 				}
