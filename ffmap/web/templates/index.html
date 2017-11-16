@@ -1,5 +1,14 @@
 {% extends "bootstrap.html" %}
 {% block title %}{{super()}} :: Home{% endblock %}
+{% block head %}{{super()}}
+	<style type="text/css">
+		.jumbotron .consolefont {
+			font-style: normal;
+			white-space: pre;
+			font-family: monospace;
+		}
+	</style>
+{% endblock %}
 {% block content %}
 	<div class="jumbotron">
 		<h1>Freifunk Franken Monitoring</h1>
@@ -8,10 +17,24 @@
 				<img src="{{ url_for('static', filename='img/freifunk.svg') }}" style="width: 100%;" />
 			</div>
 			<div class="col-xs-8 col-sm-8"><p>
-				Monitoring f&uuml;r das Freifunk Franken Funknetzwerk.<br />
+				<p>Monitoring f&uuml;r das Freifunk Franken Funknetzwerk.<br />
 				Hier werden Daten von Routern ab Firmware 0.5.2 angezeigt.<br />
 				Der Quellcode f&uuml;r diese Webanwendung steht unter der GPL und kann <a href="https://github.com/asdil12/fff-monitoring">hier</a>
-				heruntergeladen werden.
+				heruntergeladen werden.</p>
+				<h2 style="margin-top:30px">Changelog</h2>
+				<h3>&Auml;nderungen am 16.11.2017</h3>
+				<ul style="font-size:18px">
+				<li>Changelog wird eingeführt</li>
+				<li>MySQL-Unterstützung und reines Python3 (Mapnik, Tilestache)</li>
+				<li>Individuelle Statistik-Seite pro Hood</li>
+				<li><span class="consolefont">/routers/&lt;nr&gt;?fffconfig</span> gibt fffconfig Datei aus</li>
+				<li>Neuer Status "orphaned" wenn Router länger als 7 Tage offline sind (Icon wird grau)</li>
+				<li>Separate Layer und Farben für KeyXchange v1 und v2 Router</li>
+				<li>Leerzeichen in Hoodnamen werden unterstützt (aber nicht gewünscht)</li>
+				<li>Hoodname wird nicht mehr nach lower-case konvertiert</li>
+				<li><span class="consolefont">/api/wifianalall</span> gibt WifiAnalyzer-Datei für ALLE Router aus</li>
+				<li>Statistiken werden in separatem Cronjob berechnet</li>
+				</ul>
 			</p></div>
 		</div>
 	</div>
