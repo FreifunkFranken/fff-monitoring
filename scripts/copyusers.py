@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
+
 from ffmap.mysqltools import FreifunkMySQL
 
 import pymongo
