@@ -12,6 +12,7 @@ import json
 
 from operator import itemgetter
 
+import datetime
 import time
 
 api = Blueprint("api", __name__)
@@ -109,8 +110,8 @@ def alfred():
 		#ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 		#ps.print_stats()
 		#print(s.getvalue())
-		#with open(CONFIG["debug_dir"] + "/apitime.txt", "a") as csv:
-		#	csv.write("- %s seconds\n" % (time.time() - start_time))
+		with open(CONFIG["debug_dir"] + "/apitime.txt", "a") as csv:
+			csv.write(time.strftime('{%Y-%m-%d %H:%M:%S}') + " - %.3f seconds\n" % (time.time() - start_time))
 		r.mimetype = 'application/json'
 		return r
 	except Exception as e:     # most generic exception you can catch
