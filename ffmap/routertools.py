@@ -17,7 +17,7 @@ CONFIG = {
 	"vpn_netif": "fffVPN",
 	"vpn_netif_l2tp": "l2tp",
 	"vpn_netif_aux": "fffauxVPN",
-	"offline_threshold_minutes": 20,
+	"offline_threshold_minutes": 15,
 	"orphan_threshold_days": 7,
 	"delete_threshold_days": 180,
 	"router_stat_days": 7,
