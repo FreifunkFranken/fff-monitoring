@@ -6,23 +6,13 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.misc import *
+import ffmap.config
 
 import lxml.etree
 import datetime
 import requests
 from bson import SON
 from contextlib import suppress
-
-CONFIG = {
-	"vpn_netif": "fffVPN",
-	"vpn_netif_l2tp": "l2tp",
-	"vpn_netif_aux": "fffauxVPN",
-	"offline_threshold_minutes": 15,
-	"orphan_threshold_days": 7,
-	"delete_threshold_days": 180,
-	"router_stat_days": 7,
-	"event_num_entries": 20,
-}
 
 router_rate_limit_list = {}
 
