@@ -4,6 +4,7 @@ from ffmap.routertools import *
 from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats
+import ffmap.config
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from bson.json_util import dumps as bson2json
@@ -109,12 +110,12 @@ def alfred():
 		#ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 		#ps.print_stats()
 		#print(s.getvalue())
-		with open("/data/fff/apitime.txt", "a") as csv:
+		with open(CONFIG["debug_dir"] + "/apitime.txt", "a") as csv:
 			csv.write(time.strftime('{%Y-%m-%d %H:%M:%S}') + " - %s seconds\n" % (time.time() - start_time))
 		r.mimetype = 'application/json'
 		return r
 	except Exception as e:     # most generic exception you can catch
-		logf = open("/data/fff/fail00.txt", "a")
+		logf = open(CONFIG["debug_dir"] + "/fail_alfred.txt", "a")
 		logf.write("{}\n".format(e))
 		logf.close()
 
