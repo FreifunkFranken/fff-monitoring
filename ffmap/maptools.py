@@ -5,16 +5,13 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.mysqltools import FreifunkMySQL
+from ffmap.config import CONFIG
 
 import math
 import numpy as np
 from scipy.spatial import Voronoi
 
 import urllib.request, json
-
-CONFIG = {
-	"csv_dir": "/var/lib/ffmap/csv"
-}
 
 EARTH_RADIUS = 6378137.0
 
