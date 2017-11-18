@@ -11,4 +11,5 @@ CONFIG = {
 	"event_num_entries": 20,
 	"global_stat_days": 30,
 	"csv_dir": "/var/lib/ffmap/csv",
+	"debug_dir": "/data/fff",
 }

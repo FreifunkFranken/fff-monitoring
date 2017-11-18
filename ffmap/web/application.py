@@ -11,6 +11,7 @@ from ffmap import stattools
 from ffmap.usertools import *
 from ffmap.routertools import delete_router
 from ffmap.web.helpers import *
+from ffmap.config import CONFIG
 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash, session
 import bson
@@ -143,7 +144,7 @@ def router_info(dbid):
 		else:
 			return render_template("router.html", router=router, tileurls=tileurls, netifstats=netiffetch, neighstats=neighfetch)
 	except Exception as e:     # most generic exception you can catch
-		logf = open("/data/fff/fail3.txt", "a")
+		logf = open(CONFIG["debug_dir"] + "/fail_router.txt", "a")
 		logf.write("{}\n".format(str(e)))
 		logf.close()
 
