@@ -78,6 +78,15 @@
 		</tr>
 		<tr>
 			<td>
+				<h2>Routers without position</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/nopos</p>
+				<p class="apidesc">Returns JSON file of all routers without coordinates set.</p>
+			</td>
+		</tr>
+		<tr class="uneven">
+			<td>
 				<h2>Extended router list</h2>
 			</td>
 			<td>
@@ -85,7 +94,25 @@
 				<p class="apidesc">Returns JSON file of all routers with the following information: <span style="font-style:italic">Monitoring ID, hostname, MAC address, hood, status, user nickname, hardware, firmware, Monitoring link, clients, last contact, uplink interfaces and coordinates.</span></p>
 			</td>
 		</tr>
+		<tr>
+			<td>
+				<h2>Routers of a specific user</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/routers_by_nickname/&lt;user_nickname&gt;</p>
+				<p class="apidesc">Returns JSON file of all routers belonging to the specified &lt;user_nickname&gt;.</p>
+			</td>
+		</tr>
 		<tr class="uneven">
+			<td>
+				<h2>Routers of a hood by KeyXchange ID</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/routers_by_keyxchange_id/&lt;hood_keyxchange_id&gt;</p>
+				<p class="apidesc">Returns JSON file of all routers belonging to the specified &lt;hood_keyxchange_id&gt;.</p>
+			</td>
+		</tr>
+		<tr>
 			<td>
 				<h2>Wifi Analyzer node list</h2>
 			</td>
@@ -93,6 +120,16 @@
 				<p class="apilink">/api/wifianal/&lt;hood&gt;</p>
 				<p class="apidesc">Returns configuration file (text/plain) for the Wifi Analyzer app (<a href="https://play.google.com/store/apps/details?id=com.farproc.wifi.analyzer&hl=en">PlayStore</a>).</p>
 				<p class="apidesc">The file contains all routers of the selected &lt;hood&gt;.</p>
+			</td>
+		</tr>
+		<tr class="uneven">
+			<td>
+				<h2>Wifi Analyzer node list for all hoods</h2>
+			</td>
+			<td>
+				<p class="apilink">/api/wifianalall</p>
+				<p class="apidesc">Returns configuration file (text/plain) for the Wifi Analyzer app (<a href="https://play.google.com/store/apps/details?id=com.farproc.wifi.analyzer&hl=en">PlayStore</a>).</p>
+				<p class="apidesc">The file contains all routers of all hoods.</p>
 			</td>
 		</tr>
 		</table>
