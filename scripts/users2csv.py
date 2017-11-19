@@ -17,6 +17,7 @@ db = client.freifunk
 
 users = db.users.find({}, {"nickname": 1, "password":1, "email": 1, "token": 1, "created": 1, "admin": 1})
 
-with open(targetfile, "w") as csv:
+with open(targetfile, "wb") as csv:
 	for u in users:
-		csv.write("%s;%s;%s;%s;%s;%s\n" % (u.get("nickname"),u.get("token"),u.get("email",""),u.get("created"),u.get("admin",0),u.get("password")))
+		str = "%s;%s;%s;%s;%s;%s\n" % (u.get("nickname"),u.get("token"),u.get("email",""),u.get("created"),u.get("admin",0),u.get("password"))
+		csv.write(str.encode("UTF-8"))
