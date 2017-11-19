@@ -24,6 +24,7 @@ allowed_filters = (
 	'mac',
 	'hostname',
 	'contact',
+	'community',
 )
 
 def parse_router_list_search_query(args):
