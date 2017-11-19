@@ -173,6 +173,9 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			set_status(mysql,router_id,"unknown")
 		status = "unknown"
 		status_comment = "Exception occurred"
+		logf = open(CONFIG["debug_dir"] + "/fail_readrouter.txt", "a")
+		logf.write("{} - {}\n".format(router_update["hostname"],e))
+		logf.close()
 
 	if olddata:
 		# fire events
