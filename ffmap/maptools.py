@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.mysqltools import FreifunkMySQL
-import ffmap.config
+from ffmap.config import CONFIG
 
 import math
 import numpy as np

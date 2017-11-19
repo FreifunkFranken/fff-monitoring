@@ -11,7 +11,7 @@ from ffmap import stattools
 from ffmap.usertools import *
 from ffmap.routertools import delete_router
 from ffmap.web.helpers import *
-import ffmap.config
+from ffmap.config import CONFIG
 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash, session
 import bson

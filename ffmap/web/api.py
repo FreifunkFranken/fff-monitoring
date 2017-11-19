@@ -4,7 +4,7 @@ from ffmap.routertools import *
 from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats
-import ffmap.config
+from ffmap.config import CONFIG
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from bson.json_util import dumps as bson2json

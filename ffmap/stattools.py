@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.misc import *
-import ffmap.config
+from ffmap.config import CONFIG
 
 def total_clients(mysql,selecthood=None):
 	if selecthood:
