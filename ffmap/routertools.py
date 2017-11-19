@@ -103,7 +103,6 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
 			mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
 			
-			uptime = 0
 			new_router_stats(mysql, router_id, uptime, router_update)
 		else:
 			# insert new router
