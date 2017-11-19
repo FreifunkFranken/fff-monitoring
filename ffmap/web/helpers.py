@@ -41,6 +41,7 @@ def parse_router_list_search_query(args):
 			if key in allowed_filters:
 				query_usr[key] = query_usr.get(key, "") + value
 	s = ""
+	j = ""
 	t = []
 	i = 0
 	for key, value in query_usr.items():
@@ -59,7 +60,8 @@ def parse_router_list_search_query(args):
 		elif value == "EXISTS_NOT":
 			k = key + ' = "" OR ' + key + " IS NULL"
 		elif key == 'mac':
-			k = no + "mac = %s"
+			j += " INNER JOIN ( SELECT router, mac FROM router_netif GROUP BY router, mac) AS j ON router.id = j.router "
+			k = "mac {} REGEXP %s".format(no)
 			t.append(value.lower())
 		elif (key == 'hardware') or (key == 'hood'):
 			k = key + " {} REGEXP %s".format(no)
@@ -75,7 +77,8 @@ def parse_router_list_search_query(args):
 			t.append(value)
 		i += 1
 		s += prefix + k
-	return (s, tuple(t), format_query(query_usr))
+	where = j + " " + s
+	return (where, tuple(t), format_query(query_usr))
 
 def send_email(recipient, subject, content, sender="FFF Monitoring <noreply@monitoring.freifunk-franken.de>"):
 	msg = MIMEText(content)
