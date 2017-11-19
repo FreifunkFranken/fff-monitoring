@@ -167,73 +167,67 @@ def user_info(nickname):
 	if not user:
 		mysql.close()
 		return "User not found"
-	try:
-		if request.method == 'POST':
-			if is_authorized(user["nickname"], session):
-				if request.form.get("action") == "changepw":
-					if request.form["password"] != request.form["password_rep"]:
-						flash("<b>Passwords did not match!</b>", "danger")
-					elif request.form["password"] == "":
-						flash("<b>Password must not be empty!</b>", "danger")
-					else:
-						set_user_password(mysql, user["nickname"], request.form["password"])
-						flash("<b>Password changed!</b>", "success")
-				elif request.form.get("action") == "changemail":
-					if request.form["email"] != request.form["email_rep"]:
-						flash("<b>E-Mail addresses do not match!</b>", "danger")
-					elif not "@" in request.form["email"]:
-						flash("<b>Invalid E-Mail addresse!</b>", "danger")
-					else:
-						try:
-							set_user_email(mysql, user["nickname"], request.form["email"])
-							flash("<b>E-Mail changed!</b>", "success")
-							if not session.get('admin'):
-								password = base64.b32encode(os.urandom(10)).decode()
-								set_user_password(mysql, user["nickname"], password)
-								send_email(
-									recipient = request.form['email'],
-									subject   = "Password for %s" % user['nickname'],
-									content   = "Hello %s,\n\n" % user["nickname"] +
-												"You changed your email address on https://monitoring.freifunk-franken.de/\n" +
-											"To verify your new email address your password was changed to %s\n" % password +
-											"... and sent to your new address. Please log in and change it.\n\n" +
-											"Regards,\nFreifunk Franken Monitoring System"
-								)
-								mysql.close()
-								return logout()
-							else:
-								# force db data reload
-								mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
-						except AccountWithEmailExists:
-							flash("<b>There is already an account with this E-Mail Address!</b>", "danger")
-				elif request.form.get("action") == "changeadmin":
-					if session.get('admin'):
-						set_user_admin(mysql, nickname, request.form.get("admin") == "true")
-						# force db data reload
-						mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
-				elif request.form.get("action") == "deleteaccount":
-					if session.get('admin'):
-						mysql.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
-						mysql.commit()
-						flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
-						mysql.close()
-						return redirect(url_for("user_list"))
-			else:
-				flash("<b>You are not authorized to perform this action!</b>", "danger")
-		routers = mysql.fetchall("""
-			SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients
-			FROM router
-			WHERE contact = %s
-			ORDER BY hostname ASC
-		""",(user["email"],))
-		mysql.close()
-		routers = mysql.utcawaretuple(routers,"created")
-		return render_template("user.html", user=user, routers=routers, routers_count=len(routers))
-	except Exception as e:
-		logf = open("/data/fff/fail626.txt", "a")
-		logf.write("{}\n".format(str(e)))
-		logf.close()
-		mysql.close()
+	if request.method == 'POST':
+		if is_authorized(user["nickname"], session):
+			if request.form.get("action") == "changepw":
+				if request.form["password"] != request.form["password_rep"]:
+					flash("<b>Passwords did not match!</b>", "danger")
+				elif request.form["password"] == "":
+					flash("<b>Password must not be empty!</b>", "danger")
+				else:
+					set_user_password(mysql, user["nickname"], request.form["password"])
+					flash("<b>Password changed!</b>", "success")
+			elif request.form.get("action") == "changemail":
+				if request.form["email"] != request.form["email_rep"]:
+					flash("<b>E-Mail addresses do not match!</b>", "danger")
+				elif not "@" in request.form["email"]:
+					flash("<b>Invalid E-Mail addresse!</b>", "danger")
+				else:
+					try:
+						set_user_email(mysql, user["nickname"], request.form["email"])
+						flash("<b>E-Mail changed!</b>", "success")
+						if not session.get('admin'):
+							password = base64.b32encode(os.urandom(10)).decode()
+							set_user_password(mysql, user["nickname"], password)
+							send_email(
+								recipient = request.form['email'],
+								subject   = "Password for %s" % user['nickname'],
+								content   = "Hello %s,\n\n" % user["nickname"] +
+											"You changed your email address on https://monitoring.freifunk-franken.de/\n" +
+										"To verify your new email address your password was changed to %s\n" % password +
+										"... and sent to your new address. Please log in and change it.\n\n" +
+										"Regards,\nFreifunk Franken Monitoring System"
+							)
+							mysql.close()
+							return logout()
+						else:
+							# force db data reload
+							mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+					except AccountWithEmailExists:
+						flash("<b>There is already an account with this E-Mail Address!</b>", "danger")
+			elif request.form.get("action") == "changeadmin":
+				if session.get('admin'):
+					set_user_admin(mysql, nickname, request.form.get("admin") == "true")
+					# force db data reload
+					mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+			elif request.form.get("action") == "deleteaccount":
+				if session.get('admin'):
+					mysql.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+					mysql.commit()
+					flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
+					mysql.close()
+					return redirect(url_for("user_list"))
+		else:
+			flash("<b>You are not authorized to perform this action!</b>", "danger")
+	routers = mysql.fetchall("""
+		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients
+		FROM router
+		WHERE contact = %s
+		ORDER BY hostname ASC
+	""",(user["email"],))
+	mysql.close()
+	routers = mysql.utcawaretuple(routers,"created")
+	return render_template("user.html", user=user, routers=routers, routers_count=len(routers))
 
 @app.route('/statistics')
 def global_statistics():
