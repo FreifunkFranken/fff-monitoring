@@ -67,7 +67,7 @@ def get_router_by_mac(mac):
 	""",(mac.lower(),))
 	mysql.close()
 	if len(res_routers) != 1:
-		return redirect(url_for("router_list", q="netifs.mac:%s" % mac))
+		return redirect(url_for("router_list", q="mac:%s" % mac))
 	else:
 		return redirect(url_for("router_info", dbid=res_routers[0]["id"]))
 
