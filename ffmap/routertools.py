@@ -46,9 +46,9 @@ def import_nodewatcher_xml(mysql, mac, xml):
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
 		if findrouter:
 			router_id = findrouter["router"]
-			olddata = mysql.findone("SELECT sys_uptime AS uptime, firmware, hostname, hood, status, lat, lng FROM router WHERE id = %s LIMIT 1",(router_id,))
+			olddata = mysql.findone("SELECT sys_uptime, firmware, hostname, hood, status, lat, lng FROM router WHERE id = %s LIMIT 1",(router_id,))
 			if olddata:
-				uptime = olddata["uptime"]
+				uptime = olddata["sys_uptime"]
 		router_update = parse_nodewatcher_xml(xml)
 
 		# keep hood up to date
@@ -83,9 +83,6 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			# statistics
 			calculate_network_io(mysql, router_id, uptime, router_update)
 			ru = router_update
-			rus = router_update["system"]
-			ruh = router_update["hardware"]
-			ruso = router_update["software"]
 			mysql.execute("""
 				UPDATE router
 				SET status = %s, hostname = %s, last_contact = %s, sys_time = %s, sys_uptime = %s, sys_memfree = %s, sys_membuff = %s, sys_memcache = %s,
@@ -94,10 +91,10 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				status_text = %s, contact = %s, lng = %s, lat = %s, neighbors = %s
 				WHERE id = %s
 			""",(
-				ru["status"],ru["hostname"],ru["last_contact"],rus["time"],rus["uptime"],rus["memory"]["free"],rus["memory"]["buffering"],rus["memory"]["caching"],
-				rus["loadavg"],rus["processes"]["runnable"],rus["processes"]["total"],rus["clients"],rus["has_wan_uplink"],ruh["cpu"],ruh["chipset"],ruh["name"],ruso["os"],
-				ruso["batman_adv"],ruso["kernel"],ruso["nodewatcher"],ruso["firmware"],ruso["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
-				ru["system"]["status_text"],ru["system"]["contact"],ru["lng"],ru["lat"],rus["visible_neighbours"],router_id,))
+				ru["status"],ru["hostname"],ru["last_contact"],ru["sys_time"],ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
+				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["has_wan_uplink"],ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
+				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
+				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],router_id,))
 			
 			mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
 			mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
@@ -113,9 +110,6 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			#	"type": "created",
 			#}]
 			ru = router_update
-			rus = router_update["system"]
-			ruh = router_update["hardware"]
-			ruso = router_update["software"]
 			
 			mysql.execute("""
 				INSERT INTO router (status, hostname, created, last_contact, sys_time, sys_uptime, sys_memfree, sys_membuff, sys_memcache,
@@ -124,10 +118,10 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				status_text, contact, lng, lat, neighbors)
 				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
-				ru["status"],ru["hostname"],created,ru["last_contact"],rus["time"],rus["uptime"],rus["memory"]["free"],rus["memory"]["buffering"],rus["memory"]["caching"],
-				rus["loadavg"],rus["processes"]["runnable"],rus["processes"]["total"],rus["clients"],rus["has_wan_uplink"],ruh["cpu"],ruh["chipset"],ruh["name"],ruso["os"],
-				ruso["batman_adv"],ruso["kernel"],ruso["nodewatcher"],ruso["firmware"],ruso["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
-				ru["system"]["status_text"],ru["system"]["contact"],ru["lng"],ru["lat"],rus["visible_neighbours"],))
+				ru["status"],ru["hostname"],created,ru["last_contact"],ru["sys_time"],ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
+				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["has_wan_uplink"],ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
+				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
+				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],))
 			router_id = mysql.cursor().lastrowid
 			
 			events_append(mysql,router_id,"created","")
@@ -180,13 +174,13 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	if olddata:
 		# fire events
 		with suppress(KeyError, TypeError, UnboundLocalError):
-			if olddata["uptime"] > router_update["system"]["uptime"]:
+			if olddata["sys_uptime"] > router_update["sys_uptime"]:
 				events_append(mysql,router_id,"reboot","")
 
 		with suppress(KeyError, TypeError, UnboundLocalError):
-			if olddata["firmware"] != router_update["software"]["firmware"]:
+			if olddata["firmware"] != router_update["firmware"]:
 				events_append(mysql,router_id,"update",
-					"%s -> %s" % (olddata["firmware"], router_update["software"]["firmware"]))
+					"%s -> %s" % (olddata["firmware"], router_update["firmware"]))
 				#events.append({
 				#	"time": utcnow(),
 				#	"type": "update",
@@ -334,7 +328,7 @@ def set_status(mysql,router_id,status):
 		router_id,))
 
 def new_router_stats(mysql, router_id, uptime, router_update):
-	if uptime < router_update["system"]["uptime"]:
+	if uptime < router_update["sys_uptime"]:
 		time = mysql.utcnow()
 		
 		mysql.execute("""
@@ -343,13 +337,13 @@ def new_router_stats(mysql, router_id, uptime, router_update):
 		""",(
 			router_id,
 			time,
-			router_update["system"]["memory"]['free'],
-			router_update["system"]["memory"]['buffering'],
-			router_update["system"]["memory"]['caching'],
-			router_update["system"]["loadavg"],
-			router_update["system"]["processes"]['runnable'],
-			router_update["system"]["processes"]['total'],
-			router_update["system"]["clients"],))
+			router_update["memory"]['free'],
+			router_update["memory"]['buffering'],
+			router_update["memory"]['caching'],
+			router_update["sys_loadavg"],
+			router_update["processes"]['runnable'],
+			router_update["processes"]['total'],
+			router_update["clients"],))
 		
 		ndata = []
 		for netif in router_update["netifs"]:
@@ -379,8 +373,8 @@ def calculate_network_io(mysql, router_id, uptime, router_update):
 	results = mysql.fetchall("SELECT netif, rx_bytes, tx_bytes, rx, tx FROM router_netif WHERE router = %s",(router_id,));
 	
 	with suppress(KeyError, StopIteration):
-		if uptime < router_update["system"]["uptime"]:
-			timediff =  router_update["system"]["uptime"] - uptime
+		if uptime < router_update["sys_uptime"]:
+			timediff =  router_update["sys_uptime"] - uptime
 			for row in results:
 				netif_update = next(filter(lambda n: n["name"] == row["netif"], router_update["netifs"]))
 				rx_diff = netif_update["traffic"]["rx_bytes"] - int(row["rx_bytes"])
@@ -431,50 +425,47 @@ def parse_nodewatcher_xml(xml):
 			"last_contact": utcnow().strftime('%Y-%m-%d %H:%M:%S'),
 			"neighbours": [],
 			"netifs": [],
-			"system": {
-				"time": datetime.datetime.fromtimestamp(evalxpathint(tree,"/data/system_data/local_time/text()")).strftime('%Y-%m-%d %H:%M:%S'),
-				"uptime": int(evalxpathfloat(tree,"/data/system_data/uptime/text()")),
-				"memory": {
-					"free": evalxpathint(tree,"/data/system_data/memory_free/text()"),
-					"buffering": evalxpathint(tree,"/data/system_data/memory_buffering/text()"),
-					"caching": evalxpathint(tree,"/data/system_data/memory_caching/text()"),
-				},
-				"loadavg": evalxpathfloat(tree,"/data/system_data/loadavg/text()"),
-				"processes": {
-					"runnable": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[0]),
-					"total": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[1]),
-				},
-				"clients": evalxpathint(tree,"/data/client_count/text()"),
-				"has_wan_uplink": (
-					(len(tree.xpath("/data/system_data/vpn_active")) > 0
-					and evalxpathint(tree,"/data/system_data/vpn_active/text()") == 1)
-					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif"])) > 0
-					or len(tree.xpath("/data/interface_data/*[starts-with(name(), '%s')]" % CONFIG["vpn_netif_l2tp"])) > 0
-					or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_aux"])) > 0),
+			# hardware
+			"chipset": evalxpath(tree,"/data/system_data/chipset/text()","Unknown"),
+			"cpu": evalxpath(tree,"/data/system_data/cpu/text()"),
+			"hardware": evalxpath(tree,"/data/system_data/model/text()","Legacy"),
+			# config
+			"description": evalxpath(tree,"/data/system_data/description/text()"),
+			"position_comment": evalxpath(tree,"/data/system_data/position_comment/text()"),
+			"community": evalxpath(tree,"/data/system_data/firmware_community/text()"),
+			"hood": evalxpath(tree,"/data/system_data/hood/text()"),
+			"status_text": evalxpath(tree,"/data/system_data/status_text/text()"),
+			"contact": evalxpath(tree,"/data/system_data/contact/text()"),
+			# system
+			"sys_time": datetime.datetime.fromtimestamp(evalxpathint(tree,"/data/system_data/local_time/text()")).strftime('%Y-%m-%d %H:%M:%S'),
+			"sys_uptime": int(evalxpathfloat(tree,"/data/system_data/uptime/text()")),
+			"sys_loadavg": evalxpathfloat(tree,"/data/system_data/loadavg/text()"),
+			"memory": {
+				"free": evalxpathint(tree,"/data/system_data/memory_free/text()"),
+				"buffering": evalxpathint(tree,"/data/system_data/memory_buffering/text()"),
+				"caching": evalxpathint(tree,"/data/system_data/memory_caching/text()"),
 			},
-			"hardware": {
-				"cpu": evalxpath(tree,"/data/system_data/cpu/text()")
+			"processes": {
+				"runnable": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[0]),
+				"total": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[1]),
 			},
-			"software": {
-				"os": "%s (%s)" % (evalxpath(tree,"/data/system_data/distname/text()"),
-						   evalxpath(tree,"/data/system_data/distversion/text()")),
-				"batman_adv": evalxpath(tree,"/data/system_data/batman_advanced_version/text()"),
-				"kernel": evalxpath(tree,"/data/system_data/kernel_version/text()"),
-				"nodewatcher": evalxpath(tree,"/data/system_data/nodewatcher_version/text()"),
-				#"fastd": evalxpath(tree,"/data/system_data/fastd_version/text()"),
-				"firmware": evalxpath(tree,"/data/system_data/firmware_version/text()"),
-				"firmware_rev": evalxpath(tree,"/data/system_data/firmware_revision/text()"),
-			}
+			"clients": evalxpathint(tree,"/data/client_count/text()"),
+			"has_wan_uplink": (
+				(len(tree.xpath("/data/system_data/vpn_active")) > 0
+				and evalxpathint(tree,"/data/system_data/vpn_active/text()") == 1)
+				or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif"])) > 0
+				or len(tree.xpath("/data/interface_data/*[starts-with(name(), '%s')]" % CONFIG["vpn_netif_l2tp"])) > 0
+				or len(tree.xpath("/data/interface_data/%s" % CONFIG["vpn_netif_aux"])) > 0),
+			# software
+			"os": "%s (%s)" % (evalxpath(tree,"/data/system_data/distname/text()"),
+					   evalxpath(tree,"/data/system_data/distversion/text()")),
+			"batman_adv": evalxpath(tree,"/data/system_data/batman_advanced_version/text()"),
+			"kernel": evalxpath(tree,"/data/system_data/kernel_version/text()"),
+			"nodewatcher": evalxpath(tree,"/data/system_data/nodewatcher_version/text()"),
+			#"fastd": evalxpath(tree,"/data/system_data/fastd_version/text()"),
+			"firmware": evalxpath(tree,"/data/system_data/firmware_version/text()"),
+			"firmware_rev": evalxpath(tree,"/data/system_data/firmware_revision/text()"),
 		}
-
-		router_update["hardware"]["chipset"] = evalxpath(tree,"/data/system_data/chipset/text()","Unknown")
-		router_update["hardware"]["name"] = evalxpath(tree,"/data/system_data/model/text()","Legacy")
-		router_update["description"] = evalxpath(tree,"/data/system_data/description/text()")
-		router_update["position_comment"] = evalxpath(tree,"/data/system_data/position_comment/text()")
-		router_update["community"] = evalxpath(tree,"/data/system_data/firmware_community/text()")
-		router_update["hood"] = evalxpath(tree,"/data/system_data/hood/text()")
-		router_update["system"]["status_text"] = evalxpath(tree,"/data/system_data/status_text/text()")
-		router_update["system"]["contact"] = evalxpath(tree,"/data/system_data/contact/text()")
 
 		lng = evalxpathfloat(tree,"/data/system_data/geo/lng/text()")
 		lat = evalxpathfloat(tree,"/data/system_data/geo/lat/text()")
@@ -482,22 +473,21 @@ def parse_nodewatcher_xml(xml):
 			lng = None
 		if lat == 0:
 			lat = None
-
 		router_update["lng"] = lng
 		router_update["lat"] = lat
 
 		#FIXME: tmp workaround to get similar hardware names
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("nanostation-m", "Ubiquiti Nanostation M")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr1043nd-v1", "TP-Link TL-WR1043N/ND v1")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr1043nd-v2", "TP-Link TL-WR1043N/ND v2")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr741nd-v2", "TP-Link TL-WR741N/ND v2")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr741nd-v4", "TP-Link TL-WR741N/ND v4")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841nd-v7", "TP-Link TL-WR841N/ND v7")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841n-v8", "TP-Link TL-WR841N/ND v8")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841n-v9", "TP-Link TL-WR841N/ND v9")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr841nd-v9", "TP-Link TL-WR841N/ND v9")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wr842n-v2", "TP-Link TL-WR842N/ND v2")
-		router_update["hardware"]["name"] = router_update["hardware"]["name"].replace("tl-wdr4300", "TP-Link TL-WDR4300")
+		router_update["hardware"] = router_update["hardware"].replace("nanostation-m", "Ubiquiti Nanostation M")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr1043nd-v1", "TP-Link TL-WR1043N/ND v1")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr1043nd-v2", "TP-Link TL-WR1043N/ND v2")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr741nd-v2", "TP-Link TL-WR741N/ND v2")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr741nd-v4", "TP-Link TL-WR741N/ND v4")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr841nd-v7", "TP-Link TL-WR841N/ND v7")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr841n-v8", "TP-Link TL-WR841N/ND v8")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr841n-v9", "TP-Link TL-WR841N/ND v9")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr841nd-v9", "TP-Link TL-WR841N/ND v9")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wr842n-v2", "TP-Link TL-WR842N/ND v2")
+		router_update["hardware"] = router_update["hardware"].replace("tl-wdr4300", "TP-Link TL-WDR4300")
 
 		for netif in tree.xpath("/data/interface_data/*"):
 			interface = {
@@ -550,7 +540,7 @@ def parse_nodewatcher_xml(xml):
 
 		l3_neighbours = get_l3_neighbours(tree)
 		visible_neighbours += len(l3_neighbours)
-		router_update["system"]["visible_neighbours"] = visible_neighbours
+		router_update["visible_neighbours"] = visible_neighbours
 		router_update["neighbours"] += l3_neighbours
 
 		return router_update
