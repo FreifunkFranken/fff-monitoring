@@ -36,6 +36,9 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			return
 	router_rate_limit_list[mac] = t
 
+	# The following values should stay available after router reset
+	keepvalues = ['lat','lng','description','position_comment','contact']
+
 	router_id = None
 	olddata = []
 	uptime = 0
@@ -44,12 +47,12 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
+		router_update = parse_nodewatcher_xml(xml)
 		if findrouter:
 			router_id = findrouter["router"]
-			olddata = mysql.findone("SELECT sys_uptime, firmware, hostname, hood, status, lat, lng FROM router WHERE id = %s LIMIT 1",(router_id,))
+			olddata = mysql.findone("SELECT sys_uptime, firmware, hostname, hood, status, lat, lng, contact, description, position_comment FROM router WHERE id = %s LIMIT 1",(router_id,))
 			if olddata:
 				uptime = olddata["sys_uptime"]
-		router_update = parse_nodewatcher_xml(xml)
 
 		# keep hood up to date
 		if not router_update["hood"]:
@@ -78,6 +81,12 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				""",(lat,lng,lat,),"name")
 		if not router_update["hood"]:
 			router_update["hood"] = "Default"
+		
+		if olddata:
+			# Has to be done after hood detection, so default hood is selected if no lat/lng
+			for v in keepvalues:
+				if not router_update[v]:
+					router_update[v] = olddata[v] # preserve contact information after router reset
 		
 		if router_id:
 			# statistics
