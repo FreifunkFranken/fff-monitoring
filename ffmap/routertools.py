@@ -44,12 +44,14 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
+		router_update = parse_nodewatcher_xml(xml)
 		if findrouter:
 			router_id = findrouter["router"]
-			olddata = mysql.findone("SELECT sys_uptime AS uptime, firmware, hostname, hood, status, lat, lng FROM router WHERE id = %s LIMIT 1",(router_id,))
+			olddata = mysql.findone("SELECT sys_uptime AS uptime, firmware, hostname, hood, status, lat, lng, contact FROM router WHERE id = %s LIMIT 1",(router_id,))
 			if olddata:
 				uptime = olddata["uptime"]
-		router_update = parse_nodewatcher_xml(xml)
+				if not router_update["system"]["contact"]:
+					router_update["system"]["contact"] = olddata["contact"] # preserve contact information after router reset
 
 		# keep hood up to date
 		if not router_update["hood"]:
