@@ -107,12 +107,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			# insert new router
 			created = mysql.utcnow()
 			#events = [] # don't fire sub-events of created events
-			#router_update["events"] = [{
-			#	"time": utcnow(),
-			#	"type": "created",
-			#}]
 			ru = router_update
-			
 			mysql.execute("""
 				INSERT INTO router (status, hostname, created, last_contact, sys_time, sys_uptime, sys_memfree, sys_membuff, sys_memcache,
 				sys_loadavg, sys_procrun, sys_proctot, clients, wan_uplink, cpu, chipset, hardware, os,
@@ -183,42 +178,20 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			if olddata["firmware"] != router_update["firmware"]:
 				events_append(mysql,router_id,"update",
 					"%s -> %s" % (olddata["firmware"], router_update["firmware"]))
-				#events.append({
-				#	"time": utcnow(),
-				#	"type": "update",
-				#	"comment": "%s -> %s" % (olddata["firmware"], router_update["software"]["firmware"]),
-				#})
 
 		with suppress(KeyError, TypeError, UnboundLocalError):
 			if olddata["hostname"] != router_update["hostname"]:
 				events_append(mysql,router_id,"hostname",
 					"%s -> %s" % (olddata["hostname"], router_update["hostname"]))
-				#events.append({
-				#	"time": utcnow(),
-				#	"type": "hostname",
-				#	"comment": "%s -> %s" % (olddata["hostname"], router_update["hostname"]),
-				#})
 
 		with suppress(KeyError, TypeError, UnboundLocalError):
 			if olddata["hood"] != router_update["hood"]:
 				events_append(mysql,router_id,"hood",
 					"%s -> %s" % (olddata["hood"], router_update["hood"]))
-				#events.append({
-				#	"time": utcnow(),
-				#	"type": "hood",
-				#	"comment": "%s -> %s" % (olddata["hood"], router_update["hood"]),
-				#})
 
 		with suppress(KeyError, TypeError):
 			if olddata["status"] != status:
 				events_append(mysql,router_id,status,status_comment)
-				#event = {
-				#	"time": utcnow(),
-				#	"type": status,
-				#}
-				#with suppress(NameError):
-				#	event["comment"] = status_comment
-				#events.append(event)
 
 def detect_offline_routers(mysql):
 	# Offline after X minutes (online -> offline)
