@@ -262,18 +262,21 @@ def delete_old_stats(mysql):
 	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"]))
 	
 	mysql.execute("""
-		DELETE FROM router_stats
-		WHERE time < %s
+		DELETE s FROM router_stats AS s
+		LEFT JOIN router AS r ON s.router = r.id
+		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 
 	mysql.execute("""
-		DELETE FROM router_stats_neighbor
-		WHERE time < %s
+		DELETE s FROM router_stats_neighbor AS s
+		LEFT JOIN router AS r ON s.router = r.id
+		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 
 	mysql.execute("""
-		DELETE FROM router_stats_netif
-		WHERE time < %s
+		DELETE s FROM router_stats_netif AS s
+		LEFT JOIN router AS r ON s.router = r.id
+		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 
 	events = mysql.fetchall("""
