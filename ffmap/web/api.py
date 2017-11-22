@@ -5,6 +5,7 @@ from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats
 from ffmap.config import CONFIG
+from ffmap.misc import writelog
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from bson.json_util import dumps as bson2json
@@ -110,14 +111,13 @@ def alfred():
 		#ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 		#ps.print_stats()
 		#print(s.getvalue())
-		with open(CONFIG["debug_dir"] + "/apitime.txt", "a") as csv:
-			csv.write(time.strftime('{%Y-%m-%d %H:%M:%S}') + " - %.3f seconds\n" % (time.time() - start_time))
+		
+		writelog(CONFIG["debug_dir"] + "/apitime.txt", "%.3f seconds" % (time.time() - start_time))
+		
 		r.mimetype = 'application/json'
 		return r
-	except Exception as e:     # most generic exception you can catch
-		logf = open(CONFIG["debug_dir"] + "/fail_alfred.txt", "a")
-		logf.write("{}\n".format(e))
-		logf.close()
+	except Exception as e:
+		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", str(e))
 
 
 # https://github.com/ffansbach/de-map/blob/master/schema/nodelist-schema-1.0.0.json
