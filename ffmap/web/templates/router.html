@@ -121,6 +121,9 @@
 							{%- if router.community %}
 							({{ router.community }})
 							{%- endif -%}
+							{%- if router.reset %}
+							<span style="color:#d90000">- Router has lost its position!</span>
+							{%- endif -%}
 						</td></tr>
 						{%- endif %}
 						{%- if router.user or router.contact %}

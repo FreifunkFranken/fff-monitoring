@@ -44,6 +44,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	uptime = 0
 	events = []
 	status_comment = ""
+	reset = False
 	
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
@@ -81,6 +82,9 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				""",(lat,lng,lat,),"name")
 		if not router_update["hood"]:
 			router_update["hood"] = "Default"
+		if not router_update['lat'] and not router_update['lng'] and olddata['lat'] and olddata['lng']:
+			# Enable reset state; do before variable fallback
+			reset = True
 		
 		if olddata:
 			# Has to be done after hood detection, so default hood is selected if no lat/lng
@@ -97,13 +101,13 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				SET status = %s, hostname = %s, last_contact = %s, sys_time = %s, sys_uptime = %s, sys_memfree = %s, sys_membuff = %s, sys_memcache = %s,
 				sys_loadavg = %s, sys_procrun = %s, sys_proctot = %s, clients = %s, wan_uplink = %s, cpu = %s, chipset = %s, hardware = %s, os = %s,
 				batman = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s,
-				status_text = %s, contact = %s, lng = %s, lat = %s, neighbors = %s
+				status_text = %s, contact = %s, lng = %s, lat = %s, neighbors = %s, reset = %s
 				WHERE id = %s
 			""",(
 				ru["status"],ru["hostname"],ru["last_contact"],ru["sys_time"],ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["has_wan_uplink"],ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
 				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
-				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],router_id,))
+				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
 			mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
 			mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
