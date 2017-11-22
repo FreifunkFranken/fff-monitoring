@@ -42,6 +42,7 @@ mysql.execute("""
 		`contact` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`lng` double DEFAULT NULL,
 		`lat` double DEFAULT NULL,
+		`reset` tinyint(1) NOT NULL DEFAULT '0',
 		`neighbors` smallint(6) NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
