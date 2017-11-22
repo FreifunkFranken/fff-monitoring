@@ -12,6 +12,7 @@ from ffmap.usertools import *
 from ffmap.routertools import delete_router
 from ffmap.web.helpers import *
 from ffmap.config import CONFIG
+from ffmap.misc import writelog
 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash, session
 import bson
@@ -143,10 +144,8 @@ def router_info(dbid):
 			return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 		else:
 			return render_template("router.html", router=router, tileurls=tileurls, netifstats=netiffetch, neighstats=neighfetch)
-	except Exception as e:     # most generic exception you can catch
-		logf = open(CONFIG["debug_dir"] + "/fail_router.txt", "a")
-		logf.write("{}\n".format(str(e)))
-		logf.close()
+	except Exception as e:
+		writelog(CONFIG["debug_dir"] + "/fail_router.txt", str(e))
 
 @app.route('/users')
 def user_list():
