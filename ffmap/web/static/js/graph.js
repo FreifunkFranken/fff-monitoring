@@ -356,7 +356,7 @@ function global_router_firmwares_graph() {
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
 		if (obj && obj.series.label != "Other") {
-			window.location.href = routers_page_url + "?q=firmware:" + obj.series.label;
+			window.location.href = routers_page_url + "?q=firmware:^" + obj.series.label + "$";
 		}
 	});
 }
@@ -381,7 +381,7 @@ function global_router_models_graph() {
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
 		if (obj && obj.series.label != "Other") {
-			window.location.href = routers_page_url + "?q=hardware:" + obj.series.label.replace(/ /g, '_');
+			window.location.href = routers_page_url + "?q=hardware:^" + obj.series.label.replace(/ /g, '_') + "$";
 		}
 	});
 }
