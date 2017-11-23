@@ -50,7 +50,7 @@ def router_list():
 	mysql = FreifunkMySQL()
 	
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, clients
+		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, clients, reset
 		FROM router
 		LEFT JOIN users ON router.contact = users.email
 		{}
