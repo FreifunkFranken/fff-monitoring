@@ -239,13 +239,17 @@ def global_statistics():
 	stats = mysql.fetchall("SELECT * FROM stats_global")
 	stats = mysql.utcawaretuple(stats,"time")
 	
+	numnew = len(hoods)-15
+	if numnew < 1:
+		numnew = 1
+	
 	newest_routers = mysql.fetchall("""
 		SELECT id, hostname, hood, created
 		FROM router
 		WHERE hardware <> 'Legacy'
 		ORDER BY created DESC
 		LIMIT %s
-	""",(len(hoods)+1,))
+	""",(numnew,))
 	newest_routers = mysql.utcawaretuple(newest_routers,"created")
 	
 	clients = stattools.total_clients(mysql)
@@ -275,13 +279,17 @@ def global_hoodstatistics(selecthood):
 	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
 	stats = mysql.utcawaretuple(stats,"time")
 	
+	numnew = len(hoods)-15
+	if numnew < 1:
+		numnew = 1
+	
 	newest_routers = mysql.fetchall("""
 		SELECT id, hostname, hood, created
 		FROM router
 		WHERE hardware <> 'Legacy' AND hood = %s
 		ORDER BY created DESC
 		LIMIT %s
-	""",(selecthood,len(hoods)+1,))
+	""",(selecthood,numnew,))
 	newest_routers = mysql.utcawaretuple(newest_routers,"created")
 	
 	clients = stattools.total_clients(mysql)
