@@ -331,7 +331,7 @@ function global_router_graph() {
 	var plot = $.plot(memstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0, autoscaleMargin: 0.1},
+		yaxis: {min: 0, autoscaleMargin: 0.15},
 		legend: {noColumns: 4, hideable: true},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
