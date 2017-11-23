@@ -40,7 +40,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	keepvalues = ['lat','lng','description','position_comment','contact']
 
 	router_id = None
-	olddata = []
+	olddata = False
 	uptime = 0
 	events = []
 	status_comment = ""
@@ -82,7 +82,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				""",(lat,lng,lat,),"name")
 		if not router_update["hood"]:
 			router_update["hood"] = "Default"
-		if not router_update['lat'] and not router_update['lng'] and olddata['lat'] and olddata['lng']:
+		if not router_update['lat'] and not router_update['lng'] and olddata and olddata['lat'] and olddata['lng']:
 			# Enable reset state; do before variable fallback
 			reset = True
 		
