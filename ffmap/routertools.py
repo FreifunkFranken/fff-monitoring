@@ -60,10 +60,10 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			# router didn't send his hood in XML
 			lat = router_update.get("lat")
 			lng = router_update.get("lng")
-			if olddata and not lat and not lng:
-				# hoods might change as well
-				lat = olddata.get("lat")
-				lng = olddata.get("lng")
+			#if olddata and not lat and not lng:
+			#	# hoods might change as well
+			#	lat = olddata.get("lat")
+			#	lng = olddata.get("lng")
 			if lat and lng:
 				router_update["hood"] = mysql.findone("""
 					SELECT name,
