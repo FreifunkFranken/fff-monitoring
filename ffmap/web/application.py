@@ -222,7 +222,7 @@ def user_info(nickname):
 		else:
 			flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers = mysql.fetchall("""
-		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients
+		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients, reset
 		FROM router
 		WHERE contact = %s
 		ORDER BY hostname ASC
