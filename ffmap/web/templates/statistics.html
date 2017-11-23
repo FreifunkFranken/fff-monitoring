@@ -87,8 +87,24 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Newest Routers @ {{ selecthood }}</div>
+				<div class="panel-heading">Routers @ {{ selecthood }}</div>
 				<div class="panel-body">
+					<div id="globrouterstat" class="graph"></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Clients @ {{ selecthood }}</div>
+				<div class="panel-body">
+					<div id="globclientstat" class="graph"></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Newest Routers @ {{ selecthood }}</div>
+				<div class="panel-body" style="padding-bottom:34px">
 					<div class="table-responsive">
 						<table class="table table-condensed">
 							<tr>
@@ -105,24 +121,6 @@
 							{%- endfor %}
 						</table>
 					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-12 col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">Routers @ {{ selecthood }}</div>
-				<div class="panel-body">
-					<div id="globrouterstat" class="graph"></div>
-				</div>
-			</div>
-		</div>
-		<div class="col-xs-12 col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">Clients @ {{ selecthood }}</div>
-				<div class="panel-body">
-					<div id="globclientstat" class="graph"></div>
 				</div>
 			</div>
 		</div>
