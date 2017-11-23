@@ -302,7 +302,7 @@ function global_client_graph() {
 
 function global_router_graph() {
 	var memstat = $("#globrouterstat");
-	var offline = [], online = [], unknown = [];
+	var offline = [], online = [], unknown = [], total = [];
 	var len, i;
 	for (len=global_stats.length, i=0; i<len; i++) {
 		try {
@@ -316,12 +316,14 @@ function global_router_graph() {
 			offline.push([date_value, offline_value]);
 			online.push([date_value, online_value]);
 			unknown.push([date_value, unknown_value]);
+			total.push([date_value, offline_value + online_value + unknown_value]);
 		}
 		catch(TypeError) {
 			// pass
 		}
 	}
 	var pdata = [
+		{"label": "total", "data": total, "color": "#006DD9"},
 		{"label": "online", "data": online, "color": "#4DA74A"},
 		{"label": "offline", "data": offline, "color": "#CB4B4B"},
 		{"label": "unknown", "data": unknown, "color": "#EDC240"}
@@ -330,7 +332,7 @@ function global_router_graph() {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, autoscaleMargin: 0.1},
-		legend: {noColumns: 3, hideable: true},
+		legend: {noColumns: 4, hideable: true},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
 	setup_plot_zoom(plot, pdata, len);
