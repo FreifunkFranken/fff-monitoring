@@ -239,7 +239,7 @@ def global_statistics():
 	stats = mysql.fetchall("SELECT * FROM stats_global")
 	stats = mysql.utcawaretuple(stats,"time")
 	
-	numnew = len(hoods)-15
+	numnew = len(hoods)-18
 	if numnew < 1:
 		numnew = 1
 	
@@ -279,7 +279,7 @@ def global_hoodstatistics(selecthood):
 	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
 	stats = mysql.utcawaretuple(stats,"time")
 	
-	numnew = len(hoods)-15
+	numnew = len(hoods)-18
 	if numnew < 1:
 		numnew = 1
 	
