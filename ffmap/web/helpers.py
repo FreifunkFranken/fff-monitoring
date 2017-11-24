@@ -64,7 +64,7 @@ def parse_router_list_search_query(args):
 			j += " INNER JOIN ( SELECT router, mac FROM router_netif GROUP BY router, mac) AS j ON router.id = j.router "
 			k = "mac {} REGEXP %s".format(no)
 			t.append(value.lower())
-		elif (key == 'hardware') or (key == 'hood'):
+		elif (key == 'hardware') or (key == 'hood') or (key == 'nickname'):
 			k = key + " {} REGEXP %s".format(no)
 			t.append(value.replace("_","."))
 		elif (key == 'hostname') or (key == 'firmware'):
