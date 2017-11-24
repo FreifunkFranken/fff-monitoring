@@ -112,7 +112,7 @@ def alfred():
 		#ps.print_stats()
 		#print(s.getvalue())
 		
-		writelog(CONFIG["debug_dir"] + "/apitime.txt", "%.3f seconds" % (time.time() - start_time))
+		writelog(CONFIG["debug_dir"] + "/apitime.txt", "%s - %.3f seconds" % (request.environ['REMOTE_ADDR'],time.time() - start_time))
 		
 		r.mimetype = 'application/json'
 		return r
