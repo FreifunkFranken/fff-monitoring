@@ -57,7 +57,7 @@
 				<table class="table table-condensed">
 					<tr><th>Nickname</th><td>
 						{{ user.nickname }}
-						(<a href="{{ url_for('router_list', q='nickname:^%s$' % user.nickname) }}">Filter</a>)
+						(<a href="{{ url_for('router_list', q='nickname:^%s$' % user.nickname.replace(" ","_")) }}">Filter</a>)
 					</td></tr>
 					{%- if user.email %}
 					<tr><th>E-Mail</th><td>
