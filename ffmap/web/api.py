@@ -117,7 +117,7 @@ def alfred():
 		r.mimetype = 'application/json'
 		return r
 	except Exception as e:
-		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", str(e))
+		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
 
 
 # https://github.com/ffansbach/de-map/blob/master/schema/nodelist-schema-1.0.0.json
