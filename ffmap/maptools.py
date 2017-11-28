@@ -95,7 +95,7 @@ def update_mapnik_csv(mysql):
 		csv.write(rv2)
 
 	dblinks = mysql.fetchall("""
-		SELECT r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, quality, hoods.name AS hood
+		SELECT r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, MAX(quality) AS quality, hoods.name AS hood
 		FROM router AS r1
 		LEFT JOIN hoods ON r1.hood = hoods.name
 		INNER JOIN router_neighbor AS n ON r1.id = n.router
@@ -105,6 +105,7 @@ def update_mapnik_csv(mysql):
 		INNER JOIN router AS r2 ON net.router = r2.id
 		WHERE r1.lat IS NOT NULL AND r1.lng IS NOT NULL AND r2.lat IS NOT NULL AND r2.lng IS NOT NULL
 		AND r1.status = 'online'
+		GROUP BY r1.id, r1.lat, r1.lng, r2.id, r2.lat, r2.lng, n.type, hoods.name
 	""")
 	links = []
 	linksl3 = []
