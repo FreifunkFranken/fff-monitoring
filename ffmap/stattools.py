@@ -117,8 +117,8 @@ def hoods_sum(mysql):
 	return result
 
 def record_global_stats(mysql):
-	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"]))
-	time = mysql.utcnow()
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
+	time = mysql.utctimestamp()
 	status = router_status(mysql)
 	
 	old = mysql.findone("SELECT time FROM stats_global WHERE time = %s LIMIT 1",(time,))
@@ -143,8 +143,8 @@ def record_global_stats(mysql):
 	mysql.commit()
 
 def record_hood_stats(mysql):
-	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"]))
-	time = mysql.utcnow()
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
+	time = mysql.utctimestamp()
 	status = router_status_hood(mysql)
 	clients = total_clients_hood(mysql)
 	

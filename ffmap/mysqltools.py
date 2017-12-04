@@ -3,6 +3,8 @@
 import MySQLdb
 from ffmap.mysqlconfig import mysq
 from ffmap.misc import *
+import datetime
+
 #import pytz
 
 class FreifunkMySQL:
@@ -73,8 +75,28 @@ class FreifunkMySQL:
 	def utcnow(self):
 		return utcnow().strftime('%Y-%m-%d %H:%M:%S')
 	
+	def utctimestamp(self):
+		return int(utcnow().timestamp())
+	
 	def formatdt(self,dt):
 		return dt.strftime('%Y-%m-%d %H:%M:%S')
+	
+	def utcawareint(self,data,keys=None):
+		if keys:
+			for k in keys:
+				data[k] = datetime.datetime.fromtimestamp(data[k],datetime.timezone.utc)
+		else:
+			data = datetime.datetime.fromtimestamp(data,datetime.timezone.utc)
+		return data
+	
+	def utcawaretupleint(self,data,index=None):
+		if index:
+			for r in data:
+				r[index] = datetime.datetime.fromtimestamp(r[index],datetime.timezone.utc)
+		else:
+			for r in data:
+				r = datetime.datetime.fromtimestamp(r,datetime.timezone.utc)
+		return data
 	
 	def utcaware(self,data,keys=None):
 		if keys:

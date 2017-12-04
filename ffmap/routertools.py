@@ -258,7 +258,7 @@ def delete_orphaned_routers(mysql):
 	mysql.commit()
 
 def delete_old_stats(mysql):
-	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"]))
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
 	
 	start_time = time.time()
 	mysql.execute("""
@@ -327,7 +327,7 @@ def set_status(mysql,router_id,status):
 
 def new_router_stats(mysql, router_id, uptime, router_update):
 	if uptime < router_update["sys_uptime"]:
-		time = mysql.utcnow()
+		time = mysql.utctimestamp()
 		
 		mysql.execute("""
 			INSERT INTO router_stats (router, time, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot, clients)
