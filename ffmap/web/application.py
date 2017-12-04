@@ -123,21 +123,21 @@ def router_info(dbid):
 			
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
-				s["time"] = mysql.utcaware(s["time"])
+				s["time"] = mysql.utcawareint(s["time"])
 			
 			netiffetch = mysql.fetchall("""
 				SELECT netif, rx, tx, time FROM router_stats_netif WHERE router = %s
 			""",(dbid,))
 			
 			for ns in netiffetch:
-				ns["time"] = mysql.utcaware(ns["time"])
+				ns["time"] = mysql.utcawareint(ns["time"])
 			
 			neighfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s
 			""",(dbid,))
 			
 			for ns in neighfetch:
-				ns["time"] = mysql.utcaware(ns["time"])
+				ns["time"] = mysql.utcawareint(ns["time"])
 
 			if request.method == 'POST':
 				if request.form.get("act") == "delete":
@@ -257,7 +257,7 @@ def global_statistics():
 	hoods = stattools.hoods(mysql)
 	
 	stats = mysql.fetchall("SELECT * FROM stats_global")
-	stats = mysql.utcawaretuple(stats,"time")
+	stats = mysql.utcawaretupleint(stats,"time")
 	
 	numnew = len(hoods)-18
 	if numnew < 1:
@@ -297,7 +297,7 @@ def global_hoodstatistics(selecthood):
 	hoods = stattools.hoods(mysql)
 	
 	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
-	stats = mysql.utcawaretuple(stats,"time")
+	stats = mysql.utcawaretupleint(stats,"time")
 	
 	numnew = len(hoods)-18
 	if numnew < 1:
