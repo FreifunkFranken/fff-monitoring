@@ -260,24 +260,34 @@ def delete_orphaned_routers(mysql):
 def delete_old_stats(mysql):
 	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"]))
 	
+	start_time = time.time()
 	mysql.execute("""
 		DELETE s FROM router_stats AS s
 		LEFT JOIN router AS r ON s.router = r.id
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
+	mysql.commit()
+	print("--- Delete stats: %s seconds ---" % (time.time() - start_time))
 
+	start_time = time.time()
 	mysql.execute("""
 		DELETE s FROM router_stats_neighbor AS s
 		LEFT JOIN router AS r ON s.router = r.id
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
+	mysql.commit()
+	print("--- Delete neighbor-stats: %s seconds ---" % (time.time() - start_time))
 
+	start_time = time.time()
 	mysql.execute("""
 		DELETE s FROM router_stats_netif AS s
 		LEFT JOIN router AS r ON s.router = r.id
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
+	mysql.commit()
+	print("--- Delete netif stats: %s seconds ---" % (time.time() - start_time))
 
+	start_time = time.time()
 	events = mysql.fetchall("""
 		SELECT router, COUNT(time) AS count FROM router_events
 		GROUP BY router
@@ -292,8 +302,8 @@ def delete_old_stats(mysql):
 				ORDER BY time ASC
 				LIMIT %s
 			""",(e["router"],delnum,))
-
 	mysql.commit()
+	print("--- Delete events: %s seconds ---" % (time.time() - start_time))
 
 def events_append(mysql,router_id,event,comment):
 	mysql.execute("""
