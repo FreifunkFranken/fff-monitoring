@@ -322,7 +322,7 @@ def set_status(mysql,router_id,status):
 		router_id,))
 
 def new_router_stats(mysql, router_id, uptime, router_update):
-	if uptime < router_update["sys_uptime"]:
+	if (uptime + CONFIG["router_stat_mindiff_secs"]) < router_update["sys_uptime"]:
 		time = mysql.utctimestamp()
 		
 		mysql.execute("""
