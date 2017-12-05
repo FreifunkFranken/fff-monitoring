@@ -109,11 +109,10 @@ def import_nodewatcher_xml(mysql, mac, xml):
 				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
-			mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
-			mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
 			mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
+			mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
+			mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
 			
-			new_router_stats(mysql, router_id, uptime, router_update)
 		else:
 			# insert new router
 			created = mysql.utcnow()
@@ -152,6 +151,9 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			nbdata.append((router_id,n["mac"],n["quality"],n["net_if"],n["type"],))
 		
 		mysql.executemany("INSERT INTO router_neighbor (router, mac, quality, net_if, type) VALUES (%s, %s, %s, %s, %s)",nbdata)
+		
+		if router_id:
+			new_router_stats(mysql, router_id, uptime, router_update)
 		
 		status = router_update["status"]
 	except ValueError as e:
