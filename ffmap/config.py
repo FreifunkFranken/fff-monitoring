@@ -8,6 +8,7 @@ CONFIG = {
 	"orphan_threshold_days": 7,
 	"delete_threshold_days": 180,
 	"router_stat_days": 14,
+	"router_stat_mindiff_secs": 10,
 	"event_num_entries": 20,
 	"global_stat_days": 30,
 	"csv_dir": "/var/lib/ffmap/csv",
