@@ -51,7 +51,11 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
 		router_update = parse_nodewatcher_xml(xml)
+		if router_update["status"] == "wrongpos":
+			router_update["status"] = "unknown"
+			status_comment = "Coordinates are wrong"
 		status = router_update["status"]
+		
 		if findrouter:
 			router_id = findrouter["router"]
 			olddata = mysql.findone("SELECT sys_uptime, firmware, hostname, hood, status, lat, lng, contact, description, position_comment FROM router WHERE id = %s LIMIT 1",(router_id,))
@@ -498,8 +502,17 @@ def parse_nodewatcher_xml(xml):
 			"firmware_rev": evalxpath(tree,"/data/system_data/firmware_revision/text()"),
 		}
 
-		lng = evalxpathfloat(tree,"/data/system_data/geo/lng/text()")
-		lat = evalxpathfloat(tree,"/data/system_data/geo/lat/text()")
+		try:
+			lng = evalxpathfloat(tree,"/data/system_data/geo/lng/text()")
+		except ValueError:
+			lng = None
+			router_update["status"] = "wrongpos"
+		try:
+			lat = evalxpathfloat(tree,"/data/system_data/geo/lat/text()")
+		except ValueError:
+			lat = None
+			router_update["status"] = "wrongpos"
+		
 		if lng == 0:
 			lng = None
 		if lat == 0:
