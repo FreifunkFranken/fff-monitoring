@@ -169,7 +169,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			set_status(mysql,router_id,"unknown")
 		status = "unknown"
 		status_comment = "Invalid XML"
-		writelog(CONFIG["debug_dir"] + "/fail_readrouter.txt", "XML parsing error: {} - {}".format(router_update["hostname"],e))
+		writelog(CONFIG["debug_dir"] + "/fail_readrouter.txt", "XML parsing error: {} - {}".format(mac,e))
 	except OverflowError as e:
 		import traceback
 		print("Warning: Overflow Error when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
