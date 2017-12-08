@@ -12,7 +12,8 @@ class FreifunkMySQL:
 
 	def __init__(self):
 		#global mysq
-		self.db = MySQLdb.connect(host=mysq["host"], user=mysq["user"], passwd=mysq["passwd"], db=mysq["db"])
+		self.db = MySQLdb.connect(host=mysq["host"], user=mysq["user"], passwd=mysq["passwd"], db=mysq["db"], charset="utf8")
+		#self.db.set_character_set('utf8')
 		self.cur = self.db.cursor(MySQLdb.cursors.DictCursor)
 
 	def close(self):
