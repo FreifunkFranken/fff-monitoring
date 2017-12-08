@@ -291,8 +291,12 @@ def delete_old_stats(mysql):
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 	mysql.commit()
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Update netif stats: %.3f seconds" % (time.time() - start_time))
+	print("--- Update netif stats: %.3f seconds ---" % (time.time() - start_time))
+	
 	time.sleep(30)
-	minustime=30
+	minustime=0
+	start_time = time.time()
 	while mysql.execute("""
 		DELETE FROM router_stats_netif
 		WHERE deletebit = 1
