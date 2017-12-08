@@ -11,6 +11,7 @@ from ffmap.config import CONFIG
 import lxml.etree
 import datetime
 import requests
+import time
 from bson import SON
 from contextlib import suppress
 
@@ -282,12 +283,23 @@ def delete_old_stats(mysql):
 
 	start_time = time.time()
 	mysql.execute("""
-		DELETE s FROM router_stats_netif AS s
+		UPDATE router_stats_netif AS s
 		LEFT JOIN router AS r ON s.router = r.id
+		SET s.deletebit = 1
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 	mysql.commit()
-	print("--- Delete netif stats: %s seconds ---" % (time.time() - start_time))
+	time.sleep(30)
+	minustime=30
+	while mysql.execute("""
+		DELETE FROM router_stats_netif
+		WHERE deletebit = 1
+		LIMIT 50000
+	""") > 0:
+		mysql.commit()
+		time.sleep(10)
+		minustime += 10
+	print("--- Delete netif stats: %s seconds ---" % (time.time() - start_time - minustime))
 
 	start_time = time.time()
 	events = mysql.fetchall("""
