@@ -172,6 +172,10 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			set_status(mysql,router_id,"unknown")
 		status = "unknown"
 		status_comment = "Integer Overflow"
+	except my.OperationalError as e:
+		import traceback
+		print("Warning: Operational error in MySQL when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
+		writelog(CONFIG["debug_dir"] + "/fail_readrouter.txt", "{} - {}".format(router_update["hostname"],e))
 	except Exception as e:
 		import traceback
 		print("Warning: Exception occurred when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
