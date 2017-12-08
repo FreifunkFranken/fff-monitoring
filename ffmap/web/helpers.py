@@ -25,6 +25,8 @@ allowed_filters = (
 	'hostname',
 	'contact',
 	'community',
+	'neighbor',
+	'neighbour',
 )
 
 def parse_router_list_search_query(args):
@@ -62,6 +64,10 @@ def parse_router_list_search_query(args):
 			k = key + ' = "" OR ' + key + " IS NULL"
 		elif key == 'mac':
 			j += " INNER JOIN ( SELECT router, mac FROM router_netif GROUP BY router, mac) AS j ON router.id = j.router "
+			k = "mac {} REGEXP %s".format(no)
+			t.append(value.lower())
+		elif (key == 'neighbor') or (key == 'neighbour'):
+			j += " INNER JOIN ( SELECT router, mac FROM router_neighbor GROUP BY router, mac) AS j ON router.id = j.router "
 			k = "mac {} REGEXP %s".format(no)
 			t.append(value.lower())
 		elif (key == 'hardware') or (key == 'hood') or (key == 'nickname'):
