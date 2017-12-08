@@ -16,4 +16,4 @@ mysql = FreifunkMySQL()
 delete_old_stats(mysql)
 mysql.close()
 
-print("--- Total duration: %s seconds ---" % (time.time() - start_time))
+print("--- Total duration: %.3f seconds ---" % (time.time() - start_time))

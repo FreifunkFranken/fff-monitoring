@@ -270,8 +270,8 @@ def delete_old_stats(mysql):
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete stats: %s seconds" % (time.time() - start_time))
-	print("--- Delete stats: %s seconds ---" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete stats: %.3f seconds" % (time.time() - start_time))
+	print("--- Delete stats: %.3f seconds ---" % (time.time() - start_time))
 
 	start_time = time.time()
 	mysql.execute("""
@@ -280,8 +280,8 @@ def delete_old_stats(mysql):
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete neighbor-stats: %s seconds" % (time.time() - start_time))
-	print("--- Delete neighbor-stats: %s seconds ---" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete neighbor-stats: %.3f seconds" % (time.time() - start_time))
+	print("--- Delete neighbor-stats: %.3f seconds ---" % (time.time() - start_time))
 
 	start_time = time.time()
 	mysql.execute("""
@@ -301,8 +301,8 @@ def delete_old_stats(mysql):
 		mysql.commit()
 		time.sleep(10)
 		minustime += 10
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete netif stats: %s seconds" % (time.time() - start_time - minustime))
-	print("--- Delete netif stats: %s seconds ---" % (time.time() - start_time - minustime))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete netif stats: %.3f seconds" % (time.time() - start_time - minustime))
+	print("--- Delete netif stats: %.3f seconds ---" % (time.time() - start_time - minustime))
 
 	start_time = time.time()
 	events = mysql.fetchall("""
@@ -320,8 +320,8 @@ def delete_old_stats(mysql):
 				LIMIT %s
 			""",(e["router"],delnum,))
 	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete events: %s seconds" % (time.time() - start_time))
-	print("--- Delete events: %s seconds ---" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete events: %.3f seconds" % (time.time() - start_time))
+	print("--- Delete events: %.3f seconds ---" % (time.time() - start_time))
 
 def events_append(mysql,router_id,event,comment):
 	mysql.execute("""

@@ -24,4 +24,4 @@ record_hood_stats(mysql)
 update_mapnik_csv(mysql)
 mysql.close()
 
-print("--- %s seconds ---" % (time.time() - start_time))
+print("--- %.3f seconds ---" % (time.time() - start_time))
