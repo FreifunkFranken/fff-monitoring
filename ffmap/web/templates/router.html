@@ -38,7 +38,12 @@
 
 {% block content %}
 	<div class="row" style="margin-top: 5px; margin-bottom: 5px;">
-		<div class="col-xs-12 col-sm-10"><h2 style="margin-top: 10px;">Router: {{ router.hostname }}</h2></div>
+		<div class="col-xs-12 col-sm-10">
+		<h2 style="margin-top: 10px;">Router: {{ router.hostname }}</h2>
+		{%- if mac %}
+		<h4 style="margin-top: 10px;margin-bottom: 20px">Perma-Link: <a href="{{ url_for('router_mac',mac=mac) }}">https://monitoring.freifunk-franken.de{{ url_for('router_mac',mac=mac) }}</a></h4>
+		{%- endif %}
+		</div>
 		<div class="col-xs-12 col-sm-2 text-right" style="margin-top: 10px; margin-bottom: 10px;">
 			<form method="post" id="actform">
 				<input type="hidden" name="act" id="act" value="" />
