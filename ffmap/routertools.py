@@ -51,6 +51,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
 		router_update = parse_nodewatcher_xml(xml)
+		status = router_update["status"]
 		if findrouter:
 			router_id = findrouter["router"]
 			olddata = mysql.findone("SELECT sys_uptime, firmware, hostname, hood, status, lat, lng, contact, description, position_comment FROM router WHERE id = %s LIMIT 1",(router_id,))
@@ -157,7 +158,6 @@ def import_nodewatcher_xml(mysql, mac, xml):
 		if router_id:
 			new_router_stats(mysql, router_id, uptime, router_update)
 		
-		status = router_update["status"]
 	except ValueError as e:
 		import traceback
 		print("Warning: Unable to parse xml from %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
