@@ -66,6 +66,7 @@ def router_info(dbid):
 	try:
 		mysql = FreifunkMySQL()
 		router = mysql.findone("""SELECT * FROM router WHERE id = %s LIMIT 1""",(dbid,))
+		mac = None
 		
 		if router:
 			if request.args.get('fffconfig', None) != None:
@@ -85,6 +86,8 @@ def router_info(dbid):
 			router["netifs"] = mysql.fetchall("""SELECT * FROM router_netif WHERE router = %s""",(dbid,))
 			for n in router["netifs"]:
 				n["ipv6_addrs"] = mysql.fetchall("""SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = %s""",(dbid,n["netif"],),"ipv6")
+				if n["netif"]=="br-mesh":
+					mac = n["mac"]
 			
 			router["neighbours"] = mysql.fetchall("""
 				SELECT nb.mac, nb.quality, nb.net_if, r.hostname, r.id
@@ -143,7 +146,7 @@ def router_info(dbid):
 			#FIXME: Only as admin
 			return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 		else:
-			return render_template("router.html", router=router, tileurls=tileurls, netifstats=netiffetch, neighstats=neighfetch)
+			return render_template("router.html", router=router, mac=mac, tileurls=tileurls, netifstats=netiffetch, neighstats=neighfetch)
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_router.txt", str(e))
 
