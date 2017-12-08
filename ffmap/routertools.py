@@ -590,7 +590,10 @@ def parse_nodewatcher_xml(xml):
 
 		return router_update
 	except (AssertionError, lxml.etree.XMLSyntaxError, IndexError) as e:
-		raise ValueError("%s: %s" % (e.__class__.__name__, str(e)))
+		try:
+			raise ValueError("%s: %s" % (e.__class__.__name__, str(e)))
+		except:
+			raise ValueError("General XML error: %s" % (str(e)))
 
 def get_l3_neighbours(tree):
 	l3_neighbours = list()
