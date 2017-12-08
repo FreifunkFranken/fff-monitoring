@@ -125,6 +125,7 @@ def import_nodewatcher_xml(mysql, mac, xml):
 			created = mysql.utcnow()
 			#events = [] # don't fire sub-events of created events
 			ru = router_update
+			router_update["status"] = "online" # use 'online' here, as anything different is only evaluated if olddata is present
 			mysql.execute("""
 				INSERT INTO router (status, hostname, created, last_contact, sys_time, sys_uptime, sys_memfree, sys_membuff, sys_memcache,
 				sys_loadavg, sys_procrun, sys_proctot, clients, wan_uplink, cpu, chipset, hardware, os,
