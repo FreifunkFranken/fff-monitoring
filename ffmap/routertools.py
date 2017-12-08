@@ -273,6 +273,7 @@ def delete_old_stats(mysql):
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete stats: %.3f seconds" % (time.time() - start_time))
 	print("--- Delete stats: %.3f seconds ---" % (time.time() - start_time))
 
+	time.sleep(10)
 	start_time = time.time()
 	mysql.execute("""
 		DELETE s FROM router_stats_neighbor AS s
@@ -283,6 +284,7 @@ def delete_old_stats(mysql):
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete neighbor-stats: %.3f seconds" % (time.time() - start_time))
 	print("--- Delete neighbor-stats: %.3f seconds ---" % (time.time() - start_time))
 
+	time.sleep(10)
 	start_time = time.time()
 	mysql.execute("""
 		UPDATE router_stats_netif AS s
