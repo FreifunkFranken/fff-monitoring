@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.misc import *
 from ffmap.config import CONFIG
+import MySQLdb as my
 
 import lxml.etree
 import datetime
@@ -298,13 +299,18 @@ def delete_old_stats(mysql):
 	
 	time.sleep(30)
 	minustime=0
+	rowsaffected=1
 	start_time = time.time()
-	while mysql.execute("""
-		DELETE FROM router_stats_netif
-		WHERE deletebit = 1
-		LIMIT 50000
-	""") > 0:
-		mysql.commit()
+	while rowsaffected > 0:
+		try:
+			rowsaffected = mysql.execute("""
+				DELETE FROM router_stats_netif
+				WHERE deletebit = 1
+				LIMIT 50000
+			""")
+			mysql.commit()
+		except my.OperationalError:
+			rowsaffected = 1
 		time.sleep(10)
 		minustime += 10
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete netif stats: %.3f seconds" % (time.time() - start_time - minustime))
