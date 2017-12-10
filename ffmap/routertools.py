@@ -165,25 +165,25 @@ def import_nodewatcher_xml(mysql, mac, xml):
 		
 	except ValueError as e:
 		import traceback
-		print("Warning: Unable to parse xml from %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
+		writefulllog("Warning: Unable to parse xml from %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
 		if router_id:
 			set_status(mysql,router_id,"unknown")
 		status = "unknown"
 		status_comment = "Invalid XML"
 	except OverflowError as e:
 		import traceback
-		print("Warning: Overflow Error when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
+		writefulllog("Warning: Overflow Error when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
 		if router_id:
 			set_status(mysql,router_id,"unknown")
 		status = "unknown"
 		status_comment = "Integer Overflow"
 	except my.OperationalError as e:
 		import traceback
-		print("Warning: Operational error in MySQL when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
+		writefulllog("Warning: Operational error in MySQL when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
 		writelog(CONFIG["debug_dir"] + "/fail_readrouter.txt", "MySQL Error: {} - {}".format(router_update["hostname"],e))
 	except Exception as e:
 		import traceback
-		print("Warning: Exception occurred when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
+		writefulllog("Warning: Exception occurred when saving %s: %s\n__%s" % (mac, e, traceback.format_exc().replace("\n", "\n__")))
 		if router_id:
 			set_status(mysql,router_id,"unknown")
 		status = "unknown"
