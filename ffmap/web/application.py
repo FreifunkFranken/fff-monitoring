@@ -61,6 +61,23 @@ def router_list():
 	
 	return render_template("router_list.html", query_str=query_str, routers=routers, numrouters=len(routers))
 
+# router by mac (short link version)
+@app.route('/mac/<mac>')
+def router_mac(mac):
+	mysql = FreifunkMySQL()
+	res_routers = mysql.fetchall("""
+		SELECT id
+		FROM router
+		INNER JOIN router_netif ON router.id = router_netif.router
+		WHERE mac = %s
+		GROUP BY mac, id
+	""",(mac.lower(),))
+	mysql.close()
+	if len(res_routers) != 1:
+		return redirect(url_for("router_list", q="mac:%s" % mac))
+	else:
+		return redirect(url_for("router_info", dbid=res_routers[0]["id"]))
+
 @app.route('/routers/<dbid>', methods=['GET', 'POST'])
 def router_info(dbid):
 	try:
