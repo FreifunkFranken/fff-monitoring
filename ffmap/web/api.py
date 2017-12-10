@@ -5,7 +5,7 @@ from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats
 from ffmap.config import CONFIG
-from ffmap.misc import writelog
+from ffmap.misc import writelog, writefulllog
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from bson.json_util import dumps as bson2json
@@ -118,6 +118,8 @@ def alfred():
 		return r
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
+		import traceback
+		writefulllog("Warning: Error while processing ALFRED data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
 
 
 # https://github.com/ffansbach/de-map/blob/master/schema/nodelist-schema-1.0.0.json

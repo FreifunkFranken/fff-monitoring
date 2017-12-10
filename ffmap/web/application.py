@@ -12,7 +12,7 @@ from ffmap.usertools import *
 from ffmap.routertools import delete_router
 from ffmap.web.helpers import *
 from ffmap.config import CONFIG
-from ffmap.misc import writelog
+from ffmap.misc import writelog, writefulllog
 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash, session
 import bson
@@ -166,6 +166,8 @@ def router_info(dbid):
 			return render_template("router.html", router=router, mac=mac, tileurls=tileurls, netifstats=netiffetch, neighstats=neighfetch)
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_router.txt", str(e))
+		import traceback
+		writefulllog("Warning: Failed to display router details page: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
 
 @app.route('/users')
 def user_list():
