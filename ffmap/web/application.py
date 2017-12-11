@@ -9,7 +9,7 @@ from ffmap.web.filters import filters
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap import stattools
 from ffmap.usertools import *
-from ffmap.routertools import delete_router
+from ffmap.routertools import delete_router, ban_router
 from ffmap.web.helpers import *
 from ffmap.config import CONFIG
 from ffmap.misc import writelog, writefulllog
@@ -151,6 +151,18 @@ def router_info(dbid):
 						flash("<b>Router <i>%s</i> deleted!</b>" % router["hostname"], "success")
 						mysql.close()
 						return redirect(url_for("index"))
+					else:
+						flash("<b>You are not authorized to perform this action!</b>", "danger")
+				elif request.form.get("act") == "ban":
+					if session.get('admin'):
+						if mac:
+							ban_router(mysql,dbid)
+							delete_router(mysql,dbid)
+							flash("<b>Router <i>%s</i> banned!</b>" % router["hostname"], "success")
+							mysql.close()
+							return redirect(url_for("index"))
+						else:
+							flash("<b>Router has no br-mesh and thus cannot be banned!</b>", "danger")
 					else:
 						flash("<b>You are not authorized to perform this action!</b>", "danger")
 			mysql.close()

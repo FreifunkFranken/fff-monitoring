@@ -9,6 +9,18 @@ from ffmap.mysqltools import FreifunkMySQL
 mysql = FreifunkMySQL()
 
 mysql.execute("""
+	CREATE TABLE banned (
+		`mac` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+		`added` datetime NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+""")
+
+mysql.execute("""
+	ALTER TABLE `banned`
+		ADD PRIMARY KEY (`mac`);
+""")
+
+mysql.execute("""
 	CREATE TABLE router (
 		`id` int(11) NOT NULL,
 		`status` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
