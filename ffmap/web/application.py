@@ -165,6 +165,19 @@ def router_info(dbid):
 							flash("<b>Router has no br-mesh and thus cannot be banned!</b>", "danger")
 					else:
 						flash("<b>You are not authorized to perform this action!</b>", "danger")
+				elif request.form.get("act") == "report":
+					abusemails = mysql.fetchall("SELECT email FROM users WHERE abuse = 1")
+					for a in abusemails:
+						send_email(
+							recipient = a["email"],
+							subject   = "Monitoring: Router %s reported" % router["hostname"],
+							content   = "Hello Admin,\n\n" +
+									"The router with hostname %s has been reported as abusive by a user.\n" % router["hostname"] +
+									"Please take care:\n" +
+									"%s\n\n" % url_for("router_info", dbid=dbid, _external=True) +
+									"Regards,\nFreifunk Franken Monitoring System"
+						)
+					flash("<b>Router reported to administrators!</b>", "success")
 			mysql.close()
 		else:
 			mysql.close()

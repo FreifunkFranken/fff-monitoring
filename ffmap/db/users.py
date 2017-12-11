@@ -16,7 +16,8 @@ mysql.execute("""
 		`token` varchar(250) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
 		`email` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`created` datetime NOT NULL,
-		`admin` tinyint(4) NOT NULL DEFAULT '0'
+		`admin` tinyint(1) NOT NULL DEFAULT '0',
+		`abuse` tinyint(1) NOT NULL DEFAULT '0'
 	)
 	ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
