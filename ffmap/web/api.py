@@ -77,7 +77,6 @@ def alfred():
 	try:
 		start_time = time.time()
 		mysql = FreifunkMySQL()
-		#cur = mysql.cursor()
 		#set_alfred_data = {65: "hallo", 66: "welt"}
 		set_alfred_data = {}
 		r = make_response(json.dumps(set_alfred_data))
@@ -104,7 +103,7 @@ def alfred():
 				#record_global_stats(mysql)
 				#record_hood_stats(mysql)
 				#update_mapnik_csv(mysql)
-			mysql.close()
+		mysql.close()
 		#pr.disable()
 		#s = io.StringIO()
 		#sortby = 'cumulative'
