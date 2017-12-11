@@ -96,13 +96,6 @@ def alfred():
 					i += 1
 				mysql.commit()
 				r.headers['X-API-STATUS'] = "ALFRED data imported"
-				#detect_offline_routers(mysql)
-				#detect_orphaned_routers(mysql)
-				#delete_orphaned_routers(mysql)
-				#delete_old_stats(mysql)
-				#record_global_stats(mysql)
-				#record_hood_stats(mysql)
-				#update_mapnik_csv(mysql)
 		mysql.close()
 		#pr.disable()
 		#s = io.StringIO()
