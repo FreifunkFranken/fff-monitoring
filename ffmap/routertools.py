@@ -29,7 +29,16 @@ def delete_router(mysql,dbid):
 	mysql.execute("DELETE FROM router_stats_netif WHERE router = %s",(dbid,))
 	mysql.commit()
 
-def import_nodewatcher_xml(mysql, mac, xml):
+def ban_router(mysql,dbid):
+	mac = mysql.findone("""
+		SELECT mac
+		FROM router_netif
+		WHERE router = %s AND netif = 'br-mesh'
+	""",(dbid,),"mac")
+	mysql.execute("INSERT INTO banned (mac) VALUES (%s)",(mac,))
+	mysql.commit()
+
+def import_nodewatcher_xml(mysql, mac, xml, banned):
 	global router_rate_limit_list
 
 	t = utcnow()
@@ -51,6 +60,12 @@ def import_nodewatcher_xml(mysql, mac, xml):
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
 		router_update = parse_nodewatcher_xml(xml)
+		
+		# cancel if banned mac found
+		for n in router_update["netifs"]:
+			if n["mac"] in banned:
+				return
+		
 		if router_update["status"] == "wrongpos":
 			router_update["status"] = "unknown"
 			status_comment = "Coordinates are wrong"

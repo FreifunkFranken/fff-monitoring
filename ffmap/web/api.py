@@ -83,6 +83,9 @@ def alfred():
 		#import cProfile, pstats, io
 		#pr = cProfile.Profile()
 		#pr.enable()
+		banned = mysql.fetchall("""
+			SELECT mac FROM banned
+		""",(),"mac")
 		if request.method == 'POST':
 			alfred_data = request.get_json()
 			
@@ -90,7 +93,7 @@ def alfred():
 				# load router status xml data
 				i = 1
 				for mac, xml in alfred_data.get("64", {}).items():
-					import_nodewatcher_xml(mysql, mac, xml)
+					import_nodewatcher_xml(mysql, mac, xml, banned)
 					if (i%500 == 0):
 						mysql.commit()
 					i += 1
