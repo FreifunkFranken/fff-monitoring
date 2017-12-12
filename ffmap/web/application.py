@@ -141,12 +141,8 @@ def router_info(dbid):
 
 			if request.method == 'POST':
 				if request.form.get("act") == "delete":
-					user = None
 					# a router may not have a owner, but admin users still can delete it
-					if ("user" in router):
-						user = router["user"]
-					if is_authorized(user, session):
-					#if True:
+					if is_authorized(router["user"], session):
 						delete_router(mysql,dbid)
 						flash("<b>Router <i>%s</i> deleted!</b>" % router["hostname"], "success")
 						mysql.close()
