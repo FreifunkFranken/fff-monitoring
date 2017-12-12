@@ -57,13 +57,15 @@ def register_user(nickname, email, password):
 
 def check_login_details(nickname, password):
 	mysql = FreifunkMySQL()
-	
-	user  = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+	user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+	userbymail = mysql.findone("SELECT * FROM users WHERE email = %s LIMIT 1",(nickname,))
 	mysql.close()
+	
 	if user and check_password_hash(user.get('password', ''), password):
 		return user
-	else:
-		return False
+	elif userbymail and check_password_hash(userbymail.get('password', ''), password):
+		return userbymail
+	return False
 
 def reset_user_password(mysql, email, token=None, password=None):
 	userid = mysql.findone("SELECT id FROM users WHERE email = %s LIMIT 1",(email,),"id")
