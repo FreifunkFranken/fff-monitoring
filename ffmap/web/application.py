@@ -382,6 +382,8 @@ def register():
 			flash("<b>There is already an account with this E-Mail Address!</b>", "danger")
 		except AccountWithNicknameExists:
 			flash("<b>There is already an active account with this Nickname!</b>", "danger")
+		except AccountWithEmptyField:
+			flash("<b>Please fill all fields!</b>", "danger")
 	return render_template("register.html")
 
 @app.route('/resetpw', methods=['GET', 'POST'])
