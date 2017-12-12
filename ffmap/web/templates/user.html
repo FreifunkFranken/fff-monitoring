@@ -36,6 +36,7 @@
 				{%- if session.admin %}
 				<li><a href="#" onclick="$('#delaccform').submit()">Delete Account</a></li>
 				<li><a href="#" onclick="$('#adminform').submit()">Toggle admin</a></li>
+				<li><a href="#" onclick="$('#abuseform').submit()">Toggle abuse</a></li>
 				{%- endif %}
 			</ul>
 		</div>
@@ -74,6 +75,9 @@
 					</td></tr>
 					<tr><th>Admin</th><td>
 						<span class="glyphicon glyphicon-{%- if user.admin -%}ok{%- else -%}remove{%- endif -%}"></span>
+					</td></tr>
+					<tr><th>Receive abuse reports</th><td>
+						<span class="glyphicon glyphicon-{%- if user.abuse -%}ok{%- else -%}remove{%- endif -%}"></span>
 					</td></tr>
 				</table>
 			</div>
@@ -205,6 +209,10 @@
 <form method="post" id="adminform">
 	<input type="hidden" name="action" value="changeadmin" />
 	<input type="hidden" name="admin" value="{{ "false" if user.admin else "true" }}" />
+</form>
+<form method="post" id="abuseform">
+	<input type="hidden" name="action" value="changeabuse" />
+	<input type="hidden" name="abuse" value="{{ "false" if user.abuse else "true" }}" />
 </form>
 <form method="post" id="delaccform">
 	<input type="hidden" name="action" value="deleteaccount" />

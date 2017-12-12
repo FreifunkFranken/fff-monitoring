@@ -133,3 +133,12 @@ def set_user_admin(mysql, nickname, admin):
 		LIMIT 1
 	""",(admin,nickname,))
 	mysql.commit()
+
+def set_user_abuse(mysql, nickname, abuse):
+	mysql.execute("""
+		UPDATE users
+		SET abuse = %s
+		WHERE nickname = %s
+		LIMIT 1
+	""",(abuse,nickname,))
+	mysql.commit()
