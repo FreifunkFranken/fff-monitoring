@@ -94,7 +94,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE router_ipv6 (
 		`router` int(11) NOT NULL,
-		`netif` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`ipv6` varchar(60) COLLATE utf8_unicode_ci NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
@@ -109,7 +109,7 @@ mysql.execute("""
 		`router` int(11) NOT NULL,
 		`mac` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`quality` smallint(6) NOT NULL,
-		`net_if` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+		`net_if` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`type` varchar(10) COLLATE utf8_unicode_ci DEFAULT 'l2'
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
@@ -122,7 +122,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE router_netif (
 		`router` int(11) NOT NULL,
-		`netif` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`mtu` smallint(6) NOT NULL,
 		`rx_bytes` bigint(20) NOT NULL,
 		`tx_bytes` bigint(20) NOT NULL,
@@ -176,7 +176,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE router_stats_netif (
 		`router` int(11) NOT NULL,
-		`netif` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`rx` bigint(20) NOT NULL,
 		`tx` bigint(20) NOT NULL,
 		`time` int(11) NOT NULL,
