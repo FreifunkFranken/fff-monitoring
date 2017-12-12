@@ -288,7 +288,13 @@ def user_info(nickname):
 	""",(user["email"],))
 	mysql.close()
 	routers = mysql.utcawaretuple(routers,"created")
-	return render_template("user.html", user=user, routers=routers, routers_count=len(routers))
+	return render_template("user.html",
+		user=user,
+		routers=routers,
+		routers_count=len(routers),
+		authuser = is_authorized(user["nickname"], session),
+		authadmin = session.get('admin')
+	)
 
 @app.route('/statistics')
 def global_statistics():
