@@ -23,7 +23,7 @@ mysql.execute("""
 mysql.execute("""
 	ALTER TABLE hoods
 		ADD PRIMARY KEY (`id`),
-		ADD KEY `name` (`name`),
+		ADD UNIQUE KEY `name` (`name`),
 		ADD KEY `lat` (`lat`),
 		ADD KEY `lng` (`lng`),
 		ADD KEY `cos_lat` (`cos_lat`),
