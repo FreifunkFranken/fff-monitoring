@@ -30,10 +30,11 @@
 				<span class="caret"></span>
 			</button>
 			<ul class="dropdown-menu">
-				{# FIXME: If authorized #}
+				{%- if authuser %}
 				<li><a href="#" data-toggle="modal" data-target="#changepw">Change Password</a></li>
 				<li><a href="#" data-toggle="modal" data-target="#changemail">Change E-Mail Address</a></li>
-				{%- if session.admin %}
+				{%- endif %}
+				{%- if authadmin %}
 				<li><a href="#" onclick="$('#delaccform').submit()">Delete Account</a></li>
 				<li><a href="#" onclick="$('#adminform').submit()">Toggle admin</a></li>
 				<li><a href="#" onclick="$('#abuseform').submit()">Toggle abuse</a></li>
