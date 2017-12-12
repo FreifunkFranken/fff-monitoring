@@ -156,7 +156,8 @@ mysql.execute("""
 
 mysql.execute("""
 	ALTER TABLE router_stats
-		ADD PRIMARY KEY (`time`,`router`)
+		ADD PRIMARY KEY (`time`,`router`),
+		ADD KEY `router` (`router`)
 """)
 
 mysql.execute("""
@@ -170,7 +171,8 @@ mysql.execute("""
 
 mysql.execute("""
 	ALTER TABLE router_stats_neighbor
-		ADD PRIMARY KEY (`time`,`router`,`mac`)
+		ADD PRIMARY KEY (`time`,`router`,`mac`),
+		ADD KEY `router` (`router`)
 """)
 
 mysql.execute("""
@@ -186,7 +188,8 @@ mysql.execute("""
 
 mysql.execute("""
 	ALTER TABLE router_stats_netif
-		ADD PRIMARY KEY (`time`,`router`,`netif`)
+		ADD PRIMARY KEY (`time`,`router`,`netif`),
+		ADD KEY `router` (`router`)
 """)
 
 mysql.close()
