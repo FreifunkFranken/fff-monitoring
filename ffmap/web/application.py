@@ -221,8 +221,8 @@ def user_info(nickname):
 		mysql.close()
 		return "User not found"
 	if request.method == 'POST':
-		if is_authorized(user["nickname"], session):
-			if request.form.get("action") == "changepw":
+		if request.form.get("action") == "changepw":
+			if is_authorized(user["nickname"], session):
 				if request.form["password"] != request.form["password_rep"]:
 					flash("<b>Passwords did not match!</b>", "danger")
 				elif request.form["password"] == "":
@@ -230,7 +230,10 @@ def user_info(nickname):
 				else:
 					set_user_password(mysql, user["nickname"], request.form["password"])
 					flash("<b>Password changed!</b>", "success")
-			elif request.form.get("action") == "changemail":
+			else:
+				flash("<b>You are not authorized to perform this action!</b>", "danger")
+		elif request.form.get("action") == "changemail":
+			if is_authorized(user["nickname"], session):
 				if request.form["email"] != request.form["email_rep"]:
 					flash("<b>E-Mail addresses do not match!</b>", "danger")
 				elif not "@" in request.form["email"]:
@@ -259,26 +262,33 @@ def user_info(nickname):
 							user["created"] = mysql.utcaware(user["created"])
 					except AccountWithEmailExists:
 						flash("<b>There is already an account with this E-Mail Address!</b>", "danger")
-			elif request.form.get("action") == "changeadmin":
-				if session.get('admin'):
-					set_user_admin(mysql, nickname, request.form.get("admin") == "true")
-					# force db data reload
-					user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
-					user["created"] = mysql.utcaware(user["created"])
-			elif request.form.get("action") == "changeabuse":
-				if session.get('admin'):
-					set_user_abuse(mysql, nickname, request.form.get("abuse") == "true")
-					# force db data reload
-					user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
-					user["created"] = mysql.utcaware(user["created"])
-			elif request.form.get("action") == "deleteaccount":
+			else:
+				flash("<b>You are not authorized to perform this action!</b>", "danger")
+		elif request.form.get("action") == "changeadmin":
+			if session.get('admin'):
+				set_user_admin(mysql, nickname, request.form.get("admin") == "true")
+				# force db data reload
+				user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+				user["created"] = mysql.utcaware(user["created"])
+			else:
+				flash("<b>You are not authorized to perform this action!</b>", "danger")
+		elif request.form.get("action") == "changeabuse":
+			if session.get('admin'):
+				set_user_abuse(mysql, nickname, request.form.get("abuse") == "true")
+				# force db data reload
+				user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+				user["created"] = mysql.utcaware(user["created"])
+			else:
+				flash("<b>You are not authorized to perform this action!</b>", "danger")
+		elif request.form.get("action") == "deleteaccount":
+			if is_authorized(user["nickname"], session):
 				mysql.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
 				mysql.commit()
 				flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
 				mysql.close()
 				return redirect(url_for("user_list"))
-		else:
-			flash("<b>You are not authorized to perform this action!</b>", "danger")
+			else:
+				flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers = mysql.fetchall("""
 		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients, reset
 		FROM router
