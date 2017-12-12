@@ -255,14 +255,16 @@ def user_info(nickname):
 							return logout()
 						else:
 							# force db data reload
-							mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+							user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+							user["created"] = mysql.utcaware(user["created"])
 					except AccountWithEmailExists:
 						flash("<b>There is already an account with this E-Mail Address!</b>", "danger")
 			elif request.form.get("action") == "changeadmin":
 				if session.get('admin'):
 					set_user_admin(mysql, nickname, request.form.get("admin") == "true")
 					# force db data reload
-					mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+					user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+					user["created"] = mysql.utcaware(user["created"])
 			elif request.form.get("action") == "changeabuse":
 				if session.get('admin'):
 					set_user_abuse(mysql, nickname, request.form.get("abuse") == "true")
