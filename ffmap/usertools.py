@@ -9,6 +9,9 @@ from ffmap.misc import *
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
+class AccountWithEmptyField(Exception):
+	pass
+
 class AccountWithEmailExists(Exception):
 	pass
 
@@ -22,8 +25,10 @@ class InvalidToken(Exception):
 	pass
 
 def register_user(nickname, email, password):
-	mysql = FreifunkMySQL()
+	if not nickname or not email:
+		raise AccountWithEmptyField()
 
+	mysql = FreifunkMySQL()
 	user_with_nick  = mysql.findone("SELECT id, email FROM users WHERE nickname = %s LIMIT 1",(nickname,))
 	user_with_email  = mysql.findone("SELECT id FROM users WHERE email = %s LIMIT 1",(email,),"id")
 	pw = generate_password_hash(password)
