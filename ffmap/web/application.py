@@ -272,12 +272,11 @@ def user_info(nickname):
 					user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
 					user["created"] = mysql.utcaware(user["created"])
 			elif request.form.get("action") == "deleteaccount":
-				if session.get('admin'):
-					mysql.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
-					mysql.commit()
-					flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
-					mysql.close()
-					return redirect(url_for("user_list"))
+				mysql.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+				mysql.commit()
+				flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
+				mysql.close()
+				return redirect(url_for("user_list"))
 		else:
 			flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers = mysql.fetchall("""
