@@ -10,7 +10,8 @@ mysql = FreifunkMySQL()
 
 mysql.execute("""
 	CREATE TABLE banned (
-		`mac` varchar(30) COLLATE utf8_unicode_ci NOT NULL
+		`mac` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+		`added` datetime NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 """)
 

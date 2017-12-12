@@ -35,7 +35,8 @@ def ban_router(mysql,dbid):
 		FROM router_netif
 		WHERE router = %s AND netif = 'br-mesh'
 	""",(dbid,),"mac")
-	mysql.execute("INSERT INTO banned (mac) VALUES (%s)",(mac,))
+	added = mysql.utcnow()
+	mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added))
 	mysql.commit()
 
 def import_nodewatcher_xml(mysql, mac, xml, banned):
