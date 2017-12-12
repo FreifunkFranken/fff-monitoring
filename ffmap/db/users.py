@@ -25,8 +25,8 @@ mysql.execute("""
 mysql.execute("""
 	ALTER TABLE `users`
 		ADD PRIMARY KEY (`id`),
-		ADD KEY `nickname` (`nickname`),
-		ADD KEY `email` (`email`)
+		ADD UNIQUE KEY `nickname` (`nickname`),
+		ADD UNIQUE KEY `email` (`email`)
 """)
 
 mysql.execute("""
