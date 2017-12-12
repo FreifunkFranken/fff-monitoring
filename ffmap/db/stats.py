@@ -10,7 +10,7 @@ mysql = FreifunkMySQL()
 
 mysql.execute("""
 	CREATE TABLE `stats_global` (
-		`time` datetime NOT NULL,
+		`time` int(11) NOT NULL,
 		`clients` int(11) NOT NULL,
 		`online` int(11) NOT NULL,
 		`offline` int(11) NOT NULL,
@@ -26,7 +26,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE stats_hood (
 		`hood` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-		`time` datetime NOT NULL,
+		`time` int(11) NOT NULL,
 		`clients` int(11) NOT NULL,
 		`online` int(11) NOT NULL,
 		`offline` int(11) NOT NULL,

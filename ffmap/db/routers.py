@@ -60,12 +60,35 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	ALTER TABLE router
+		ADD PRIMARY KEY (`id`),
+		ADD KEY `created` (`created`),
+		ADD KEY `hostname` (`hostname`),
+		ADD KEY `status` (`status`),
+		ADD KEY `last_contact` (`last_contact`),
+		ADD KEY `lat` (`lat`),
+		ADD KEY `lng` (`lng`),
+		ADD KEY `contact` (`contact`),
+		ADD KEY `hood` (`hood`)
+""")
+
+mysql.execute("""
+	ALTER TABLE router
+		MODIFY `id` int(11) NOT NULL AUTO_INCREMENT
+""")
+
+mysql.execute("""
 	CREATE TABLE router_events (
 		`router` int(11) NOT NULL,
 		`time` datetime NOT NULL,
 		`type` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 		`comment` varchar(200) COLLATE utf8_unicode_ci NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE router_events
+		ADD PRIMARY KEY (`router`,`time`,`type`)
 """)
 
 mysql.execute("""
@@ -77,6 +100,11 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	ALTER TABLE router_ipv6
+		ADD PRIMARY KEY (`router`,`netif`,`ipv6`)
+""")
+
+mysql.execute("""
 	CREATE TABLE router_neighbor (
 		`router` int(11) NOT NULL,
 		`mac` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
@@ -84,6 +112,11 @@ mysql.execute("""
 		`net_if` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`type` varchar(10) COLLATE utf8_unicode_ci DEFAULT 'l2'
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE router_neighbor
+		ADD PRIMARY KEY (`router`,`mac`,`net_if`)
 """)
 
 mysql.execute("""
@@ -102,9 +135,15 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	ALTER TABLE router_netif
+		ADD PRIMARY KEY (`router`,`netif`),
+		ADD KEY `mac` (`mac`)
+""")
+
+mysql.execute("""
 	CREATE TABLE router_stats (
 		`router` int(11) NOT NULL,
-		`time` datetime NOT NULL,
+		`time` int(11) NOT NULL,
 		`sys_proctot` smallint(6) NOT NULL,
 		`sys_procrun` smallint(6) NOT NULL,
 		`sys_memcache` int(11) NOT NULL,
@@ -116,61 +155,17 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	ALTER TABLE router_stats
+		ADD PRIMARY KEY (`router`,`time`)
+""")
+
+mysql.execute("""
 	CREATE TABLE router_stats_neighbor (
 		`router` int(11) NOT NULL,
 		`mac` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
-		`time` datetime NOT NULL,
-		`quality` smallint(6) NOT NULL
+		`quality` smallint(6) NOT NULL,
+		`time` int(11) NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-""")
-
-mysql.execute("""
-	CREATE TABLE router_stats_netif (
-		`router` int(11) NOT NULL,
-		`netif` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-		`rx` bigint(20) NOT NULL,
-		`tx` bigint(20) NOT NULL,
-		`time` datetime NOT NULL
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-""")
-
-mysql.execute("""
-	ALTER TABLE router
-		ADD PRIMARY KEY (`id`),
-		ADD KEY `created` (`created`),
-		ADD KEY `hostname` (`hostname`),
-		ADD KEY `status` (`status`),
-		ADD KEY `last_contact` (`last_contact`),
-		ADD KEY `lat` (`lat`),
-		ADD KEY `lng` (`lng`),
-		ADD KEY `contact` (`contact`),
-		ADD KEY `hood` (`hood`)
-""")
-
-mysql.execute("""
-	ALTER TABLE router_events
-		ADD PRIMARY KEY (`router`,`time`,`type`)
-""")
-
-mysql.execute("""
-	ALTER TABLE router_ipv6
-		ADD PRIMARY KEY (`router`,`netif`,`ipv6`)
-""")
-
-mysql.execute("""
-	ALTER TABLE router_neighbor
-		ADD PRIMARY KEY (`router`,`mac`,`net_if`)
-""")
-
-mysql.execute("""
-	ALTER TABLE router_netif
-		ADD PRIMARY KEY (`router`,`netif`),
-		ADD KEY `mac` (`mac`)
-""")
-
-mysql.execute("""
-	ALTER TABLE router_stats
-		ADD PRIMARY KEY (`router`,`time`)
 """)
 
 mysql.execute("""
@@ -179,13 +174,19 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_stats_netif
-		ADD PRIMARY KEY (`router`,`netif`,`time`)
+	CREATE TABLE router_stats_netif (
+		`router` int(11) NOT NULL,
+		`netif` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+		`rx` bigint(20) NOT NULL,
+		`tx` bigint(20) NOT NULL,
+		`time` int(11) NOT NULL,
+		`deletebit` tinyint(1) NOT NULL DEFAULT '0'
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
 mysql.execute("""
-	ALTER TABLE router
-		MODIFY `id` int(11) NOT NULL AUTO_INCREMENT
+	ALTER TABLE router_stats_netif
+		ADD PRIMARY KEY (`router`,`netif`,`time`)
 """)
 
 mysql.close()
