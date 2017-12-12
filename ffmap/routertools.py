@@ -36,8 +36,9 @@ def ban_router(mysql,dbid):
 		WHERE router = %s AND netif = 'br-mesh'
 	""",(dbid,),"mac")
 	added = mysql.utcnow()
-	mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added))
-	mysql.commit()
+	if mac:
+		mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added))
+		mysql.commit()
 
 def import_nodewatcher_xml(mysql, mac, xml, banned):
 	global router_rate_limit_list
