@@ -469,6 +469,7 @@ def login():
 @app.route('/logout')
 def logout():
 	session.pop('user', None)
+	session.pop('admin', None)
 	return redirect(request.referrer or url_for("index"))
 
 
