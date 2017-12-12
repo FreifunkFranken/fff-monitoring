@@ -36,7 +36,7 @@ mysql.execute("""
 
 mysql.execute("""
 	ALTER TABLE stats_hood
-		ADD PRIMARY KEY (`hood`,`time`)
+		ADD PRIMARY KEY (`time`,`hood`)
 """)
 
 mysql.close()
