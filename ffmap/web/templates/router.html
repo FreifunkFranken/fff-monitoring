@@ -53,9 +53,12 @@
 						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu">
-						{# FIXME: If authorized #}
+						{%- if authuser %}
 						<li><a href="#" onclick="$('#act').val('delete'); $('#actform').submit()">Delete Router</a></li>
+						{%- endif %}
+						{%- if authadmin %}
 						<li><a href="#" onclick="$('#act').val('ban'); $('#actform').submit()">Ban Router</a></li>
+						{%- endif %}
 						<li><a href="#" onclick="$('#act').val('report'); $('#actform').submit()">Report Router</a></li>
 					</ul>
 				</div>

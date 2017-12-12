@@ -184,7 +184,15 @@ def router_info(dbid):
 			#FIXME: Only as admin
 			return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 		else:
-			return render_template("router.html", router=router, mac=mac, tileurls=tileurls, netifstats=netiffetch, neighstats=neighfetch)
+			return render_template("router.html",
+				router = router,
+				mac = mac,
+				tileurls = tileurls,
+				netifstats = netiffetch,
+				neighstats = neighfetch,
+				authuser = is_authorized(router["user"], session),
+				authadmin = session.get('admin')
+				)
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_router.txt", str(e))
 		import traceback
