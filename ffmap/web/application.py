@@ -263,6 +263,12 @@ def user_info(nickname):
 					set_user_admin(mysql, nickname, request.form.get("admin") == "true")
 					# force db data reload
 					mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+			elif request.form.get("action") == "changeabuse":
+				if session.get('admin'):
+					set_user_abuse(mysql, nickname, request.form.get("abuse") == "true")
+					# force db data reload
+					user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
+					user["created"] = mysql.utcaware(user["created"])
 			elif request.form.get("action") == "deleteaccount":
 				if session.get('admin'):
 					mysql.execute("DELETE FROM users WHERE nickname = %s LIMIT 1",(nickname,))
