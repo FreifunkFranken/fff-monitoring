@@ -148,6 +148,11 @@
 		var router_firmwares = {{ router_firmwares|tojson }};
 		var router_models = {{ router_models|tojson }};
 		var routers_page_url = "{{ url_for('router_list') }}";
+		var hood = "{{selecthood}}";
+		var hoodstr = "";
+		if (hood != "All Hoods") {
+			hoodstr = "hood:^" + hood.replace(/ /g, '_') + "$";
+		}
 		$(document).ready(function() {
 			global_client_graph();
 			global_router_graph();
