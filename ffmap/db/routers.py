@@ -189,7 +189,8 @@ mysql.execute("""
 mysql.execute("""
 	ALTER TABLE router_stats_netif
 		ADD PRIMARY KEY (`time`,`router`,`netif`),
-		ADD KEY `router` (`router`)
+		ADD KEY `router` (`router`),
+		ADD KEY `deletebit` (`deletebit`)
 """)
 
 mysql.close()
