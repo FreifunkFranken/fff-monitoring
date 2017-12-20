@@ -73,7 +73,7 @@ def check_login_details(nickname, password):
 	return False
 
 def reset_user_password(mysql, email, token=None, password=None):
-	userid = mysql.findone("SELECT id FROM users WHERE email = %s LIMIT 1",(email,),"id")
+	user = mysql.findone("SELECT id, nickname, token FROM users WHERE email = %s LIMIT 1",(email,))
 	if not user:
 		raise AccountNotExisting()
 	elif password:
@@ -83,7 +83,7 @@ def reset_user_password(mysql, email, token=None, password=None):
 				SET password = %s, token = NULL
 				WHERE id = %s
 				LIMIT 1
-			""",(generate_password_hash(password),userid,))
+			""",(generate_password_hash(password),user["id"],))
 			mysql.commit()
 		else:
 			raise InvalidToken()
@@ -93,8 +93,9 @@ def reset_user_password(mysql, email, token=None, password=None):
 			SET token = %s
 			WHERE id = %s
 			LIMIT 1
-		""",(token,userid,))
+		""",(token,user["id"],))
 		mysql.commit()
+	return user
 
 def set_user_password(mysql, nickname, password):
 	userid = mysql.findone("SELECT id FROM users WHERE nickname = %s LIMIT 1",(nickname,),"id")
