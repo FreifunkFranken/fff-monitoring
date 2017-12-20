@@ -7,7 +7,7 @@ CONFIG = {
 	"offline_threshold_minutes": 15,	# Router switches to offline after X minutes
 	"orphan_threshold_days": 7,			# Router switches to orphaned state after X days
 	"delete_threshold_days": 180,		# Router is deleted after X days
-	"router_stat_days": 14,				# Router stats are collected for X days (if online)
+	"router_stat_days": 30,				# Router stats are collected for X days (if online)
 	"router_stat_mindiff_secs": 10,		# Time difference (uptime) required for a new entry in router stats
 	"event_num_entries": 20,			# Number of events stored per router
 	"global_stat_days": 365,			# Global/hood stats are collected for X days
