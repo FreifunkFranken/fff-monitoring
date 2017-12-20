@@ -110,6 +110,9 @@ def import_nodewatcher_xml(mysql, mac, xml, banned):
 			# Enable reset state; do before variable fallback
 			reset = True
 		
+		if not router_update['hostname']:
+			router_update['hostname'] = 'Give Me A Name'
+		
 		if olddata:
 			# Has to be done after hood detection, so default hood is selected if no lat/lng
 			for v in keepvalues:
