@@ -415,36 +415,34 @@ def resetpw():
 		if request.method == 'POST':
 			token = base64.b32encode(os.urandom(10)).decode()
 			mysql = FreifunkMySQL()
-			user = mysql.findone("SELECT nickname FROM users WHERE email = %s",(request.form['email'],))
-			reset_user_password(mysql, request.form['email'], token)
+			user = reset_user_password(mysql, request.form['email'], token)
+			mysql.close()
 			send_email(
 				recipient = request.form['email'],
 				subject   = "Password reset link",
 				content   = "Hello %s,\n\n" % user["nickname"] +
-				            "You attemped to reset your password on https://monitoring.freifunk-franken.de/\n" +
-					    "To verify you a reset link was sent to you:\n" +
-				            "%s\n" % url_for('resetpw', email=request.form['email'], token=token, _external=True) +
-					    "Clicking this link will reset your password and send the new password to your email address.\n\n" +
-					    "Regards,\nFreifunk Franken Monitoring System"
+							"You attemped to reset your password on https://monitoring.freifunk-franken.de/\n" +
+							"To verify you a reset link was sent to you:\n" +
+							"%s\n" % url_for('resetpw', email=request.form['email'], token=token, _external=True) +
+							"Clicking this link will reset your password and send the new password to your email address.\n\n" +
+							"Regards,\nFreifunk Franken Monitoring System"
 			)
 			flash("<b>A password reset link was sent to %s</b>" % request.form['email'], "success")
-			mysql.close()
 		elif "token" in request.args:
 			password = base64.b32encode(os.urandom(10)).decode()
 			mysql = FreifunkMySQL()
-			reset_user_password(mysql, request.args['email'], request.args['token'], password)
-			user = mysql.findone("SELECT nickname FROM users WHERE email = %s",(request.args['email'],))
+			user = reset_user_password(mysql, request.args['email'], request.args['token'], password)
+			mysql.close()
 			send_email(
 				recipient = request.args['email'],
 				subject   = "Your new Password",
 				content   = "Hello %s,\n\n" % user["nickname"] +
-				            "You attemped to reset your password on https://monitoring.freifunk-franken.de/\n" +
-				            "Your new Password: %s\n" % password +
-					    "Please log in and change it\n\n" +
-					    "Regards,\nFreifunk Franken Monitoring System"
+							"You attemped to reset your password on https://monitoring.freifunk-franken.de/\n" +
+							"Your new Password: %s\n" % password +
+							"Please log in and change it\n\n" +
+							"Regards,\nFreifunk Franken Monitoring System"
 			)
 			flash("<b>Password reset successful!</b> - Your password was sent to %s" % request.args['email'], "success")
-			mysql.close()
 	except AccountNotExisting:
 		flash("<b>No Account found with this E-Mail address!</b>", "danger")
 	except InvalidToken:
