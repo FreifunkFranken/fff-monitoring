@@ -24,18 +24,25 @@ def get_nearest_router():
 	lng = float(request.args.get("lng"))
 	lat = float(request.args.get("lat"))
 	
+	where = ""
+	if request.args.get("layer") == "v1":
+		where = " AND h.id IS NOT NULL "
+	elif request.args.get("layer") == "v2":
+		where = " AND h.id IS NULL "
+	
 	mysql = FreifunkMySQL()
 	res_router = mysql.findone("""
-		SELECT id, hostname, lat, lng, description,
+		SELECT r.id, r.hostname, r.lat, r.lng, r.description,
 			( acos(  cos( radians(%s) )
-						  * cos( radians( lat ) )
-						  * cos( radians( lng ) - radians(%s) )
-						  + sin( radians(%s) ) * sin( radians( lat ) )
+						  * cos( radians( r.lat ) )
+						  * cos( radians( r.lng ) - radians(%s) )
+						  + sin( radians(%s) ) * sin( radians( r.lat ) )
 						 )
 			) AS distance
 		FROM
-			router
-		WHERE lat IS NOT NULL AND lng IS NOT NULL
+			router AS r
+		LEFT JOIN hoods AS h ON r.hood = h.name
+		WHERE r.lat IS NOT NULL AND r.lng IS NOT NULL """ + where + """ 
 		ORDER BY
 			distance ASC
 		LIMIT 1

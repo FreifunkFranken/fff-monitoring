@@ -66,6 +66,15 @@ map.on('zoomend', update_mappos_permalink);
 map.on('click', function(pos) {
 	// height = width of world in px
 	var size_of_world_in_px = map.options.crs.scale(map.getZoom());
+	
+	layeropt = ""
+	if (map.hasLayer(routers) && !map.hasLayer(routers_v2)) {
+		console.debug("Looking for router in V1 ...");
+		layeropt = "&layer=v1"
+	} else if (!map.hasLayer(routers) && map.hasLayer(routers_v2)) {
+		console.debug("Looking for router in V2 ...");
+		layeropt = "&layer=v2"
+	}
 
 	var px_per_deg_lng = size_of_world_in_px / 360;
 	var px_per_deg_lat = size_of_world_in_px / 180;
@@ -75,7 +84,7 @@ map.on('click', function(pos) {
 	var lat = pos.latlng.lat;
 	if (lng > 180) { lng -= 360; }
 
-	ajax_get_request(url_get_nearest_router + "?lng=" + lng + "&lat=" + lat, function(router) {
+	ajax_get_request(url_get_nearest_router + "?lng=" + lng + "&lat=" + lat + layeropt, function(router) {
 		// decide if router is close enough
 		var lng_delta = Math.abs(lng - router.lng)
 		var lat_delta = Math.abs(lat - router.lat)
