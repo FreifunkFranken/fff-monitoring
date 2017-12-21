@@ -66,6 +66,18 @@ map.on('zoomend', update_mappos_permalink);
 map.on('click', function(pos) {
 	// height = width of world in px
 	var size_of_world_in_px = map.options.crs.scale(map.getZoom());
+	
+	layeropt = ""
+	if (map.hasLayer(routers) && !map.hasLayer(routers_v2)) {
+		console.debug("Looking for router in V1 ...");
+		layeropt = "&layer=v1"
+	} else if (!map.hasLayer(routers) && map.hasLayer(routers_v2)) {
+		console.debug("Looking for router in V2 ...");
+		layeropt = "&layer=v2"
+	} else if (!map.hasLayer(routers) && !map.hasLayer(routers_v2)) {
+		console.debug("No layer specified to look in.");
+		layeropt = "&layer=none"
+	}
 
 	var px_per_deg_lng = size_of_world_in_px / 360;
 	var px_per_deg_lat = size_of_world_in_px / 180;
@@ -75,22 +87,24 @@ map.on('click', function(pos) {
 	var lat = pos.latlng.lat;
 	if (lng > 180) { lng -= 360; }
 
-	ajax_get_request(url_get_nearest_router + "?lng=" + lng + "&lat=" + lat, function(router) {
-		// decide if router is close enough
-		var lng_delta = Math.abs(lng - router.lng)
-		var lat_delta = Math.abs(lat - router.lat)
+	ajax_get_request(url_get_nearest_router + "?lng=" + lng + "&lat=" + lat + layeropt, function(router) {
+		if (router) {
+			// decide if router is close enough
+			var lng_delta = Math.abs(lng - router.lng)
+			var lat_delta = Math.abs(lat - router.lat)
 
-		// convert degree distances into px distances on the map
-		var x_delta_px = lng_delta * px_per_deg_lng;
-		var y_delta_px = lat_delta * px_per_deg_lat;
+			// convert degree distances into px distances on the map
+			var x_delta_px = lng_delta * px_per_deg_lng;
+			var y_delta_px = lat_delta * px_per_deg_lat;
 
-		// use pythagoras to calculate distance
-		var px_distance = Math.sqrt(x_delta_px*x_delta_px + y_delta_px*y_delta_px);
+			// use pythagoras to calculate distance
+			var px_distance = Math.sqrt(x_delta_px*x_delta_px + y_delta_px*y_delta_px);
 
-		console.debug("Distance to closest router ("+router.hostname+"): " + px_distance+"px");
+			console.debug("Distance to closest router ("+router.hostname+"): " + px_distance+"px");
+		}
 
 		// check if mouse click was on the router icon
-		if (px_distance <= router_pointer_radius) {
+		if (router && px_distance <= router_pointer_radius) {
 			console.log("Click on '"+router.hostname+"' detected.");
 			console.log(router);
 			var popup_html = "";
@@ -106,7 +120,7 @@ map.on('click', function(pos) {
 					}
 				}
 			}
-						
+
 			if (has_neighbours) {
 				console.log("Has "+router.neighbours.length+" neighbours.");
 				popup_html += "<div class=\"popup-headline with-neighbours\">";
