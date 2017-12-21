@@ -14,10 +14,10 @@
 		<h1>Freifunk Franken Monitoring</h1>
 		<div class="row">
 			<div class="col-xs-2 col-sm-2">
-				<img src="{{ url_for('static', filename='img/freifunk.svg') }}" style="width: 100%;" />
+				<img src="{{ url_for('static', filename='img/freifunk.svg') }}" alt="Freifunk" style="width: 100%;" />
 			</div>
-			<div class="col-xs-8 col-sm-8"><p>
-				<p>Monitoring f&uuml;r das Freifunk Franken Funknetzwerk.<br />
+			<div class="col-xs-8 col-sm-8">
+				<p style="margin-top:12px">Monitoring f&uuml;r das Freifunk Franken Funknetzwerk.<br />
 				Hier werden Daten von Routern ab Firmware 0.5.2 angezeigt.<br />
 				Der Quellcode f&uuml;r diese Webanwendung steht unter der GPL und kann <a href="https://github.com/FreifunkFranken/fff-monitoring">hier</a>
 				heruntergeladen werden.</p>
@@ -58,7 +58,7 @@
 				<li><span class="consolefont">/api/wifianalall</span> gibt WifiAnalyzer-Datei für ALLE Router aus</li>
 				<li>Statistiken werden in separatem Cronjob berechnet</li>
 				</ul>
-			</p></div>
+			</div>
 		</div>
 	</div>
 {% endblock %}
