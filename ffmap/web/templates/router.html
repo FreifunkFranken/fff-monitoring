@@ -236,11 +236,11 @@
 				{# make sure that br-mesh is on top of the list #}
 				{%- for netif in router.netifs if netif.netif == 'br-mesh' %}
 					<li class="list-group-item active" data-name="{{ netif.netif|replace('.', '')|replace('$', '') }}">
-						<h4 class="list-group-item-heading"><div class="row">
-							<div class="col-xs-6 col-sm-6">{{ netif.netif }}</div>
-							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;">{{ netif.mac }}</div>
-						</div></h4>
-						<p class="list-group-item-text"><div class="row">
+						<div class="row">
+							<div class="col-xs-6 col-sm-6"><h4 class="list-group-item-heading">{{ netif.netif }}</h4></div>
+							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;"><h4 class="list-group-item-heading">{{ netif.mac }}</h4></div>
+						</div>
+						<div class="row">
 							<div class="col-xs-5 col-sm-5">
 								{%- if netif.ipv6_fe80_addr -%}
 								{{ netif.ipv6_fe80_addr }}
@@ -260,16 +260,16 @@
 								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|humanize_bytes }}/s
 							</div>
 							{%- endif %}
-						</div></p>
+						</div>
 					</li>
 				{%- endfor %}
 				{%- for netif in router.netifs if netif.netif != 'br-mesh' %}
 					<li class="list-group-item" data-name="{{ netif.netif|replace('.', '')|replace('$', '') }}">
-						<h4 class="list-group-item-heading"><div class="row">
-							<div class="col-xs-6 col-sm-6">{{ netif.netif }}</div>
-							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;">{{ netif.mac }}</div>
-						</div></h4>
-						<p class="list-group-item-text"><div class="row">
+						<div class="row">
+							<div class="col-xs-6 col-sm-6"><h4 class="list-group-item-heading">{{ netif.netif }}</h4></div>
+							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;"><h4 class="list-group-item-heading">{{ netif.mac }}</h4></div>
+						</div>
+						<div class="row">
 							<div class="col-xs-5 col-sm-5">
 								{%- if netif.ipv6_fe80_addr -%}
 								{{ netif.ipv6_fe80_addr }}
@@ -289,7 +289,7 @@
 								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|humanize_bytes }}/s
 							</div>
 							{%- endif %}
-						</div></p>
+						</div>
 					</li>
 				{%- endfor %}
 				</ul>
