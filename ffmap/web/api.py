@@ -155,7 +155,7 @@ def nodelist():
 				}
 			}
 		)
-		if 'position' in router:
+		if router['lat'] and router['lng']:
 			nodelist_data['nodes'][-1]['position'] = {
 				'lat': router['lat'],
 				'long': router['lng']
