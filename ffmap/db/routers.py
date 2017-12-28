@@ -40,7 +40,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router (
-		`id` int(11) NOT NULL,
+		`id` mediumint(8) UNSIGNED NOT NULL,
 		`status` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`hostname` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`created` datetime NOT NULL,
@@ -92,12 +92,12 @@ mysql.execute("""
 
 mysql.execute("""
 	ALTER TABLE router
-		MODIFY `id` int(11) NOT NULL AUTO_INCREMENT
+		MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT
 """)
 
 mysql.execute("""
 	CREATE TABLE router_events (
-		`router` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`time` datetime NOT NULL,
 		`type` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 		`comment` varchar(200) COLLATE utf8_unicode_ci NOT NULL
@@ -111,7 +111,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_ipv6 (
-		`router` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`ipv6` varchar(60) COLLATE utf8_unicode_ci NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
@@ -124,7 +124,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_neighbor (
-		`router` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`quality` smallint(6) NOT NULL,
 		`net_if` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
@@ -139,7 +139,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_netif (
-		`router` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`mtu` smallint(6) NOT NULL,
 		`rx_bytes` bigint(20) NOT NULL,
@@ -160,7 +160,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_stats (
-		`router` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`time` int(11) NOT NULL,
 		`sys_proctot` smallint(6) NOT NULL,
 		`sys_procrun` smallint(6) NOT NULL,
@@ -180,7 +180,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_stats_neighbor (
-		`router` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`quality` smallint(6) NOT NULL,
 		`time` int(11) NOT NULL
@@ -195,7 +195,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_stats_netif (
-		`router` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` smallint(6) UNSIGNED NOT NULL,
 		`rx` int(10) UNSIGNED NOT NULL,
 		`tx` int(10) UNSIGNED NOT NULL,
