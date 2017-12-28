@@ -50,7 +50,7 @@ mysql.execute("""
 		`sys_memfree` int(11) NOT NULL,
 		`sys_membuff` int(11) NOT NULL,
 		`sys_memcache` int(11) NOT NULL,
-		`sys_loadavg` double NOT NULL,
+		`sys_loadavg` float NOT NULL,
 		`sys_procrun` smallint(6) NOT NULL,
 		`sys_proctot` smallint(6) NOT NULL,
 		`clients` smallint(6) NOT NULL,
@@ -167,7 +167,7 @@ mysql.execute("""
 		`sys_memcache` int(11) NOT NULL,
 		`sys_membuff` int(11) NOT NULL,
 		`sys_memfree` int(11) NOT NULL,
-		`loadavg` double NOT NULL,
+		`loadavg` float NOT NULL,
 		`clients` smallint(6) NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
