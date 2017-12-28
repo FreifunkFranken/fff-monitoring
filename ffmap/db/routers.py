@@ -67,7 +67,7 @@ mysql.execute("""
 		`description` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`position_comment` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`community` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-		`hood` varchar(200) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+		`hood` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
 		`status_text` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`contact` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`lng` double DEFAULT NULL,
