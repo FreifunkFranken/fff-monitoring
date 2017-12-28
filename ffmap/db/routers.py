@@ -158,8 +158,8 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_stats (
-		`router` mediumint(8) UNSIGNED NOT NULL,
 		`time` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
 		`sys_proctot` smallint(6) NOT NULL,
 		`sys_procrun` smallint(6) NOT NULL,
 		`sys_memcache` int(11) NOT NULL,
@@ -178,10 +178,10 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_stats_neighbor (
+		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
-		`quality` smallint(6) NOT NULL,
-		`time` int(11) NOT NULL
+		`quality` smallint(6) NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
@@ -193,11 +193,11 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE router_stats_netif (
+		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` smallint(6) UNSIGNED NOT NULL,
 		`rx` int(10) UNSIGNED NOT NULL,
 		`tx` int(10) UNSIGNED NOT NULL,
-		`time` int(11) NOT NULL,
 		`deletebit` tinyint(1) NOT NULL DEFAULT '0'
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
