@@ -12,12 +12,30 @@ mysql.execute("""
 	CREATE TABLE banned (
 		`mac` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`added` datetime NOT NULL
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
 mysql.execute("""
 	ALTER TABLE `banned`
-		ADD PRIMARY KEY (`mac`);
+		ADD PRIMARY KEY (`mac`)
+""")
+
+mysql.execute("""
+	CREATE TABLE netifs (
+		`id` smallint(6) UNSIGNED NOT NULL,
+		`name` varchar(15) COLLATE utf8_unicode_ci NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE netifs
+		ADD PRIMARY KEY (`id`),
+		ADD UNIQUE KEY `name` (`name`)
+""")
+
+mysql.execute("""
+	ALTER TABLE netifs
+		MODIFY `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT
 """)
 
 mysql.execute("""
@@ -178,7 +196,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE router_stats_netif (
 		`router` int(11) NOT NULL,
-		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+		`netif` smallint(6) UNSIGNED NOT NULL,
 		`rx` bigint(20) NOT NULL,
 		`tx` bigint(20) NOT NULL,
 		`time` int(11) NOT NULL,

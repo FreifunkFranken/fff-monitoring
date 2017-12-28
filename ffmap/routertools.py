@@ -40,7 +40,7 @@ def ban_router(mysql,dbid):
 		mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added,))
 		mysql.commit()
 
-def import_nodewatcher_xml(mysql, mac, xml, banned):
+def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 	global router_rate_limit_list
 
 	t = utcnow()
@@ -181,7 +181,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned):
 		mysql.executemany("INSERT INTO router_neighbor (router, mac, quality, net_if, type) VALUES (%s, %s, %s, %s, %s)",nbdata)
 		
 		if router_id:
-			new_router_stats(mysql, router_id, uptime, router_update)
+			new_router_stats(mysql, router_id, uptime, router_update, netifdict)
 		
 	except ValueError as e:
 		import traceback
@@ -383,7 +383,7 @@ def set_status(mysql,router_id,status):
 		mysql.utcnow(),
 		router_id,))
 
-def new_router_stats(mysql, router_id, uptime, router_update):
+def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 	if (uptime + CONFIG["router_stat_mindiff_secs"]) < router_update["sys_uptime"]:
 		time = mysql.utctimestamp()
 		
@@ -402,11 +402,32 @@ def new_router_stats(mysql, router_id, uptime, router_update):
 			router_update["clients"],))
 		
 		ndata = []
+		nkeys = []
 		for netif in router_update["netifs"]:
 			# sanitize name
 			name = netif["name"].replace(".", "").replace("$", "")
 			with suppress(KeyError):
-				ndata.append((router_id,name,time,netif["traffic"]["rx"],netif["traffic"]["tx"],))
+				if name in netifdict.keys():
+					ndata.append((router_id,netifdict[name],time,netif["traffic"]["rx"],netif["traffic"]["tx"],))
+				else:
+					nkeys.append((name,))
+		
+		# 99.9 % of the routers will NOT enter this, so the doubled code is not a problem
+		if nkeys:
+			mysql.executemany("""
+				INSERT INTO netifs (name)
+				VALUES (%s)
+				ON DUPLICATE KEY UPDATE name=name
+			""",nkeys)
+			netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
+			
+			ndata = []
+			for netif in router_update["netifs"]:
+				# sanitize name
+				name = netif["name"].replace(".", "").replace("$", "")
+				with suppress(KeyError):
+					ndata.append((router_id,netifdict[name],time,netif["traffic"]["rx"],netif["traffic"]["tx"],))
+		
 		mysql.executemany("""
 			INSERT INTO router_stats_netif (router, netif, time, rx, tx)
 			VALUES (%s, %s, %s, %s, %s)

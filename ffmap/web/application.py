@@ -126,7 +126,10 @@ def router_info(dbid):
 				s["time"] = mysql.utcawareint(s["time"])
 			
 			netiffetch = mysql.fetchall("""
-				SELECT netif, rx, tx, time FROM router_stats_netif WHERE router = %s
+				SELECT netifs.name AS netif, rx, tx, time
+				FROM router_stats_netif
+				INNER JOIN netifs ON router_stats_netif.netif = netifs.id
+				WHERE router = %s
 			""",(dbid,))
 			
 			for ns in netiffetch:

@@ -98,6 +98,7 @@ def alfred():
 		banned = mysql.fetchall("""
 			SELECT mac FROM banned
 		""",(),"mac")
+		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
 		if request.method == 'POST':
 			alfred_data = request.get_json()
 			
@@ -105,7 +106,7 @@ def alfred():
 				# load router status xml data
 				i = 1
 				for mac, xml in alfred_data.get("64", {}).items():
-					import_nodewatcher_xml(mysql, mac, xml, banned)
+					import_nodewatcher_xml(mysql, mac, xml, banned, netifdict)
 					if (i%500 == 0):
 						mysql.commit()
 					i += 1
