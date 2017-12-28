@@ -190,8 +190,8 @@ mysql.execute("""
 	CREATE TABLE router_stats_netif (
 		`router` int(11) NOT NULL,
 		`netif` smallint(6) UNSIGNED NOT NULL,
-		`rx` bigint(20) NOT NULL,
-		`tx` bigint(20) NOT NULL,
+		`rx` int(10) UNSIGNED NOT NULL,
+		`tx` int(10) UNSIGNED NOT NULL,
 		`time` int(11) NOT NULL,
 		`deletebit` tinyint(1) NOT NULL DEFAULT '0'
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
