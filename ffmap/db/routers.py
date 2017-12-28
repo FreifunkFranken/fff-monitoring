@@ -34,6 +34,11 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	ALTER TABLE netifs
+		MODIFY `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT
+""")
+
+mysql.execute("""
 	CREATE TABLE router (
 		`id` mediumint(8) UNSIGNED NOT NULL,
 		`status` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
@@ -87,7 +92,7 @@ mysql.execute("""
 
 mysql.execute("""
 	ALTER TABLE router
-		MODIFY `id` int(11) NOT NULL AUTO_INCREMENT
+		MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT
 """)
 
 mysql.execute("""
