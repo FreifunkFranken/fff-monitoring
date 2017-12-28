@@ -126,14 +126,14 @@ def record_global_stats(mysql):
 	if old:
 		mysql.execute("""
 			UPDATE stats_global
-			SET clients = %s, online = %s, offline = %s, unknown = %s
+			SET clients = %s, online = %s, offline = %s, unknown = %s, orphaned = %s
 			WHERE time = %s
-		""",(total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),time,))
+		""",(total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),time,))
 	else:
 		mysql.execute("""
-			INSERT INTO stats_global (time, clients, online, offline, unknown)
-			VALUES (%s, %s, %s, %s, %s)
-		""",(time,total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),))
+			INSERT INTO stats_global (time, clients, online, offline, unknown, orphaned)
+			VALUES (%s, %s, %s, %s, %s, %s)
+		""",(time,total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),))
 	
 	mysql.execute("""
 		DELETE FROM stats_global
@@ -157,14 +157,14 @@ def record_hood_stats(mysql):
 		if old:
 			mysql.execute("""
 				UPDATE stats_hood
-				SET clients = %s, online = %s, offline = %s, unknown = %s
+				SET clients = %s, online = %s, offline = %s, unknown = %s, orphaned = %s
 				WHERE time = %s AND hood = %s
-			""",(clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),time,hood,))
+			""",(clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),time,hood,))
 		else:
 			mysql.execute("""
-				INSERT INTO stats_hood (time, hood, clients, online, offline, unknown)
-				VALUES (%s, %s, %s, %s, %s, %s)
-			""",(time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),))
+				INSERT INTO stats_hood (time, hood, clients, online, offline, unknown, orphaned)
+				VALUES (%s, %s, %s, %s, %s, %s, %s)
+			""",(time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),))
 	
 	mysql.execute("""
 		DELETE FROM stats_hood

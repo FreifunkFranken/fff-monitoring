@@ -302,21 +302,24 @@ function global_client_graph() {
 
 function global_router_graph() {
 	var memstat = $("#globrouterstat");
-	var offline = [], online = [], unknown = [], total = [];
+	var offline = [], online = [], unknown = [], orphaned = [], total = [];
 	var len, i;
 	for (len=global_stats.length, i=0; i<len; i++) {
 		try {
 			var offline_value = global_stats[i].offline;
 			var online_value = global_stats[i].online;
 			var unknown_value = global_stats[i].unknown;
+			var orphaned_value = global_stats[i].orphaned;
 			var date_value = global_stats[i].time.$date;
 			if (offline_value == null) offline_value = 0;
 			if (online_value == null) online_value = 0;
 			if (unknown_value == null) unknown_value = 0;
+			if (orphaned_value == null) orphaned_value = 0;
 			offline.push([date_value, offline_value]);
 			online.push([date_value, online_value]);
 			unknown.push([date_value, unknown_value]);
-			total.push([date_value, offline_value + online_value + unknown_value]);
+			orphaned.push([date_value, orphaned_value]);
+			total.push([date_value, offline_value + online_value + unknown_value + orphaned_value]);
 		}
 		catch(TypeError) {
 			// pass
@@ -326,13 +329,14 @@ function global_router_graph() {
 		{"label": "total", "data": total, "color": "#006DD9"},
 		{"label": "online", "data": online, "color": "#4DA74A"},
 		{"label": "offline", "data": offline, "color": "#CB4B4B"},
-		{"label": "unknown", "data": unknown, "color": "#EDC240"}
+		{"label": "unknown", "data": unknown, "color": "#EDC240"},
+		{"label": "orphaned", "data": orphaned, "color": "#666666"}
 	];
 	var plot = $.plot(memstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, autoscaleMargin: 0.15},
-		legend: {noColumns: 4, hideable: true},
+		legend: {noColumns: 5, hideable: true},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
 	setup_plot_zoom(plot, pdata, len);

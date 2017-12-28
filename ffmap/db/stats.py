@@ -14,7 +14,8 @@ mysql.execute("""
 		`clients` mediumint(9) NOT NULL,
 		`online` smallint(6) NOT NULL,
 		`offline` smallint(6) NOT NULL,
-		`unknown` smallint(6) NOT NULL
+		`unknown` smallint(6) NOT NULL,
+		`orphaned` smallint(6) NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
@@ -30,7 +31,8 @@ mysql.execute("""
 		`clients` mediumint(9) NOT NULL,
 		`online` smallint(6) NOT NULL,
 		`offline` smallint(6) NOT NULL,
-		`unknown` smallint(6) NOT NULL
+		`unknown` smallint(6) NOT NULL,
+		`orphaned` smallint(6) NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
