@@ -139,8 +139,6 @@ mysql.execute("""
 		`mtu` smallint(6) NOT NULL,
 		`rx_bytes` bigint(20) NOT NULL,
 		`tx_bytes` bigint(20) NOT NULL,
-		`rx` bigint(20) NOT NULL,
-		`tx` bigint(20) NOT NULL,
 		`fe80_addr` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
 		`ipv4_addr` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`mac` varchar(20) COLLATE utf8_unicode_ci NOT NULL
