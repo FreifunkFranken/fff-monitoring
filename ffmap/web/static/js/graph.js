@@ -109,7 +109,7 @@ function neighbour_graph(neighbours) {
 		var k;
 		for(k=0; k<neighbours.length; k++) {
 			if(label == neighbours[k].name && k != j) {
-				label += "@" + neighbours[j].net_if;
+				label += "@" + neighbours[j].netif;
 			}
 		}
 

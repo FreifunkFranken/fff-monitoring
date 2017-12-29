@@ -153,7 +153,7 @@ map.on('click', function(pos) {
 						popup_html += "<tr style=\"background-color: "+tr_color+";\">";
 						popup_html += '<td><a href="'+url_router_info+neighbour.id+'" title="'+escapeHTML(neighbour.mac)+'">'+escapeHTML(neighbour.hostname)+'</a></td>';
 						popup_html += "<td>"+neighbour.quality+"</td>";
-						popup_html += "<td>"+escapeHTML(neighbour.net_if)+"</td>";
+						popup_html += "<td>"+escapeHTML(neighbour.netif)+"</td>";
 						popup_html += "</tr>";
 					}
 				}

@@ -221,14 +221,14 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 		
 		nbdata = []
 		for n in router_update["neighbours"]:
-			nbdata.append((router_id,n["mac"],n["quality"],n["net_if"],n["type"],))
+			nbdata.append((router_id,n["mac"],n["netif"],n["quality"],n["type"],))
 		
 		mysql.executemany("""
-			INSERT INTO router_neighbor (router, mac, quality, net_if, type)
+			INSERT INTO router_neighbor (router, mac, netif, quality, type)
 			VALUES (%s, %s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
+				netif=VALUES(netif),
 				quality=VALUES(quality),
-				net_if=VALUES(net_if),
 				type=VALUES(type)
 		""",nbdata)
 		
@@ -669,8 +669,8 @@ def parse_nodewatcher_xml(xml):
 					continue
 				neighbour = {
 					"mac": o_mac.lower(),
+					"netif": o_out_if,
 					"quality": int(o_link_quality),
-					"net_if": o_out_if,
 					"type": "l2"
 				}
 				router_update["neighbours"].append(neighbour)
@@ -691,8 +691,8 @@ def get_l3_neighbours(tree):
 		out_if = neighbour.xpath("outgoing_interface/text()")[0]
 		neighbour = {
 			"mac": get_mac_from_v6_link_local(v6_fe80).lower(),
+			"netif": out_if,
 			"quality": -1,
-			"net_if": out_if,
 			"type": "l3"
 		}
 		l3_neighbours.append(neighbour)

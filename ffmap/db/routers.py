@@ -126,8 +126,8 @@ mysql.execute("""
 	CREATE TABLE router_neighbor (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`quality` smallint(6) NOT NULL,
-		`net_if` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`type` varchar(10) COLLATE utf8_unicode_ci DEFAULT 'l2'
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)

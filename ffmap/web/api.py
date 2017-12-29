@@ -54,7 +54,7 @@ def get_nearest_router():
 	""",(lat,lng,lat,))
 	
 	res_router["neighbours"] = mysql.fetchall("""
-		SELECT nb.mac, nb.quality, nb.net_if, r.hostname, r.id
+		SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
 		FROM router_neighbor AS nb
 		INNER JOIN (
 			SELECT router, mac FROM router_netif GROUP BY mac, router
