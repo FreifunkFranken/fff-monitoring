@@ -21,6 +21,11 @@ api = Blueprint("api", __name__)
 # map ajax
 @api.route('/get_nearest_router')
 def get_nearest_router():
+	if request.args.get("layer") == "none":
+		r = make_response(bson2json(None))
+		r.mimetype = 'application/json'
+		return r
+	
 	lng = float(request.args.get("lng"))
 	lat = float(request.args.get("lat"))
 	

@@ -74,6 +74,9 @@ map.on('click', function(pos) {
 	} else if (!map.hasLayer(routers) && map.hasLayer(routers_v2)) {
 		console.debug("Looking for router in V2 ...");
 		layeropt = "&layer=v2"
+	} else if (!map.hasLayer(routers) && !map.hasLayer(routers_v2)) {
+		console.debug("No layer specified to look in.");
+		layeropt = "&layer=none"
 	}
 
 	var px_per_deg_lng = size_of_world_in_px / 360;
@@ -85,21 +88,23 @@ map.on('click', function(pos) {
 	if (lng > 180) { lng -= 360; }
 
 	ajax_get_request(url_get_nearest_router + "?lng=" + lng + "&lat=" + lat + layeropt, function(router) {
-		// decide if router is close enough
-		var lng_delta = Math.abs(lng - router.lng)
-		var lat_delta = Math.abs(lat - router.lat)
+		if (router) {
+			// decide if router is close enough
+			var lng_delta = Math.abs(lng - router.lng)
+			var lat_delta = Math.abs(lat - router.lat)
 
-		// convert degree distances into px distances on the map
-		var x_delta_px = lng_delta * px_per_deg_lng;
-		var y_delta_px = lat_delta * px_per_deg_lat;
+			// convert degree distances into px distances on the map
+			var x_delta_px = lng_delta * px_per_deg_lng;
+			var y_delta_px = lat_delta * px_per_deg_lat;
 
-		// use pythagoras to calculate distance
-		var px_distance = Math.sqrt(x_delta_px*x_delta_px + y_delta_px*y_delta_px);
+			// use pythagoras to calculate distance
+			var px_distance = Math.sqrt(x_delta_px*x_delta_px + y_delta_px*y_delta_px);
 
-		console.debug("Distance to closest router ("+router.hostname+"): " + px_distance+"px");
+			console.debug("Distance to closest router ("+router.hostname+"): " + px_distance+"px");
+		}
 
 		// check if mouse click was on the router icon
-		if (px_distance <= router_pointer_radius) {
+		if (router && px_distance <= router_pointer_radius) {
 			console.log("Click on '"+router.hostname+"' detected.");
 			console.log(router);
 			var popup_html = "";
@@ -115,7 +120,7 @@ map.on('click', function(pos) {
 					}
 				}
 			}
-						
+
 			if (has_neighbours) {
 				console.log("Has "+router.neighbours.length+" neighbours.");
 				popup_html += "<div class=\"popup-headline with-neighbours\">";
@@ -156,6 +161,18 @@ map.on('click', function(pos) {
 			}
 			popup = L.popup({offset: new L.Point(1, 1), maxWidth: 500})
 				.setLatLng([router.lat, router.lng])
+				.setContent(popup_html)
+				.openOn(map);
+		} else {
+			console.log("Click on lat: "+lat+", lng: "+lng+" detected.");
+			var popup_html = "<div class=\"popup-headline\">";
+			
+			popup_html += '<b>Coordinates</b>';
+			popup_html += '<p class="popup-latlng" style="margin:0">Latitude: '+lat.toFixed(8)+'</p>';
+			popup_html += '<p class="popup-latlng" style="margin:0">Longitude: '+lng.toFixed(8)+'</p>';
+			popup_html += "</div>"
+			popup = L.popup({offset: new L.Point(1, 1), maxWidth: 500})
+				.setLatLng([lat, lng])
 				.setContent(popup_html)
 				.openOn(map);
 		}
