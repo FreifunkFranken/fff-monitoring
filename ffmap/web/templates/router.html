@@ -208,7 +208,7 @@
 								<td>{%- if neighbour.hostname -%}<a href="{{ url_for('router_info', dbid=neighbour.id) }}">{{ neighbour.hostname }}</a>{%- else -%}---{%- endif -%}</td>
 								<td>{{ neighbour.mac }}</td>
 								<td>{{ neighbour.quality }}</td>
-								<td>{{ neighbour.net_if }}</td>
+								<td>{{ neighbour.netif }}</td>
 							</tr>
 							{%- endfor %}
 						</table>
@@ -344,7 +344,7 @@
 		var neigh_stats = {{ neighstats|statbson2json|safe }};
 		var neighbours = [
 		{%- for neighbour in router.neighbours %}
-			{"name": "{{ neighbour.hostname or neighbour.mac }}", "mac": "{{ neighbour.mac }}", "net_if": "{{ neighbour.net_if }}"},
+			{"name": "{{ neighbour.hostname or neighbour.mac }}", "mac": "{{ neighbour.mac }}", "netif": "{{ neighbour.netif }}"},
 		{%- endfor %}
 		];
 		$(document).ready(function() {

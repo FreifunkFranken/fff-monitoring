@@ -117,8 +117,8 @@ def crawl(router):
 					continue
 				neighbour = {
 					"mac": o_mac.lower(),
+					"netif": o_out_if,
 					"quality": int(o_link_quality),
-					"net_if": o_out_if,
 				}
 				try:
 					neighbour_router = db.routers.find_one({"netifs.mac": neighbour["mac"]})
