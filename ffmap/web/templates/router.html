@@ -270,6 +270,22 @@
 							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;"><h4 class="list-group-item-heading">{{ netif.mac }}</h4></div>
 						</div>
 						<div class="row">
+							<div class="col-xs-12 col-sm-12" style="padding-bottom:6px;font-size:14px">
+							{%- if netif.wlan_type -%}
+							{{netif.wlan_type}},&nbsp;
+							{%- endif -%}
+							{%- if netif.wlan_channel -%}
+							Channel: {{netif.wlan_channel}},&nbsp;
+							{%- endif -%}
+							{%- if netif.wlan_ssid -%}
+							SSID: {{netif.wlan_ssid}},&nbsp;
+							{%- endif -%}
+							{%- if netif.wlan_txpower -%}
+							Tx-Power: {{netif.wlan_txpower}}
+							{%- endif -%}
+							</div>
+						</div>
+						<div class="row">
 							<div class="col-xs-5 col-sm-5">
 								{%- if netif.ipv6_fe80_addr -%}
 								{{ netif.ipv6_fe80_addr }}
