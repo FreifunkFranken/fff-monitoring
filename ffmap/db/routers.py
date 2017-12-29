@@ -134,7 +134,7 @@ mysql.execute("""
 
 mysql.execute("""
 	ALTER TABLE router_neighbor
-		ADD PRIMARY KEY (`router`,`mac`,`net_if`)
+		ADD PRIMARY KEY (`router`,`mac`)
 """)
 
 mysql.execute("""
