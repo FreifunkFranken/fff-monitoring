@@ -136,9 +136,33 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
-			mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
-			mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
-			mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
+			# Previously, I just deleted all entries and recreated them again with INSERT.
+			# Although this is simple to write and actually includes less queries, it causes a lot more write IO.
+			# Since most of the neighbors and interfaces do NOT change frequently, it is worth the extra effort to delete only those really gone since the last update.
+			nkeys = []
+			akeys = []
+			for n in router_update["netifs"]:
+				nkeys.append(n["name"])
+				if n["name"]=='br-mesh': # Only br-mesh will normally have assigned IPv6 addresses
+					akeys = n["ipv6_addrs"]
+			
+			if nkeys:
+				mysql.execute("DELETE FROM router_netif WHERE router = %s AND netif NOT IN ({})".format(','.join(['%s'] * len(nkeys))),tuple([router_id] + nkeys))
+			else:
+				mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
+			if akeys:
+				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = 'br-mesh' AND ipv6 NOT IN ({})".format(','.join(['%s'] * len(akeys))),tuple([router_id] + akeys))
+				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif <> 'br-mesh'",(router_id,))
+			else:
+				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
+			
+			nbkeys = []
+			for n in router_update["neighbours"]:
+				nbkeys.append(n["mac"])
+			if nbkeys:
+				mysql.execute("DELETE FROM router_neighbor WHERE router = %s AND mac NOT IN ({})".format(','.join(['%s'] * len(nbkeys))),tuple([router_id] + nbkeys))
+			else:
+				mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
 			
 		else:
 			# insert new router
@@ -168,17 +192,45 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			for a in n["ipv6_addrs"]:
 				adata.append((router_id,n["name"],a,))
 		
+		# As for deletion, it is more complex to do work with ON DUPLICATE KEY UPDATE instead of plain DELETE and INSERT,
+		# but with this we have much less IO and UPDATE is better than INSERT in terms of locking
 		mysql.executemany("""
 			INSERT INTO router_netif (router, netif, mtu, rx_bytes, tx_bytes, rx, tx, fe80_addr, ipv4_addr, mac, wlan_channel, wlan_type, wlan_width, wlan_ssid, wlan_txpower)
 			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+			ON DUPLICATE KEY UPDATE
+				mtu=VALUES(mtu),
+				rx_bytes=VALUES(rx_bytes),
+				tx_bytes=VALUES(tx_bytes),
+				rx=VALUES(rx),
+				tx=VALUES(tx),
+				fe80_addr=VALUES(fe80_addr),
+				ipv4_addr=VALUES(ipv4_addr),
+				mac=VALUES(mac),
+				wlan_channel=VALUES(wlan_channel),
+				wlan_type=VALUES(wlan_type),
+				wlan_width=VALUES(wlan_width),
+				wlan_ssid=VALUES(wlan_ssid),
+				wlan_txpower=VALUES(wlan_txpower)
 		""",ndata)
-		mysql.executemany("INSERT INTO router_ipv6 (router, netif, ipv6) VALUES (%s, %s, %s)",adata)
+		mysql.executemany("""
+			INSERT INTO router_ipv6 (router, netif, ipv6)
+			VALUES (%s, %s, %s)
+			ON DUPLICATE KEY UPDATE
+				ipv6=ipv6
+		""",adata)
 		
 		nbdata = []
 		for n in router_update["neighbours"]:
 			nbdata.append((router_id,n["mac"],n["quality"],n["net_if"],n["type"],))
 		
-		mysql.executemany("INSERT INTO router_neighbor (router, mac, quality, net_if, type) VALUES (%s, %s, %s, %s, %s)",nbdata)
+		mysql.executemany("""
+			INSERT INTO router_neighbor (router, mac, quality, net_if, type)
+			VALUES (%s, %s, %s, %s, %s)
+			ON DUPLICATE KEY UPDATE
+				quality=VALUES(quality),
+				net_if=VALUES(net_if),
+				type=VALUES(type)
+		""",nbdata)
 		
 		if router_id:
 			new_router_stats(mysql, router_id, uptime, router_update, netifdict)
