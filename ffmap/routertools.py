@@ -447,7 +447,7 @@ def calculate_network_io(mysql, router_id, uptime, router_update):
 	router: old router dict
 	router_update: new router dict (which will be updated with new data)
 	"""
-	results = mysql.fetchall("SELECT netif, rx_bytes, tx_bytes, rx, tx FROM router_netif WHERE router = %s",(router_id,));
+	results = mysql.fetchall("SELECT netif, rx_bytes, tx_bytes FROM router_netif WHERE router = %s",(router_id,));
 	
 	with suppress(KeyError, StopIteration):
 		if uptime < router_update["sys_uptime"]:
@@ -462,8 +462,8 @@ def calculate_network_io(mysql, router_id, uptime, router_update):
 		else:
 			for row in results:
 				netif_update = next(filter(lambda n: n["name"] == row["netif"], router_update["netifs"]))
-				netif_update["traffic"]["rx"] = int(row["rx"])
-				netif_update["traffic"]["tx"] = int(row["tx"])
+				netif_update["traffic"]["rx"] = int(netif_update["traffic"]["rx_bytes"] / router_update["sys_uptime"])
+				netif_update["traffic"]["tx"] = int(netif_update["traffic"]["tx_bytes"] / router_update["sys_uptime"])
 	
 	return uptime
 
