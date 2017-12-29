@@ -140,19 +140,21 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			# Although this is simple to write and actually includes less queries, it causes a lot more write IO.
 			# Since most of the neighbors and interfaces do NOT change frequently, it is worth the extra effort to delete only those really gone since the last update.
 			nkeys = []
+			akeys = []
 			for n in router_update["netifs"]:
 				nkeys.append(n["name"])
-				akeys = []
-				for a in n["ipv6_addrs"]:
-					akeys.append(a)
-				if akeys:
-					mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = %s AND ipv6 NOT IN ({})".format(','.join(['%s'] * len(akeys))),tuple([router_id,n["name"]] + akeys))
-				else:
-					mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = %s",(router_id,n["name"],))
+				if n["name"]=='br-mesh': # Only br-mesh will normally have assigned IPv6 addresses
+					akeys = n["ipv6_addrs"]
+			
 			if nkeys:
 				mysql.execute("DELETE FROM router_netif WHERE router = %s AND netif NOT IN ({})".format(','.join(['%s'] * len(nkeys))),tuple([router_id] + nkeys))
 			else:
 				mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
+			if akeys:
+				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = 'br-mesh' AND ipv6 NOT IN ({})".format(','.join(['%s'] * len(akeys))),tuple([router_id] + akeys))
+				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif <> 'br-mesh'",(router_id,))
+			else:
+				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s'",(router_id,))
 			
 			nbkeys = []
 			for n in router_update["neighbours"]:
