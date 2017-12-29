@@ -226,6 +226,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			VALUES (%s, %s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
 				quality=VALUES(quality),
+				net_if=VALUES(net_if),
 				type=VALUES(type)
 		""",nbdata)
 		
