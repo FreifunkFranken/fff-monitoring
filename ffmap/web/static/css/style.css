@@ -14,6 +14,9 @@
 .popup-headline.with-neighbours {
 	border-bottom: 1px solid lightgray;
 }
+.popup-latlng {
+	font-size:14px;
+}
 table.neighbours td {
 	padding: 0 3px;
 }

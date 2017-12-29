@@ -163,6 +163,18 @@ map.on('click', function(pos) {
 				.setLatLng([router.lat, router.lng])
 				.setContent(popup_html)
 				.openOn(map);
+		} else {
+			console.log("Click on lat: "+lat+", lng: "+lng+" detected.");
+			var popup_html = "<div class=\"popup-headline\">";
+			
+			popup_html += '<b>Coordinates</b>';
+			popup_html += '<p class="popup-latlng" style="margin:0">Latitude: '+lat.toFixed(8)+'</p>';
+			popup_html += '<p class="popup-latlng" style="margin:0">Longitude: '+lng.toFixed(8)+'</p>';
+			popup_html += "</div>"
+			popup = L.popup({offset: new L.Point(1, 1), maxWidth: 500})
+				.setLatLng([lat, lng])
+				.setContent(popup_html)
+				.openOn(map);
 		}
 	});
 });
