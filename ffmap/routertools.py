@@ -164,13 +164,13 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 		ndata = []
 		adata = []
 		for n in router_update["netifs"]:
-			ndata.append((router_id,n["name"],n["mtu"],n["traffic"]["rx_bytes"],n["traffic"]["tx_bytes"],n["ipv6_fe80_addr"],n["ipv4_addr"],n["mac"],n["wlan_channel"],n["wlan_type"],n["wlan_width"],n["wlan_ssid"],n["wlan_txpower"],))
+			ndata.append((router_id,n["name"],n["mtu"],n["traffic"]["rx_bytes"],n["traffic"]["tx_bytes"],n["traffic"]["rx"],n["traffic"]["tx"],n["ipv6_fe80_addr"],n["ipv4_addr"],n["mac"],n["wlan_channel"],n["wlan_type"],n["wlan_width"],n["wlan_ssid"],n["wlan_txpower"],))
 			for a in n["ipv6_addrs"]:
 				adata.append((router_id,n["name"],a,))
 		
 		mysql.executemany("""
-			INSERT INTO router_netif (router, netif, mtu, rx_bytes, tx_bytes, fe80_addr, ipv4_addr, mac, wlan_channel, wlan_type, wlan_width, wlan_ssid, wlan_txpower)
-			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+			INSERT INTO router_netif (router, netif, mtu, rx_bytes, tx_bytes, rx, tx, fe80_addr, ipv4_addr, mac, wlan_channel, wlan_type, wlan_width, wlan_ssid, wlan_txpower)
+			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 		""",ndata)
 		mysql.executemany("INSERT INTO router_ipv6 (router, netif, ipv6) VALUES (%s, %s, %s)",adata)
 		
@@ -447,7 +447,7 @@ def calculate_network_io(mysql, router_id, uptime, router_update):
 	router: old router dict
 	router_update: new router dict (which will be updated with new data)
 	"""
-	results = mysql.fetchall("SELECT netif, rx_bytes, tx_bytes FROM router_netif WHERE router = %s",(router_id,));
+	results = mysql.fetchall("SELECT netif, rx_bytes, tx_bytes, rx, tx FROM router_netif WHERE router = %s",(router_id,));
 	
 	with suppress(KeyError, StopIteration):
 		if uptime < router_update["sys_uptime"]:
@@ -462,8 +462,8 @@ def calculate_network_io(mysql, router_id, uptime, router_update):
 		else:
 			for row in results:
 				netif_update = next(filter(lambda n: n["name"] == row["netif"], router_update["netifs"]))
-				netif_update["traffic"]["rx"] = int(netif_update["traffic"]["rx_bytes"] / router_update["sys_uptime"])
-				netif_update["traffic"]["tx"] = int(netif_update["traffic"]["tx_bytes"] / router_update["sys_uptime"])
+				netif_update["traffic"]["rx"] = int(row["rx"])
+				netif_update["traffic"]["tx"] = int(row["tx"])
 	
 	return uptime
 
