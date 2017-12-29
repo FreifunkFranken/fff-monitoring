@@ -438,11 +438,11 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 		time = mysql.utctimestamp()
 		
 		mysql.execute("""
-			INSERT INTO router_stats (router, time, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot, clients)
+			INSERT INTO router_stats (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot, clients)
 			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 		""",(
-			router_id,
 			time,
+			router_id,
 			router_update["memory"]['free'],
 			router_update["memory"]['buffering'],
 			router_update["memory"]['caching'],
@@ -458,7 +458,7 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 			name = netif["name"].replace(".", "").replace("$", "")
 			with suppress(KeyError):
 				if name in netifdict.keys():
-					ndata.append((router_id,netifdict[name],time,netif["traffic"]["rx"],netif["traffic"]["tx"],))
+					ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
 				else:
 					nkeys.append((name,))
 		
@@ -476,19 +476,19 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 				# sanitize name
 				name = netif["name"].replace(".", "").replace("$", "")
 				with suppress(KeyError):
-					ndata.append((router_id,netifdict[name],time,netif["traffic"]["rx"],netif["traffic"]["tx"],))
+					ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
 		
 		mysql.executemany("""
-			INSERT INTO router_stats_netif (router, netif, time, rx, tx)
+			INSERT INTO router_stats_netif (time, router, netif, rx, tx)
 			VALUES (%s, %s, %s, %s, %s)
 		""",ndata)
 		
 		nbdata = []
 		for neighbour in router_update["neighbours"]:
 			with suppress(KeyError):
-				nbdata.append((router_id,neighbour["mac"],time,neighbour["quality"],))
+				nbdata.append((time,router_id,neighbour["mac"],neighbour["quality"],))
 		mysql.executemany("""
-			INSERT INTO router_stats_neighbor (router, mac, time, quality)
+			INSERT INTO router_stats_neighbor (time, router, mac, quality)
 			VALUES (%s, %s, %s, %s)
 		""",nbdata)
 
