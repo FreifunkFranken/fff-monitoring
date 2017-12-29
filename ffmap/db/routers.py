@@ -148,7 +148,12 @@ mysql.execute("""
 		`tx` bigint(20) NOT NULL,
 		`fe80_addr` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
 		`ipv4_addr` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL
+		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`wlan_channel` tinyint(3) UNSIGNED DEFAULT NULL,
+		`wlan_type` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`wlan_width` tinyint(3) UNSIGNED DEFAULT NULL,
+		`wlan_ssid` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`wlan_txpower` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
