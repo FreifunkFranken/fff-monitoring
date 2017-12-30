@@ -176,9 +176,9 @@
 		{%- endif %}
 			<div class="panel panel-default" style="flex: 1 1 auto;">
 				<div class="panel-heading">Events</div>
-				<div class="panel-body">
+				<div class="panel-body" style="max-height:186px;overflow-y:auto">
 					<table class="table table-condensed">
-					{%- for event in router.events[-5:] %}
+					{%- for event in router.events[-25:][::-1] %}
 						<tr>
 							<td style="width: 11em;">{{ event.time|utc2local|format_dt|nbsp|safe }}</td>
 							<td style="width: 1em;"><span class="{{ event.type|status2css }}">{{ event.type }}</span></td>
@@ -186,6 +186,7 @@
 						</tr>
 					{%- endfor %}
 					</table>
+					<div style="height:10px"></div>
 				</div>
 			</div>
 		</div>
