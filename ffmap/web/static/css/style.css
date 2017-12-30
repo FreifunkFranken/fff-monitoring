@@ -37,3 +37,11 @@ table.neighbours {
 	padding-left: 5px;
 	padding-right: 7px;
 }
+.graph-pie {
+	height: 250px;
+	width: 100%;
+}
+.graph-pie .legendLabel {
+	padding-left: 5px;
+	padding-right: 7px;
+}
