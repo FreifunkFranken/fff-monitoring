@@ -357,7 +357,7 @@ function global_router_firmwares_graph() {
 		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
 		series: {pie: {
 			show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.10},
-			combine: {threshold: 0.009}
+			combine: {threshold: 0.019}
 		}}
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
@@ -382,7 +382,7 @@ function global_router_models_graph() {
 		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
 		series: {pie: {
 			show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.2},
-			combine: {threshold: 0.009}
+			combine: {threshold: 0.029}
 		}}
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
