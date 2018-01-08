@@ -413,6 +413,7 @@ def delete_old_stats(mysql):
 			""",(e["router"],delnum,))
 	mysql.commit()
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete events: %.3f seconds" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "-------")
 	print("--- Delete events: %.3f seconds ---" % (time.time() - start_time))
 
 def events_append(mysql,router_id,event,comment):
