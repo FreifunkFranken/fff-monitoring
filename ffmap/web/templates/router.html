@@ -26,6 +26,10 @@
 		li.list-group-item:hover {
 			background-color: #f5f5f5;
 		}
+		.wlaninfo {
+			font-weight:bold;
+			font-style:italic;
+		}
 
 		/* hack to remove flex css on small single-column layout */
 		@media(max-width:991px) {
@@ -273,16 +277,16 @@
 						<div class="row">
 							<div class="col-xs-12 col-sm-12" style="padding-bottom:6px;font-size:14px">
 							{%- if netif.wlan_type -%}
-							{{netif.wlan_type}},&nbsp;
+							<span class="wlaninfo">{{netif.wlan_type}}</span>,&nbsp;
 							{%- endif -%}
 							{%- if netif.wlan_channel -%}
-							Channel: {{netif.wlan_channel}},&nbsp;
+							Channel: <span class="wlaninfo">{{netif.wlan_channel}}</span>,&nbsp;
 							{%- endif -%}
 							{%- if netif.wlan_ssid -%}
-							SSID: {{netif.wlan_ssid}},&nbsp;
+							SSID: <span class="wlaninfo">{{netif.wlan_ssid}}</span>,&nbsp;
 							{%- endif -%}
 							{%- if netif.wlan_txpower -%}
-							Tx-Power: {{netif.wlan_txpower}}
+							Tx-Power: <span class="wlaninfo">{{netif.wlan_txpower}}</span>
 							{%- endif -%}
 							</div>
 						</div>
