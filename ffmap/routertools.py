@@ -265,7 +265,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 	if olddata:
 		# fire events
 		with suppress(KeyError, TypeError, UnboundLocalError):
-			if olddata["sys_uptime"] > router_update["sys_uptime"]:
+			if (olddata["sys_uptime"] - 300) > router_update["sys_uptime"]:
 				events_append(mysql,router_id,"reboot","")
 
 		with suppress(KeyError, TypeError, UnboundLocalError):
