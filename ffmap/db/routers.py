@@ -110,6 +110,23 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	CREATE TABLE router_gw (
+		`router` mediumint(8) UNSIGNED NOT NULL,
+		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`quality` smallint(6) NOT NULL,
+		`nexthop` char(17) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`netif` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`gw_class` varchar(25) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`selected` tinyint(1) NOT NULL DEFAULT '0'
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE router_gw
+		ADD PRIMARY KEY (`router`,`mac`)
+""")
+
+mysql.execute("""
 	CREATE TABLE router_ipv6 (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
@@ -180,6 +197,21 @@ mysql.execute("""
 mysql.execute("""
 	ALTER TABLE router_stats
 		ADD PRIMARY KEY (`time`,`router`),
+		ADD KEY `router` (`router`)
+""")
+
+mysql.execute("""
+	CREATE TABLE router_stats_gw (
+		`time` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
+		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`quality` smallint(6) NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE router_stats_gw
+		ADD PRIMARY KEY (`time`,`router`,`mac`),
 		ADD KEY `router` (`router`)
 """)
 

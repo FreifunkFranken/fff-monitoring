@@ -118,6 +118,12 @@ def router_info(dbid):
 			""",(dbid,))
 			# FIX SQL: only one from router_netif
 			
+			router["gws"] = mysql.fetchall("""
+				SELECT mac, quality, netif, gw_class, selected
+				FROM router_gw
+				WHERE router = %s
+			""",(dbid,))
+			
 			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
 			router["events"] = mysql.utcawaretuple(router["events"],"time")
 			
@@ -140,6 +146,13 @@ def router_info(dbid):
 			""",(dbid,))
 			
 			for ns in neighfetch:
+				ns["time"] = mysql.utcawareint(ns["time"])
+
+			gwfetch = mysql.fetchall("""
+				SELECT quality, mac, time FROM router_stats_gw WHERE router = %s
+			""",(dbid,))
+			
+			for ns in gwfetch:
 				ns["time"] = mysql.utcawareint(ns["time"])
 
 			if request.method == 'POST':
@@ -193,6 +206,7 @@ def router_info(dbid):
 				tileurls = tileurls,
 				netifstats = netiffetch,
 				neighstats = neighfetch,
+				gwstats = gwfetch,
 				authuser = is_authorized(router["user"], session),
 				authadmin = session.get('admin')
 				)

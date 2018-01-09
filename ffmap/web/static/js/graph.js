@@ -142,6 +142,49 @@ function neighbour_graph(neighbours) {
 	setup_plot_zoom(plot, pdata, len);
 }
 
+function gw_graph(gws) {
+	var gwstat = $("#gwstat");
+	var pdata = [];
+	for (j=0; j<gws.length; j++) {
+		var label = gws[j].name;
+
+		// add network interface when there are multiple links to same node
+		var k;
+		for(k=0; k<gws.length; k++) {
+			if(label == gws[k].name && k != j) {
+				label += "@" + gws[j].netif;
+			}
+		}
+
+		var mac = gws[j].mac;
+		var data = [];
+		var len, i;
+		for (len=gw_stats.length, i=0; i<len; i++) {
+			if (gw_stats[i].mac != mac) { continue; }
+			try {
+				var quality = gw_stats[i].quality;
+				var date_value = gw_stats[i].time.$date;
+				if(quality == null) {
+					quality = 0;
+				}
+				data.push([date_value, quality]);
+			}
+			catch(TypeError) {
+				// pass
+			}
+		}
+		pdata.push({"label": label, "data": data});
+	}
+	var plot = $.plot(gwstat, pdata, {
+		xaxis: {mode: "time", timezone: "browser"},
+		selection: {mode: "x"},
+		yaxis: {min: 0, max: 350},
+		legend: {noColumns: 2, hideable: true},
+		series: {downsample: {threshold: Math.floor(gwstat.width() * points_per_px)}}
+	});
+	setup_plot_zoom(plot, pdata, len);
+}
+
 function memory_graph() {
 	var memstat = $("#memstat");
 	var free = [], caching = [], buffering = [];

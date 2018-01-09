@@ -164,6 +164,14 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			else:
 				mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
 			
+			gwkeys = []
+			for g in router_update["gws"]:
+				gwkeys.append(g["mac"])
+			if gwkeys:
+				mysql.execute("DELETE FROM router_gw WHERE router = %s AND mac NOT IN ({})".format(','.join(['%s'] * len(gwkeys))),tuple([router_id] + gwkeys))
+			else:
+				mysql.execute("DELETE FROM router_gw WHERE router = %s",(router_id,))
+			
 		else:
 			# insert new router
 			created = mysql.utcnow()
@@ -231,6 +239,21 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 				quality=VALUES(quality),
 				type=VALUES(type)
 		""",nbdata)
+		
+		gwdata = []
+		for g in router_update["gws"]:
+			gwdata.append((router_id,g["mac"],g["quality"],g["nexthop"],g["netif"],g["gw_class"],g["selected"],))
+		
+		mysql.executemany("""
+			INSERT INTO router_gw (router, mac, quality, nexthop, netif, gw_class, selected)
+			VALUES (%s, %s, %s, %s, %s, %s, %s)
+			ON DUPLICATE KEY UPDATE
+				quality=VALUES(quality),
+				nexthop=VALUES(nexthop),
+				netif=VALUES(netif),
+				gw_class=VALUES(gw_class),
+				selected=VALUES(selected)
+		""",gwdata)
 		
 		if router_id:
 			new_router_stats(mysql, router_id, uptime, router_update, netifdict)
@@ -353,6 +376,17 @@ def delete_old_stats(mysql):
 	mysql.commit()
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete stats: %.3f seconds" % (time.time() - start_time))
 	print("--- Delete stats: %.3f seconds ---" % (time.time() - start_time))
+
+	time.sleep(10)
+	start_time = time.time()
+	mysql.execute("""
+		DELETE s FROM router_stats_gw AS s
+		LEFT JOIN router AS r ON s.router = r.id
+		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
+	""",(threshold,))
+	mysql.commit()
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete gw-stats: %.3f seconds" % (time.time() - start_time))
+	print("--- Delete gw-stats: %.3f seconds ---" % (time.time() - start_time))
 
 	time.sleep(10)
 	start_time = time.time()
@@ -494,6 +528,15 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 			INSERT INTO router_stats_neighbor (time, router, mac, quality)
 			VALUES (%s, %s, %s, %s)
 		""",nbdata)
+		
+		gwdata = []
+		for gw in router_update["gws"]:
+			with suppress(KeyError):
+				gwdata.append((time,router_id,gw["mac"],gw["quality"],))
+		mysql.executemany("""
+			INSERT INTO router_stats_gw (time, router, mac, quality)
+			VALUES (%s, %s, %s, %s)
+		""",gwdata)
 
 def calculate_network_io(mysql, router_id, uptime, router_update):
 	"""
@@ -538,6 +581,14 @@ def evalxpathint(tree,p,default=0):
 		tmp = int(tree.xpath(p)[0])
 	return tmp
 
+def evalxpathbool(tree,p):
+	tmp = False
+	with suppress(IndexError):
+		tmp = tree.xpath(p)[0]
+	if tmp:
+		return (tmp.lower()=="true" or tmp=="1")
+	return False
+
 def parse_nodewatcher_xml(xml):
 	try:
 		assert xml != ""
@@ -547,6 +598,7 @@ def parse_nodewatcher_xml(xml):
 			"status": evalxpath(tree,"/data/system_data/status/text()"),
 			"hostname": evalxpath(tree,"/data/system_data/hostname/text()"),
 			"last_contact": utcnow().strftime('%Y-%m-%d %H:%M:%S'),
+			"gws": [],
 			"neighbours": [],
 			"netifs": [],
 			# hardware
@@ -680,6 +732,23 @@ def parse_nodewatcher_xml(xml):
 		visible_neighbours += len(l3_neighbours)
 		router_update["visible_neighbours"] = visible_neighbours
 		router_update["neighbours"] += l3_neighbours
+		
+		for gw in tree.xpath("/data/batman_adv_gateway_list/*"):
+			gw_mac = evalxpath(gw,"gateway/text()")
+			if (gw_mac and len(gw_mac)>12): # Throw away headline
+				gw = {
+					"mac": gw_mac.lower(),
+					"quality": evalxpathint(gw,"link_quality/text()"),
+					"nexthop": evalxpath(gw,"nexthop/text()",None),
+					"netif": evalxpath(gw,"outgoing_interface/text()",None),
+					"gw_class": evalxpath(gw,"gw_class/text()",None),
+					"selected": evalxpathbool(gw,"selected/text()")
+				}
+				if gw["netif"]=="false":
+					tmp = gw["gw_class"].split(None,1)
+					gw["netif"] = tmp[0]
+					gw["gw_class"] = tmp[1]
+				router_update["gws"].append(gw)
 
 		return router_update
 	except (AssertionError, lxml.etree.XMLSyntaxError, IndexError) as e:
