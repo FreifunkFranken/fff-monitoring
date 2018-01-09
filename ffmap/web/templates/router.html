@@ -315,6 +315,44 @@
 				{%- endfor %}
 				</ul>
 			</div>
+			{%- if router.gws|length > 0 %}
+			<div class="panel panel-default" style="flex: 1 1 auto;">
+				<div class="panel-heading">Gateways</div>
+				<div class="panel-body" style="height: 100%;">
+					<div class="table-responsive">
+						<table class="neighbours" style="width: 100%; margin-bottom: 6px;">
+							<tr>
+								<th>MAC (fastd/l2tp)</th>
+								<th>MAC (batX)</th>
+								<th>Quality</th>
+								<th>Interface</th>
+								<th>Class</th>
+							</tr>
+							{%- for gw in router.gws %}
+							{%- if gw.selected %}
+							<tr style="background-color:#04ff0a">
+							{%- else %}
+							<tr>
+							{%- endif %}
+								<td>{{ gw.mac }}</td>
+								<td>{{ gw.batX }}</td>
+								<td>{{ gw.quality }}</td>
+								<td>{{ gw.netif }}</td>
+								<td>{{ gw.gw_class }}</td>
+							</tr>
+							{%- endfor %}
+						</table>
+					</div>
+					{# hack for graph vertical align #}
+					{%- if  router.gws|length < 3 %}
+					{%- for n in range(3- router.gws|length) %}
+					<br />
+					{%- endfor %}
+					{%- endif %}
+					<div id="gwstat" class="graph" style="height: 150px;"></div>
+				</div>
+			</div>
+			{%- endif %}
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
@@ -347,14 +385,23 @@
 		var router_stats = {{ router.stats|statbson2json|safe }};
 		var netif_stats = {{ netifstats|statbson2json|safe }};
 		var neigh_stats = {{ neighstats|statbson2json|safe }};
+		var gw_stats = {{ gwstats|statbson2json|safe }};
 		var neighbours = [
 		{%- for neighbour in router.neighbours %}
 			{"name": "{{ neighbour.hostname or neighbour.mac }}", "mac": "{{ neighbour.mac }}", "netif": "{{ neighbour.netif }}"},
 		{%- endfor %}
 		];
+		var gws = [
+		{%- for gw in router.gws %}
+			{"name": "{{ gw.mac }}", "mac": "{{ gw.mac }}", "netif": "{{ gw.netif }}"},
+		{%- endfor %}
+		];
 		$(document).ready(function() {
 			{%- if router.neighbours|length > 0 %}
 			neighbour_graph(neighbours);
+			{%- endif %}
+			{%- if router.gws|length > 0 %}
+			gw_graph(gws);
 			{%- endif %}
 			memory_graph();
 			process_graph();
