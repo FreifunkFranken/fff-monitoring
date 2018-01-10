@@ -87,19 +87,19 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globrouterstat" class="graph"></div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-				<div class="panel-heading">Clients{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Clients{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globclientstat" class="graph"></div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-				<div class="panel-heading">Newest Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Newest Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body" style="padding-bottom:34px">
 					<div class="table-responsive">
 						<table class="table table-condensed">
@@ -124,7 +124,7 @@
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Gateways (selected / others)</div>
+				<div class="panel-heading">Gateways (selected / others){%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
 					<table class="table table-condensed table-hoods">
 						<tr>
@@ -134,6 +134,7 @@
 							<th class="warning" title="Unknown Routers">Unknown</th>
 							<th class="active" title="Total Routers">Total</th>
 							<th class="info">Clients</th>
+							<th class="stats">Stats</th>
 						</tr>
 						{%- for mac, value in gws|dictsort %}
 						<tr>
@@ -143,6 +144,7 @@
 							<td class="warning"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>
 							<td class="active"><span style="font-weight:bold">{{ gws_sum[mac]["routers"] if gws_sum[mac] else 0 }}</span> / {{ value["others"]|sumdict if value["others"] else 0 }}</td>
 							<td class="info">{{ gws_sum[mac]["clients"] if gws_sum[mac] }}</td>
+							<td class="stats"><a href="{{ url_for('global_gwstatistics', selectgw='%s' % mac) }}">Stats</a></td>
 						</tr>
 						{%- endfor %}
 					</table>
@@ -151,13 +153,13 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Router Firmwares{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Router Firmwares{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globrouterfwstat" class="graph-pie"></div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-				<div class="panel-heading">Router Models{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Router Models{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globroutermodelsstat" class="graph-pie"></div>
 				</div>

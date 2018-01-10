@@ -25,6 +25,24 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	CREATE TABLE stats_gw (
+		`time` int(11) NOT NULL,
+		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`clients` mediumint(9) NOT NULL,
+		`online` smallint(6) NOT NULL,
+		`offline` smallint(6) NOT NULL,
+		`unknown` smallint(6) NOT NULL,
+		`orphaned` smallint(6) NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE stats_gw
+		ADD PRIMARY KEY (`time`,`mac`),
+		ADD KEY `mac` (`mac`)
+""")
+
+mysql.execute("""
 	CREATE TABLE stats_hood (
 		`time` int(11) NOT NULL,
 		`hood` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,

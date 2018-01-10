@@ -326,16 +326,22 @@ def user_info(nickname):
 def global_statistics():
 	mysql = FreifunkMySQL()
 	stats = mysql.fetchall("SELECT * FROM stats_global")
-	return helper_statistics(mysql,stats,None)
+	return helper_statistics(mysql,stats,None,None)
 
 @app.route('/hoodstatistics/<selecthood>')
 def global_hoodstatistics(selecthood):
 	mysql = FreifunkMySQL()
 	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
-	return helper_statistics(mysql,stats,selecthood)
+	return helper_statistics(mysql,stats,selecthood,None)
 
-def helper_statistics(mysql,stats,selecthood):
-	hoods = stattools.hoods(mysql)
+@app.route('/gwstatistics/<selectgw>')
+def global_gwstatistics(selectgw):
+	mysql = FreifunkMySQL()
+	stats = mysql.fetchall("SELECT * FROM stats_gw WHERE mac = %s",(selectgw,))
+	return helper_statistics(mysql,stats,None,selectgw)
+
+def helper_statistics(mysql,stats,selecthood,selectgw):
+	hoods = stattools.hoods(mysql,selectgw)
 	
 	stats = mysql.utcawaretupleint(stats,"time")
 	
@@ -343,33 +349,43 @@ def helper_statistics(mysql,stats,selecthood):
 	if numnew < 1:
 		numnew = 1
 	
-	if selecthood:
-		where = " AND hood = %s"
-		tup = (selecthood,numnew,)
+	if selectgw:
+		newest_routers = mysql.fetchall("""
+			SELECT id, hostname, hood, created
+			FROM router
+			INNER JOIN router_gw ON router.id = router_gw.router
+			WHERE hardware <> 'Legacy' AND mac = %s
+			ORDER BY created DESC
+			LIMIT %s
+		""",(selectgw,numnew,))
 	else:
-		where = ""
-		tup = (numnew,)
-	
-	newest_routers = mysql.fetchall("""
-		SELECT id, hostname, hood, created
-		FROM router
-		WHERE hardware <> 'Legacy' {}
-		ORDER BY created DESC
-		LIMIT %s
-	""".format(where),tup)
+		if selecthood:
+			where = " AND hood = %s"
+			tup = (selecthood,numnew,)
+		else:
+			where = ""
+			tup = (numnew,)
+		newest_routers = mysql.fetchall("""
+			SELECT id, hostname, hood, created
+			FROM router
+			WHERE hardware <> 'Legacy' {}
+			ORDER BY created DESC
+			LIMIT %s
+		""".format(where),tup)
 	newest_routers = mysql.utcawaretuple(newest_routers,"created")
 	
 	clients = stattools.total_clients(mysql)
 	router_status = stattools.router_status(mysql)
-	router_models = stattools.router_models(mysql,selecthood)
-	router_firmwares = stattools.router_firmwares(mysql,selecthood)
-	hoods_sum = stattools.hoods_sum(mysql)
+	router_models = stattools.router_models(mysql,selecthood,selectgw)
+	router_firmwares = stattools.router_firmwares(mysql,selecthood,selectgw)
+	hoods_sum = stattools.hoods_sum(mysql,selectgw)
 	gws = stattools.gws(mysql,selecthood)
 	gws_sum = stattools.gws_sum(mysql,selecthood)
 	mysql.close()
 	
 	return render_template("statistics.html",
 		selecthood = selecthood,
+		selectgw = selectgw,
 		stats = stats,
 		clients = clients,
 		router_status = router_status,

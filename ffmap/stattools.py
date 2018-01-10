@@ -58,7 +58,31 @@ def router_status_hood(mysql):
 		dict[d["hood"]][d["status"]] = d["count"]
 	return dict
 
-def router_models(mysql,selecthood=None):
+def total_clients_gw(mysql):
+	return mysql.fetchdict("""
+		SELECT router_gw.mac, SUM(clients) AS clients
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		WHERE router_gw.selected = TRUE
+		GROUP BY router_gw.mac
+	""",(),"mac","clients")
+
+def router_status_gw(mysql):
+	data = mysql.fetchall("""
+		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		WHERE router_gw.selected = TRUE
+		GROUP BY router_gw.mac, router.status
+	""")
+	dict = {}
+	for d in data:
+		if not d["mac"] in dict:
+			dict[d["mac"]] = {}
+		dict[d["mac"]][d["status"]] = d["count"]
+	return dict
+
+def router_models(mysql,selecthood=None,selectgw=None):
 	if selecthood:
 		return mysql.fetchdict("""
 			SELECT hardware, COUNT(id) AS count
@@ -66,6 +90,14 @@ def router_models(mysql,selecthood=None):
 			WHERE hood = %s
 			GROUP BY hardware
 		""",(selecthood,),"hardware","count")
+	elif selectgw:
+		return mysql.fetchdict("""
+			SELECT hardware, COUNT(router_gw.router) AS count
+			FROM router
+			INNER JOIN router_gw ON router.id = router_gw.router
+			WHERE mac = %s
+			GROUP BY hardware
+		""",(selectgw,),"hardware","count")
 	else:
 		return mysql.fetchdict("""
 			SELECT hardware, COUNT(id) AS count
@@ -73,7 +105,7 @@ def router_models(mysql,selecthood=None):
 			GROUP BY hardware
 		""",(),"hardware","count")
 
-def router_firmwares(mysql,selecthood=None):
+def router_firmwares(mysql,selecthood=None,selectgw=None):
 	if selecthood:
 		return mysql.fetchdict("""
 			SELECT firmware, COUNT(id) AS count
@@ -81,6 +113,14 @@ def router_firmwares(mysql,selecthood=None):
 			WHERE hood = %s
 			GROUP BY firmware
 		""",(selecthood,),"firmware","count")
+	elif selectgw:
+		return mysql.fetchdict("""
+			SELECT firmware, COUNT(router_gw.router) AS count
+			FROM router
+			INNER JOIN router_gw ON router.id = router_gw.router
+			WHERE mac = %s
+			GROUP BY firmware
+		""",(selectgw,),"firmware","count")
 	else:
 		return mysql.fetchdict("""
 			SELECT firmware, COUNT(id) AS count
@@ -88,7 +128,7 @@ def router_firmwares(mysql,selecthood=None):
 			GROUP BY firmware
 		""",(),"firmware","count")
 
-def hoods(mysql):
+def hoods(mysql,selectgw=None):
 	data = mysql.fetchall("""
 		SELECT hood, status, COUNT(id) AS count
 		FROM router
@@ -103,7 +143,7 @@ def hoods(mysql):
 		result[rs["hood"]][rs["status"]] = rs["count"]
 	return result
 
-def hoods_sum(mysql):
+def hoods_sum(mysql,selectgw=None):
 	data = mysql.fetchall("""
 		SELECT hood, COUNT(id) AS count, SUM(clients) AS clients
 		FROM router
@@ -221,6 +261,34 @@ def record_hood_stats(mysql):
 	
 	mysql.execute("""
 		DELETE FROM stats_hood
+		WHERE time < %s
+	""",(threshold,))
+
+	mysql.commit()
+
+def record_gw_stats(mysql):
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
+	time = mysql.utctimestamp()
+	status = router_status_gw(mysql)
+	clients = total_clients_gw(mysql)
+	
+	for mac in clients.keys():
+		old = mysql.findone("SELECT time FROM stats_gw WHERE time = %s AND mac = %s LIMIT 1",(time,mac,))
+		
+		if old:
+			mysql.execute("""
+				UPDATE stats_gw
+				SET clients = %s, online = %s, offline = %s, unknown = %s, orphaned = %s
+				WHERE time = %s AND mac = %s
+			""",(clients[mac],status[mac].get("online",0),status[mac].get("offline",0),status[mac].get("unknown",0),status[mac].get("orphaned",0),time,mac,))
+		else:
+			mysql.execute("""
+				INSERT INTO stats_gw (time, mac, clients, online, offline, unknown, orphaned)
+				VALUES (%s, %s, %s, %s, %s, %s, %s)
+			""",(time,mac,clients[mac],status[mac].get("online",0),status[mac].get("offline",0),status[mac].get("unknown",0),status[mac].get("orphaned",0),))
+	
+	mysql.execute("""
+		DELETE FROM stats_gw
 		WHERE time < %s
 	""",(threshold,))
 
