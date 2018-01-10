@@ -69,7 +69,7 @@
 							<td class="warning">{{ value["unknown"] or 0 }}</td>
 							<td class="active">{{ hoods_sum[hood]["routers"] }}</td>
 							<td class="info">{{ hoods_sum[hood]["clients"] }}</td>
-							<td class="stats"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hood) }}">Hood</a></td> 
+							<td class="stats"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hood) }}">Stats</a></td> 
 						</tr>
 						{%- endfor %}
 						<tr>
