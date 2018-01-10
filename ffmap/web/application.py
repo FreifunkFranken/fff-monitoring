@@ -364,6 +364,8 @@ def helper_statistics(mysql,stats,selecthood):
 	router_models = stattools.router_models(mysql,selecthood)
 	router_firmwares = stattools.router_firmwares(mysql,selecthood)
 	hoods_sum = stattools.hoods_sum(mysql)
+	gws = stattools.gws(mysql,selecthood)
+	gws_sum = stattools.gws_sum(mysql,selecthood)
 	mysql.close()
 	
 	return render_template("statistics.html",
@@ -375,7 +377,9 @@ def helper_statistics(mysql,stats,selecthood):
 		router_firmwares = router_firmwares,
 		hoods = hoods,
 		hoods_sum = hoods_sum,
-		newest_routers = newest_routers
+		newest_routers = newest_routers,
+		gws = gws,
+		gws_sum = gws_sum
 	)
 
 @app.route('/register', methods=['GET', 'POST'])

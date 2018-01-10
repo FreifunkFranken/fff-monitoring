@@ -34,6 +34,10 @@ def neighbour_color(quality):
 		color = "#79ff7c"
 	return color
 
+@filters.app_template_filter('sumdict')
+def sumdict(d):
+	return sum(d.values())
+
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
 	return dt.astimezone(tz.tzlocal())
