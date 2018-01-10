@@ -87,7 +87,7 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Routers @ {{ selecthood }}</div>
+				<div class="panel-heading">Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globrouterstat" class="graph"></div>
 				</div>
@@ -95,7 +95,7 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Clients @ {{ selecthood }}</div>
+				<div class="panel-heading">Clients{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globclientstat" class="graph"></div>
 				</div>
@@ -103,7 +103,7 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Newest Routers @ {{ selecthood }}</div>
+				<div class="panel-heading">Newest Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body" style="padding-bottom:34px">
 					<div class="table-responsive">
 						<table class="table table-condensed">
@@ -128,7 +128,7 @@
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Router Firmwares @ {{ selecthood }}</div>
+				<div class="panel-heading">Router Firmwares{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globrouterfwstat" class="graph-pie"></div>
 				</div>
@@ -136,7 +136,7 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Router Models @ {{ selecthood }}</div>
+				<div class="panel-heading">Router Models{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globroutermodelsstat" class="graph-pie"></div>
 				</div>
@@ -148,11 +148,12 @@
 		var router_firmwares = {{ router_firmwares|tojson }};
 		var router_models = {{ router_models|tojson }};
 		var routers_page_url = "{{ url_for('router_list') }}";
+		{%- if selecthood %}
 		var hood = "{{selecthood}}";
+		var hoodstr = "hood:^" + hood.replace(/ /g, '_') + "$";
+		{%- else %}
 		var hoodstr = "";
-		if (hood != "All Hoods") {
-			hoodstr = "hood:^" + hood.replace(/ /g, '_') + "$";
-		}
+		{%- endif -%}
 		$(document).ready(function() {
 			global_client_graph();
 			global_router_graph();

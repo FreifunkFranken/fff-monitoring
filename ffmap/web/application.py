@@ -325,62 +325,38 @@ def user_info(nickname):
 @app.route('/statistics')
 def global_statistics():
 	mysql = FreifunkMySQL()
-	hoods = stattools.hoods(mysql)
-	
 	stats = mysql.fetchall("SELECT * FROM stats_global")
-	stats = mysql.utcawaretupleint(stats,"time")
-	
-	numnew = len(hoods)-18
-	if numnew < 1:
-		numnew = 1
-	
-	newest_routers = mysql.fetchall("""
-		SELECT id, hostname, hood, created
-		FROM router
-		WHERE hardware <> 'Legacy'
-		ORDER BY created DESC
-		LIMIT %s
-	""",(numnew,))
-	newest_routers = mysql.utcawaretuple(newest_routers,"created")
-	
-	clients = stattools.total_clients(mysql)
-	router_status = stattools.router_status(mysql)
-	router_models = stattools.router_models(mysql)
-	router_firmwares = stattools.router_firmwares(mysql)
-	hoods_sum = stattools.hoods_sum(mysql)
-	mysql.close()
-	
-	return render_template("statistics.html",
-		selecthood = "All Hoods",
-		stats = stats,
-		clients = clients,
-		router_status = router_status,
-		router_models = router_models,
-		router_firmwares = router_firmwares,
-		hoods = hoods,
-		hoods_sum = hoods_sum,
-		newest_routers = newest_routers
-	)
+	return helper_statistics(mysql,stats,None)
 
 @app.route('/hoodstatistics/<selecthood>')
 def global_hoodstatistics(selecthood):
 	mysql = FreifunkMySQL()
+	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
+	return helper_statistics(mysql,stats,selecthood)
+
+def helper_statistics(mysql,stats,selecthood):
 	hoods = stattools.hoods(mysql)
 	
-	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
 	stats = mysql.utcawaretupleint(stats,"time")
 	
 	numnew = len(hoods)-18
 	if numnew < 1:
 		numnew = 1
 	
+	if selecthood:
+		where = " AND hood = %s"
+		tup = (selecthood,numnew,)
+	else:
+		where = ""
+		tup = (numnew,)
+	
 	newest_routers = mysql.fetchall("""
 		SELECT id, hostname, hood, created
 		FROM router
-		WHERE hardware <> 'Legacy' AND hood = %s
+		WHERE hardware <> 'Legacy' {}
 		ORDER BY created DESC
 		LIMIT %s
-	""",(selecthood,numnew,))
+	""".format(where),tup)
 	newest_routers = mysql.utcawaretuple(newest_routers,"created")
 	
 	clients = stattools.total_clients(mysql)
