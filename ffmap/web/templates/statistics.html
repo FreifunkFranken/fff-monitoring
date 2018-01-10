@@ -124,13 +124,38 @@
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
+				<div class="panel-heading">Gateways (selected / others)</div>
+				<div class="panel-body">
+					<table class="table table-condensed table-hoods">
+						<tr>
+							<th class="firstrow">Gateway</th>
+							<th class="success" title="Online Routers">Online</th>
+							<th class="danger" title="Offline Routers">Offline</th>
+							<th class="warning" title="Unknown Routers">Unknown</th>
+							<th class="active" title="Total Routers">Total</th>
+							<th class="info">Clients</th>
+						</tr>
+						{%- for mac, value in gws|dictsort %}
+						<tr>
+							<td class="firstrow"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ mac }}</a></td>
+							<td class="success"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
+							<td class="danger"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
+							<td class="warning"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>
+							<td class="active"><span style="font-weight:bold">{{ gws_sum[mac]["routers"] if gws_sum[mac] else 0 }}</span> / {{ value["others"]|sumdict if value["others"] else 0 }}</td>
+							<td class="info">{{ gws_sum[mac]["clients"] if gws_sum[mac] }}</td>
+						</tr>
+						{%- endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
 				<div class="panel-heading">Router Firmwares{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globrouterfwstat" class="graph-pie"></div>
 				</div>
 			</div>
-		</div>
-		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">Router Models{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">

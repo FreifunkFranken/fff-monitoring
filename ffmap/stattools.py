@@ -116,6 +116,59 @@ def hoods_sum(mysql):
 		result[rs["hood"]] = {"routers": rs["count"], "clients": rs["clients"]}
 	return result
 
+def gws(mysql,selecthood=None):
+	if selecthood:
+		where = " AND hood=%s"
+		tup = (selecthood,)
+	else:
+		where = ""
+		tup = ()
+	
+	selected = mysql.fetchall("""
+		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		WHERE router_gw.selected = TRUE {}
+		GROUP BY router_gw.mac, router.status
+	""".format(where),tup)
+	others = mysql.fetchall("""
+		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		WHERE router_gw.selected = FALSE {}
+		GROUP BY router_gw.mac, router.status
+	""".format(where),tup)
+	result = {}
+	for rs in selected:
+		if not rs["mac"] in result:
+			result[rs["mac"]] = {"selected":{},"others":{}}
+		result[rs["mac"]]["selected"][rs["status"]] = rs["count"]
+	for rs in others:
+		if not rs["mac"] in result:
+			result[rs["mac"]] = {"selected":{},"others":{}}
+		result[rs["mac"]]["others"][rs["status"]] = rs["count"]
+	return result
+
+def gws_sum(mysql,selecthood=None):
+	if selecthood:
+		where = " AND hood=%s"
+		tup = (selecthood,)
+	else:
+		where = ""
+		tup = ()
+	
+	data = mysql.fetchall("""
+		SELECT router_gw.mac, COUNT(router_gw.router) AS count, SUM(router.clients) AS clients
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		WHERE router_gw.selected = TRUE {}
+		GROUP BY router_gw.mac
+	""".format(where),tup)
+	result = {}
+	for rs in data:
+		result[rs["mac"]] = {"routers": rs["count"], "clients": rs["clients"]}
+	return result
+
 def record_global_stats(mysql):
 	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
 	time = mysql.utctimestamp()
