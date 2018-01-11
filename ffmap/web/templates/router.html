@@ -334,7 +334,7 @@
 							{%- else %}
 							<tr>
 							{%- endif %}
-								<td>{{ gw.mac }}</td>
+								<td><a href="{{ url_for('router_list', q='selected:^%s$' % gw.mac) }}">{{ gw.mac }}</a></td>
 								<td>{{ gw.batX }}</td>
 								<td>{{ gw.quality }}</td>
 								<td>{{ gw.netif }}</td>
