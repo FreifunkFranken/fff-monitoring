@@ -214,19 +214,16 @@ def record_global_stats(mysql):
 	time = mysql.utctimestamp()
 	status = router_status(mysql)
 	
-	old = mysql.findone("SELECT time FROM stats_global WHERE time = %s LIMIT 1",(time,))
-	
-	if old:
-		mysql.execute("""
-			UPDATE stats_global
-			SET clients = %s, online = %s, offline = %s, unknown = %s, orphaned = %s
-			WHERE time = %s
-		""",(total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),time,))
-	else:
-		mysql.execute("""
-			INSERT INTO stats_global (time, clients, online, offline, unknown, orphaned)
-			VALUES (%s, %s, %s, %s, %s, %s)
-		""",(time,total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),))
+	mysql.execute("""
+		INSERT INTO stats_global (time, clients, online, offline, unknown, orphaned)
+		VALUES (%s, %s, %s, %s, %s, %s)
+		ON DUPLICATE KEY UPDATE
+			clients=VALUES(clients),
+			online=VALUES(online),
+			offline=VALUES(offline),
+			unknown=VALUES(unknown),
+			orphaned=VALUES(orphaned)
+	""",(time,total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),))
 	
 	mysql.execute("""
 		DELETE FROM stats_global
@@ -241,23 +238,22 @@ def record_hood_stats(mysql):
 	status = router_status_hood(mysql)
 	clients = total_clients_hood(mysql)
 	
+	hdata = []
 	for hood in clients.keys():
 		if not hood:
 			hood = "Default"
-		
-		old = mysql.findone("SELECT time FROM stats_hood WHERE time = %s AND hood = %s LIMIT 1",(time,hood,))
-		
-		if old:
-			mysql.execute("""
-				UPDATE stats_hood
-				SET clients = %s, online = %s, offline = %s, unknown = %s, orphaned = %s
-				WHERE time = %s AND hood = %s
-			""",(clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),time,hood,))
-		else:
-			mysql.execute("""
-				INSERT INTO stats_hood (time, hood, clients, online, offline, unknown, orphaned)
-				VALUES (%s, %s, %s, %s, %s, %s, %s)
-			""",(time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),))
+		hdata.append((time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),))
+
+	mysql.executemany("""
+		INSERT INTO stats_hood (time, hood, clients, online, offline, unknown, orphaned)
+		VALUES (%s, %s, %s, %s, %s, %s, %s)
+		ON DUPLICATE KEY UPDATE
+			clients=VALUES(clients),
+			online=VALUES(online),
+			offline=VALUES(offline),
+			unknown=VALUES(unknown),
+			orphaned=VALUES(orphaned)
+	""",hdata)
 	
 	mysql.execute("""
 		DELETE FROM stats_hood
@@ -272,20 +268,20 @@ def record_gw_stats(mysql):
 	status = router_status_gw(mysql)
 	clients = total_clients_gw(mysql)
 	
+	gdata = []
 	for mac in clients.keys():
-		old = mysql.findone("SELECT time FROM stats_gw WHERE time = %s AND mac = %s LIMIT 1",(time,mac,))
-		
-		if old:
-			mysql.execute("""
-				UPDATE stats_gw
-				SET clients = %s, online = %s, offline = %s, unknown = %s, orphaned = %s
-				WHERE time = %s AND mac = %s
-			""",(clients[mac],status[mac].get("online",0),status[mac].get("offline",0),status[mac].get("unknown",0),status[mac].get("orphaned",0),time,mac,))
-		else:
-			mysql.execute("""
-				INSERT INTO stats_gw (time, mac, clients, online, offline, unknown, orphaned)
-				VALUES (%s, %s, %s, %s, %s, %s, %s)
-			""",(time,mac,clients[mac],status[mac].get("online",0),status[mac].get("offline",0),status[mac].get("unknown",0),status[mac].get("orphaned",0),))
+		gdata.append((time,mac,clients[mac],status[mac].get("online",0),status[mac].get("offline",0),status[mac].get("unknown",0),status[mac].get("orphaned",0),))
+
+	mysql.executemany("""
+		INSERT INTO stats_gw (time, mac, clients, online, offline, unknown, orphaned)
+		VALUES (%s, %s, %s, %s, %s, %s, %s)
+		ON DUPLICATE KEY UPDATE
+			clients=VALUES(clients),
+			online=VALUES(online),
+			offline=VALUES(offline),
+			unknown=VALUES(unknown),
+			orphaned=VALUES(orphaned)
+	""",gdata)
 	
 	mysql.execute("""
 		DELETE FROM stats_gw
