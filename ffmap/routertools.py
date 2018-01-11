@@ -475,69 +475,77 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 	if (uptime + CONFIG["router_stat_mindiff_secs"]) < router_update["sys_uptime"]:
 		time = mysql.utctimestamp()
 		
-		mysql.execute("""
-			INSERT INTO router_stats (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot, clients)
-			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-		""",(
-			time,
-			router_id,
-			router_update["memory"]['free'],
-			router_update["memory"]['buffering'],
-			router_update["memory"]['caching'],
-			router_update["sys_loadavg"],
-			router_update["processes"]['runnable'],
-			router_update["processes"]['total'],
-			router_update["clients"],))
+		stattime = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
+		if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
+			mysql.execute("""
+				INSERT INTO router_stats (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot, clients)
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+			""",(
+				time,
+				router_id,
+				router_update["memory"]['free'],
+				router_update["memory"]['buffering'],
+				router_update["memory"]['caching'],
+				router_update["sys_loadavg"],
+				router_update["processes"]['runnable'],
+				router_update["processes"]['total'],
+				router_update["clients"],))
 		
-		ndata = []
-		nkeys = []
-		for netif in router_update["netifs"]:
-			# sanitize name
-			name = netif["name"].replace(".", "").replace("$", "")
-			with suppress(KeyError):
-				if name in netifdict.keys():
-					ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
-				else:
-					nkeys.append((name,))
-		
-		# 99.9 % of the routers will NOT enter this, so the doubled code is not a problem
-		if nkeys:
-			mysql.executemany("""
-				INSERT INTO netifs (name)
-				VALUES (%s)
-				ON DUPLICATE KEY UPDATE name=name
-			""",nkeys)
-			netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
-			
+		netiftime = mysql.findone("SELECT time FROM router_stats_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
+		if not netiftime or (netiftime + CONFIG["router_stat_mindiff_netif"]) < time:
 			ndata = []
+			nkeys = []
 			for netif in router_update["netifs"]:
 				# sanitize name
 				name = netif["name"].replace(".", "").replace("$", "")
 				with suppress(KeyError):
-					ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
+					if name in netifdict.keys():
+						ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
+					else:
+						nkeys.append((name,))
+			
+			# 99.9 % of the routers will NOT enter this, so the doubled code is not a problem
+			if nkeys:
+				mysql.executemany("""
+					INSERT INTO netifs (name)
+					VALUES (%s)
+					ON DUPLICATE KEY UPDATE name=name
+				""",nkeys)
+				netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
+				
+				ndata = []
+				for netif in router_update["netifs"]:
+					# sanitize name
+					name = netif["name"].replace(".", "").replace("$", "")
+					with suppress(KeyError):
+						ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
+			
+			mysql.executemany("""
+				INSERT INTO router_stats_netif (time, router, netif, rx, tx)
+				VALUES (%s, %s, %s, %s, %s)
+			""",ndata)
 		
-		mysql.executemany("""
-			INSERT INTO router_stats_netif (time, router, netif, rx, tx)
-			VALUES (%s, %s, %s, %s, %s)
-		""",ndata)
+		# reuse timestamp from router_stats to avoid additional queries
+		if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
+			nbdata = []
+			for neighbour in router_update["neighbours"]:
+				with suppress(KeyError):
+					nbdata.append((time,router_id,neighbour["mac"],neighbour["quality"],))
+			mysql.executemany("""
+				INSERT INTO router_stats_neighbor (time, router, mac, quality)
+				VALUES (%s, %s, %s, %s)
+			""",nbdata)
 		
-		nbdata = []
-		for neighbour in router_update["neighbours"]:
-			with suppress(KeyError):
-				nbdata.append((time,router_id,neighbour["mac"],neighbour["quality"],))
-		mysql.executemany("""
-			INSERT INTO router_stats_neighbor (time, router, mac, quality)
-			VALUES (%s, %s, %s, %s)
-		""",nbdata)
-		
-		gwdata = []
-		for gw in router_update["gws"]:
-			with suppress(KeyError):
-				gwdata.append((time,router_id,gw["mac"],gw["quality"],))
-		mysql.executemany("""
-			INSERT INTO router_stats_gw (time, router, mac, quality)
-			VALUES (%s, %s, %s, %s)
-		""",gwdata)
+		# reuse timestamp from router_stats to avoid additional queries
+		if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
+			gwdata = []
+			for gw in router_update["gws"]:
+				with suppress(KeyError):
+					gwdata.append((time,router_id,gw["mac"],gw["quality"],))
+			mysql.executemany("""
+				INSERT INTO router_stats_gw (time, router, mac, quality)
+				VALUES (%s, %s, %s, %s)
+			""",gwdata)
 
 def calculate_network_io(mysql, router_id, uptime, router_update):
 	"""
