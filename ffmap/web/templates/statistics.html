@@ -138,7 +138,7 @@
 						</tr>
 						{%- for mac, value in gws|dictsort %}
 						<tr>
-							<td class="firstrow"><a href="{{ url_for('router_list', q='gw:^%s$' % mac) }}">{{ mac }}</a></td>
+							<td class="firstrow"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ mac }}</a></td>
 							<td class="success"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
 							<td class="danger"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
 							<td class="warning"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>
