@@ -76,3 +76,19 @@ def gw_bat(gw):
 	else:
 		s = "---"
 	return s
+
+def delete_unlinked_gws(mysql):
+	# Delete entries in gw_* tables without corresponding gw in master table
+	
+	tables = ["gw_admin","gw_netif"]
+	
+	for t in tables:
+		start_time = time.time()
+		mysql.execute("""
+			DELETE d FROM {} AS d
+			LEFT JOIN gw AS g ON g.id = d.gw
+			WHERE g.id IS NULL
+		""".format(t))
+		print("--- Deleted %i rows from %s: %.3f seconds ---" % (mysql.cursor().rowcount,t,time.time() - start_time))
+	mysql.commit()
+
