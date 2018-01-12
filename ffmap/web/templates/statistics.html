@@ -152,6 +152,25 @@
 			</div>
 		</div>
 		<div class="col-xs-12 col-md-6">
+			{%- if selectgw %}
+			<div class="panel panel-default">
+				<div class="panel-heading">Gateway-Details</div>
+				<div class="panel-body">
+					<table class="table table-condensed">
+						<tr><th>Gateway</th><td>{{ gws_info[selectgw]["gw"] }}</td></tr>
+						<tr><th>Interface</th><td>{{ gws_info[selectgw]["gwif"] }}</td></tr>
+						<tr><th>MAC address</th><td>{{ selectgw }}</td></tr>
+						<tr><th>BatX interface</th><td>{{ gws_info[selectgw]["batX"] }}</td></tr>
+						{%- if gws_info[selectgw]["stats_page"] %}
+						<tr><th>Stats page</th><td>{{ gws_info[selectgw]["stats_page"] }}</td></tr>
+						{%- endif %}
+						{%- for a in gws_admin %}
+						<tr><th>Admin</th><td>{{ a }}</td></tr>
+						{%- endfor %}
+					</table>
+				</div>
+			</div>
+			{%- endif %}
 			<div class="panel panel-default">
 				<div class="panel-heading">Router Firmwares{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">

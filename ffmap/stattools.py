@@ -248,6 +248,19 @@ def gws_info(mysql,selecthood=None):
 		d["batX"] = gw_bat(d)
 	return data
 
+def gws_admin(mysql,selectgw):
+	if not selectgw:
+		return None
+	
+	data = mysql.fetchall("""
+		SELECT gw_admin.name
+		FROM gw_netif
+		INNER JOIN gw_admin ON gw_netif.gw = gw_admin.gw
+		WHERE mac = %s
+		ORDER BY prio ASC
+	""",(selectgw,),"name")
+	return data
+
 def record_global_stats(mysql):
 	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
 	time = mysql.utctimestamp()
