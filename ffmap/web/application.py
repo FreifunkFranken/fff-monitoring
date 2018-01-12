@@ -10,7 +10,7 @@ from ffmap.mysqltools import FreifunkMySQL
 from ffmap import stattools
 from ffmap.usertools import *
 from ffmap.routertools import delete_router, ban_router
-from ffmap.gwtools import gw_name
+from ffmap.gwtools import gw_name, gw_bat
 from ffmap.web.helpers import *
 from ffmap.config import CONFIG
 from ffmap.misc import writelog, writefulllog
@@ -120,15 +120,18 @@ def router_info(dbid):
 			# FIX SQL: only one from router_netif
 			
 			router["gws"] = mysql.fetchall("""
-				SELECT router_gw.mac AS mac, batX, quality, router_gw.netif AS netif, gw_class, selected, gw.name AS gw, gw_netif.netif AS gwif
+				SELECT router_gw.mac AS mac, quality, router_gw.netif AS netif, gw_class, selected, gw.name AS gw, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac
 				FROM router_gw
-				LEFT JOIN (gw_netif INNER JOIN gw ON gw_netif.gw = gw.id)
-				ON router_gw.mac = gw_netif.mac
+				LEFT JOIN (
+					gw_netif AS n1
+					INNER JOIN gw ON n1.gw = gw.id
+					LEFT JOIN gw_netif AS n2 ON n1.netif = n2.vpnif
+				) ON router_gw.mac = n1.mac
 				WHERE router = %s
 			""",(dbid,))
 			for gw in router["gws"]:
 				gw["label"] = gw_name(gw)
-			
+				gw["batX"] = gw_bat(gw)
 			
 			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
 			router["events"] = mysql.utcawaretuple(router["events"],"time")

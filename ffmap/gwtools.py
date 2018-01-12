@@ -30,14 +30,17 @@ def import_gw_data(mysql, gw_data):
 		
 		ndata = []
 		for n in gw_data["netifs"]:
-			ndata.append((newid,n["mac"],n["netif"],))
+			if not "vpnif" in n or not n["vpnif"]:
+				n["vpnif"] = None
+			ndata.append((newid,n["mac"],n["netif"],n["vpnif"]))
 		
 		mysql.executemany("""
-			INSERT INTO gw_netif (gw, mac, netif)
-			VALUES (%s, %s, %s)
+			INSERT INTO gw_netif (gw, mac, netif, vpnif)
+			VALUES (%s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
 				gw=VALUES(gw),
-				netif=VALUES(netif)
+				netif=VALUES(netif),
+				vpnif=VALUES(vpnif)
 		""",ndata)
 		
 		adata = []
@@ -61,4 +64,11 @@ def gw_name(gw):
 		s = gw["gw"] + " (" + gw["gwif"] + ")"
 	else:
 		s = gw["mac"]
+	return s
+
+def gw_bat(gw):
+	if gw["batif"] and gw["batmac"]:
+		s = gw["batmac"] + " (" + gw["batif"] + ")"
+	else:
+		s = "---"
 	return s

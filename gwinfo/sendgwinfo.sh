@@ -4,11 +4,17 @@
 # Copyright Adrian Schmutzler, 2018.
 # License GPLv3
 #
+# v1.2 - 2018-01-12
+# - Added batctl command and vpnif
+#
 # v1.1 - 2018-01-12
+# - Initial Version
+#
 
 # Config
 #api_url="http://192.168.1.84/api/gwinfo"
 api_url="http://monitoring.freifunk-franken.de/api/gwinfo"
+batctlpath=/usr/local/sbin/batctl # Adjust to YOUR path!
 hostname=testname
 admin1="Admin"
 admin2=
@@ -26,7 +32,8 @@ for netif in $(ls /sys/class/net); do
 		continue
 	fi
 	mac="$(cat "/sys/class/net/$netif/address")"
-	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\"}" >> $tmp
+	batctl="$("$batctlpath" -m "$netif" if | sed -n 's/:.*//p')"
+	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\",\"vpnif\":\"$batctl\"}" >> $tmp
 	comma=","
 done
 
