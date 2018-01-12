@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from ffmap.routertools import *
+from ffmap.gwtools import *
 from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats
@@ -128,6 +129,32 @@ def alfred():
 		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
 		import traceback
 		writefulllog("Warning: Error while processing ALFRED data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
+
+@api.route('/gwinfo', methods=['GET', 'POST'])
+def gwinfo():
+	try:
+		start_time = time.time()
+		mysql = FreifunkMySQL()
+		#set_data = {65: "hallo", 66: "welt"}
+		set_data = {}
+		r = make_response(json.dumps(set_data))
+		if request.method == 'POST':
+			gw_data = request.get_json()
+			
+			if gw_data:
+				import_gw_data(mysql,gw_data)
+				mysql.commit()
+				r.headers['X-API-STATUS'] = "GW data imported"
+		mysql.close()
+		
+		writelog(CONFIG["debug_dir"] + "/gwtime.txt", "%s - %.3f seconds" % (request.environ['REMOTE_ADDR'],time.time() - start_time))
+		
+		r.mimetype = 'application/json'
+		return r
+	except Exception as e:
+		writelog(CONFIG["debug_dir"] + "/fail_gwinfo.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
+		import traceback
+		writefulllog("Warning: Error while processing GWINFO data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
 
 
 # https://github.com/ffansbach/de-map/blob/master/schema/nodelist-schema-1.0.0.json
