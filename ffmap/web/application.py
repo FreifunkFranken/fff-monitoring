@@ -10,6 +10,7 @@ from ffmap.mysqltools import FreifunkMySQL
 from ffmap import stattools
 from ffmap.usertools import *
 from ffmap.routertools import delete_router, ban_router
+from ffmap.gwtools import gw_name, gw_bat
 from ffmap.web.helpers import *
 from ffmap.config import CONFIG
 from ffmap.misc import writelog, writefulllog
@@ -119,10 +120,18 @@ def router_info(dbid):
 			# FIX SQL: only one from router_netif
 			
 			router["gws"] = mysql.fetchall("""
-				SELECT mac, quality, netif, gw_class, selected
+				SELECT router_gw.mac AS mac, quality, router_gw.netif AS netif, gw_class, selected, gw.name AS gw, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac
 				FROM router_gw
+				LEFT JOIN (
+					gw_netif AS n1
+					INNER JOIN gw ON n1.gw = gw.id
+					LEFT JOIN gw_netif AS n2 ON n1.netif = n2.vpnif AND n1.gw = n2.gw
+				) ON router_gw.mac = n1.mac
 				WHERE router = %s
 			""",(dbid,))
+			for gw in router["gws"]:
+				gw["label"] = gw_name(gw)
+				gw["batX"] = gw_bat(gw)
 			
 			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
 			router["events"] = mysql.utcawaretuple(router["events"],"time")
@@ -382,6 +391,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		hoods_sum = stattools.hoods_sum(mysql,selectgw)
 		gws = stattools.gws(mysql,selecthood)
 		gws_sum = stattools.gws_sum(mysql,selecthood)
+		gws_info = stattools.gws_info(mysql,selecthood)
 		mysql.close()
 		
 		return render_template("statistics.html",
@@ -396,7 +406,8 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 			hoods_sum = hoods_sum,
 			newest_routers = newest_routers,
 			gws = gws,
-			gws_sum = gws_sum
+			gws_sum = gws_sum,
+			gws_info = gws_info
 		)
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_stats.txt", str(e))

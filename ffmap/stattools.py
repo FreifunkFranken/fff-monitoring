@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.mysqltools import FreifunkMySQL
+from ffmap.gwtools import gw_name, gw_bat
 from ffmap.misc import *
 from ffmap.config import CONFIG
 
@@ -208,6 +209,31 @@ def gws_sum(mysql,selecthood=None):
 	for rs in data:
 		result[rs["mac"]] = {"routers": rs["count"], "clients": rs["clients"]}
 	return result
+
+def gws_info(mysql,selecthood=None):
+	if selecthood:
+		where = "WHERE hood=%s"
+		tup = (selecthood,)
+	else:
+		where = ""
+		tup = ()
+	
+	data = mysql.fetchdict("""
+		SELECT router_gw.mac AS mac, gw.name AS gw, stats_page, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		LEFT JOIN (
+			gw_netif AS n1
+			INNER JOIN gw ON n1.gw = gw.id
+			LEFT JOIN gw_netif AS n2 ON n1.netif = n2.vpnif AND n1.gw = n2.gw
+		) ON router_gw.mac = n1.mac
+		{}
+		GROUP BY router_gw.mac, n2.netif, n2.mac
+	""".format(where),tup,"mac")
+	for d in data.values():
+		d["label"] = gw_name(d)
+		d["batX"] = gw_bat(d)
+	return data
 
 def record_global_stats(mysql):
 	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
