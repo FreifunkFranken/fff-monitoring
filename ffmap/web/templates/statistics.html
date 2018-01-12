@@ -136,7 +136,7 @@
 							<th class="info">Clients</th>
 							<th class="stats">Stats</th>
 						</tr>
-						{%- for mac, value in gws|dictsort %}
+						{%- for mac, value in gws.items() %}
 						<tr>
 							<td class="firstrow"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ gws_info[mac]["label"] }}</a></td>
 							<td class="success"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>

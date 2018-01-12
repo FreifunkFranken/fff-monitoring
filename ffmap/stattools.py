@@ -9,6 +9,8 @@ from ffmap.gwtools import gw_name
 from ffmap.misc import *
 from ffmap.config import CONFIG
 
+from collections import OrderedDict
+
 def total_clients(mysql,selecthood=None):
 	if selecthood:
 		return mysql.findone("""
@@ -160,11 +162,23 @@ def hoods_sum(mysql,selectgw=None):
 def gws(mysql,selecthood=None):
 	if selecthood:
 		where = " AND hood=%s"
+		wherewhere = "WHERE hood=%s"
 		tup = (selecthood,)
 	else:
 		where = ""
+		wherewhere = ""
 		tup = ()
 	
+	macs = mysql.fetchall("""
+		SELECT router_gw.mac
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		LEFT JOIN (gw_netif INNER JOIN gw ON gw_netif.gw = gw.id)
+		ON router_gw.mac = gw_netif.mac
+		{}
+		GROUP BY router_gw.mac
+		ORDER BY ISNULL(gw.name), gw.name ASC, router_gw.mac ASC
+	""".format(wherewhere),tup,"mac")
 	selected = mysql.fetchall("""
 		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
 		FROM router
@@ -179,14 +193,13 @@ def gws(mysql,selecthood=None):
 		WHERE router_gw.selected = FALSE {}
 		GROUP BY router_gw.mac, router.status
 	""".format(where),tup)
-	result = {}
+	
+	result = OrderedDict()
+	for m in macs:
+		result[m] = {"selected":{},"others":{}}
 	for rs in selected:
-		if not rs["mac"] in result:
-			result[rs["mac"]] = {"selected":{},"others":{}}
 		result[rs["mac"]]["selected"][rs["status"]] = rs["count"]
 	for rs in others:
-		if not rs["mac"] in result:
-			result[rs["mac"]] = {"selected":{},"others":{}}
 		result[rs["mac"]]["others"][rs["status"]] = rs["count"]
 	return result
 
