@@ -56,4 +56,6 @@ mysql.execute("""
 		ADD KEY `gw` (`gw`)
 """)
 
+mysql.commit()
+
 mysql.close()

@@ -34,4 +34,6 @@ mysql.execute("""
 		MODIFY `id` int(11) NOT NULL AUTO_INCREMENT
 """)
 
+mysql.commit()
+
 mysql.close()

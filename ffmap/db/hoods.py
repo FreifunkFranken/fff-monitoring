@@ -30,4 +30,6 @@ mysql.execute("""
 		ADD KEY `sin_lat` (`sin_lat`)
 """)
 
+mysql.commit()
+
 mysql.close()
