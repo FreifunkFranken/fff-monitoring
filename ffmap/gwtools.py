@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.misc import *
 from ffmap.config import CONFIG
-from flask import request
+from flask import request, url_for
 
 import datetime
 import time
@@ -55,3 +55,10 @@ def import_gw_data(mysql, gw_data):
 		""",adata)
 	else:
 		writelog(CONFIG["debug_dir"] + "/fail_gwinfo.txt", "{} - Corrupted file.".format(request.environ['REMOTE_ADDR']))
+
+def gw_name(gw):
+	if gw["gw"] and gw["gwif"]:
+		s = gw["gw"] + " (" + gw["gwif"] + ")"
+	else:
+		s = gw["mac"]
+	return s

@@ -322,8 +322,8 @@
 					<div class="table-responsive">
 						<table class="neighbours" style="width: 100%; margin-bottom: 6px;">
 							<tr>
-								<th>MAC (fastd/l2tp)</th>
-								<th>MAC (batX)</th>
+								<th>Gateway</th>
+								<th>batX</th>
 								<th>Quality</th>
 								<th>Interface</th>
 								<th>Class</th>
@@ -334,7 +334,7 @@
 							{%- else %}
 							<tr>
 							{%- endif %}
-								<td><a href="{{ url_for('router_list', q='selected:^%s$' % gw.mac) }}">{{ gw.mac }}</a></td>
+								<td><a href="{{ url_for('router_list', q='selected:^%s$' % gw.mac) }}">{{ gw.label }}</a></td>
 								<td>{{ gw.batX }}</td>
 								<td>{{ gw.quality }}</td>
 								<td>{{ gw.netif }}</td>
