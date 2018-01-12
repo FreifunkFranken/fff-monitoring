@@ -60,4 +60,6 @@ mysql.execute("""
 		ADD KEY `hood` (`hood`)
 """)
 
+mysql.commit()
+
 mysql.close()

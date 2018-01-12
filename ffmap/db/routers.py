@@ -249,4 +249,6 @@ mysql.execute("""
 		ADD KEY `deletebit` (`deletebit`)
 """)
 
+mysql.commit()
+
 mysql.close()
