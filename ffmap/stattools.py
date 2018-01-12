@@ -238,7 +238,7 @@ def gws_info(mysql,selecthood=None):
 		LEFT JOIN (
 			gw_netif AS n1
 			INNER JOIN gw ON n1.gw = gw.id
-			LEFT JOIN gw_netif AS n2 ON n1.netif = n2.vpnif
+			LEFT JOIN gw_netif AS n2 ON n1.netif = n2.vpnif AND n1.gw = n2.gw
 		) ON router_gw.mac = n1.mac
 		{}
 		GROUP BY router_gw.mac, n2.netif, n2.mac

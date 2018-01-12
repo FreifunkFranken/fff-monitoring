@@ -82,7 +82,7 @@ def parse_router_list_search_query(args):
 			j += """ INNER JOIN router_gw ON router.id = router_gw.router
 				INNER JOIN (
 					gw_netif AS n1
-					INNER JOIN gw_netif AS n2 ON n1.netif = n2.vpnif
+					INNER JOIN gw_netif AS n2 ON n1.netif = n2.vpnif AND n1.gw = n2.gw
 				) ON router_gw.mac = n1.mac
 			"""
 			k = "n2.mac {} REGEXP %s".format(no)
@@ -91,7 +91,7 @@ def parse_router_list_search_query(args):
 			j += """ INNER JOIN router_gw ON router.id = router_gw.router
 				INNER JOIN (
 					gw_netif AS n1
-					INNER JOIN gw_netif AS n2 ON n1.netif = n2.vpnif
+					INNER JOIN gw_netif AS n2 ON n1.netif = n2.vpnif AND n1.gw = n2.gw
 				) ON router_gw.mac = n1.mac
 			"""
 			k = "n2.mac {} REGEXP %s AND router_gw.selected = TRUE".format(no)
