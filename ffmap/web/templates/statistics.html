@@ -137,7 +137,15 @@
 						</tr>
 						{%- for mac, value in gws.items() %}
 						<tr>
-							<td class="firstrow"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ gws_info[mac]["label"] }}</a></td>
+							<td class="firstrow"><p style="margin:0"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ gws_info[mac]["label"] }}</a></p>
+							{%- if gws_info[mac]["gw"] %}
+							<p style="margin:0;font-size:12px">{{ mac }}
+							{%- if gws_info[mac]["batmac"] %}
+							 / {{ gws_info[mac]["batmac"] }}
+							{%- endif %}
+							</p>
+							{%- endif %}
+							</td>
 							<td class="success"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
 							<td class="danger"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
 							<td class="active"><span style="font-weight:bold">{{ gws_sum[mac]["routers"] if gws_sum[mac] else 0 }}</span> / {{ value["others"]|sumdict if value["others"] else 0 }}</td>
