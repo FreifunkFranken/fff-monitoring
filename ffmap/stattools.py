@@ -225,7 +225,7 @@ def gws_sum(mysql,selecthood=None):
 
 def gws_info(mysql,selecthood=None):
 	if selecthood:
-		where = " AND hood=%s"
+		where = "WHERE hood=%s"
 		tup = (selecthood,)
 	else:
 		where = ""
@@ -233,9 +233,11 @@ def gws_info(mysql,selecthood=None):
 	
 	data = mysql.fetchdict("""
 		SELECT router_gw.mac AS mac, gw.name AS gw, gw_netif.netif AS gwif, stats_page
-		FROM router_gw
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
 		LEFT JOIN (gw_netif INNER JOIN gw ON gw_netif.gw = gw.id)
 		ON router_gw.mac = gw_netif.mac
+		{}
 		GROUP BY router_gw.mac
 	""".format(where),tup,"mac")
 	for d in data.values():
