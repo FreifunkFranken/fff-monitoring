@@ -139,7 +139,11 @@
 						<tr>
 							<td class="firstrow"><p style="margin:0"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ gws_info[mac]["label"] }}</a></p>
 							{%- if gws_info[mac]["gw"] %}
-							<p style="margin:0;font-size:12px">{{ mac }}</p>
+							<p style="margin:0;font-size:12px">{{ mac }}
+							{%- if gws_info[mac]["batmac"] %}
+							 / {{ gws_info[mac]["batmac"] }}
+							{%- endif %}
+							</p>
 							{%- endif %}
 							</td>
 							<td class="success"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
