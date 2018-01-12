@@ -4,6 +4,9 @@
 # Copyright Adrian Schmutzler, 2018.
 # License GPLv3
 #
+# v1.2.1 - 2018-01-12
+# - Added "grep fff" to support L2TP
+#
 # v1.2 - 2018-01-12
 # - Added batctl command and vpnif
 #
@@ -15,12 +18,11 @@
 #api_url="http://192.168.1.84/api/gwinfo"
 api_url="http://monitoring.freifunk-franken.de/api/gwinfo"
 batctlpath=/usr/local/sbin/batctl # Adjust to YOUR path!
-hostname=testname
+hostname="MyHost"
 admin1="Admin"
 admin2=
 admin3=
-statslink="http://adrianschmutzler.net/ip.php" # Provide link to stats page (MRTG or similar)
-statslink=""
+statslink="" # Provide link to stats page (MRTG or similar)
 
 # Code
 tmp=$(/bin/mktemp)
@@ -32,7 +34,7 @@ for netif in $(ls /sys/class/net); do
 		continue
 	fi
 	mac="$(cat "/sys/class/net/$netif/address")"
-	batctl="$("$batctlpath" -m "$netif" if | sed -n 's/:.*//p')"
+	batctl="$("$batctlpath" -m "$netif" if | grep "fff" | sed -n 's/:.*//p')"
 	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\",\"vpnif\":\"$batctl\"}" >> $tmp
 	comma=","
 done
@@ -45,7 +47,6 @@ comma=""
 [ -n "$admin3" ] && echo "$comma\"$admin3\"" >> $tmp
 
 echo "]}" >> $tmp
-
 
 /usr/bin/curl -k -v -H "Content-type: application/json; charset=UTF-8" -X POST --data-binary @$tmp $api_url
 /bin/rm "$tmp"
