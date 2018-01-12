@@ -29,6 +29,8 @@ allowed_filters = (
 	'neighbour',
 	'gw',
 	'selected',
+	'bat',
+	'batselected',
 )
 
 def parse_router_list_search_query(args):
@@ -75,6 +77,24 @@ def parse_router_list_search_query(args):
 		elif (key == 'selected'):
 			j += " INNER JOIN router_gw ON router.id = router_gw.router "
 			k = "router_gw.mac {} REGEXP %s AND router_gw.selected = TRUE".format(no)
+			t.append(value.lower())
+		elif (key == 'bat'):
+			j += """ INNER JOIN router_gw ON router.id = router_gw.router
+				INNER JOIN (
+					gw_netif AS n1
+					INNER JOIN gw_netif AS n2 ON n1.netif = n2.vpnif
+				) ON router_gw.mac = n1.mac
+			"""
+			k = "n2.mac {} REGEXP %s".format(no)
+			t.append(value.lower())
+		elif (key == 'batselected'):
+			j += """ INNER JOIN router_gw ON router.id = router_gw.router
+				INNER JOIN (
+					gw_netif AS n1
+					INNER JOIN gw_netif AS n2 ON n1.netif = n2.vpnif
+				) ON router_gw.mac = n1.mac
+			"""
+			k = "n2.mac {} REGEXP %s AND router_gw.selected = TRUE".format(no)
 			t.append(value.lower())
 		elif (key == 'neighbor') or (key == 'neighbour'):
 			j += " INNER JOIN ( SELECT router, mac FROM router_neighbor GROUP BY router, mac) AS j ON router.id = j.router "
