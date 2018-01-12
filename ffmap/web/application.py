@@ -389,6 +389,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		gws = stattools.gws(mysql,selecthood)
 		gws_sum = stattools.gws_sum(mysql,selecthood)
 		gws_info = stattools.gws_info(mysql,selecthood)
+		gws_admin = stattools.gws_admin(mysql,selectgw)
 		mysql.close()
 		
 		return render_template("statistics.html",
@@ -404,7 +405,8 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 			newest_routers = newest_routers,
 			gws = gws,
 			gws_sum = gws_sum,
-			gws_info = gws_info
+			gws_info = gws_info,
+			gws_admin = gws_admin
 		)
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_stats.txt", str(e))
