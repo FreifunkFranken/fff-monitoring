@@ -341,62 +341,67 @@ def global_gwstatistics(selectgw):
 	return helper_statistics(mysql,stats,None,selectgw)
 
 def helper_statistics(mysql,stats,selecthood,selectgw):
-	hoods = stattools.hoods(mysql,selectgw)
-	
-	stats = mysql.utcawaretupleint(stats,"time")
-	
-	numnew = len(hoods)-18
-	if numnew < 1:
-		numnew = 1
-	
-	if selectgw:
-		newest_routers = mysql.fetchall("""
-			SELECT id, hostname, hood, created
-			FROM router
-			INNER JOIN router_gw ON router.id = router_gw.router
-			WHERE hardware <> 'Legacy' AND mac = %s
-			ORDER BY created DESC
-			LIMIT %s
-		""",(selectgw,numnew,))
-	else:
-		if selecthood:
-			where = " AND hood = %s"
-			tup = (selecthood,numnew,)
+	try:
+		hoods = stattools.hoods(mysql,selectgw)
+		
+		stats = mysql.utcawaretupleint(stats,"time")
+		
+		numnew = len(hoods)-18
+		if numnew < 1:
+			numnew = 1
+		
+		if selectgw:
+			newest_routers = mysql.fetchall("""
+				SELECT id, hostname, hood, created
+				FROM router
+				INNER JOIN router_gw ON router.id = router_gw.router
+				WHERE hardware <> 'Legacy' AND mac = %s
+				ORDER BY created DESC
+				LIMIT %s
+			""",(selectgw,numnew,))
 		else:
-			where = ""
-			tup = (numnew,)
-		newest_routers = mysql.fetchall("""
-			SELECT id, hostname, hood, created
-			FROM router
-			WHERE hardware <> 'Legacy' {}
-			ORDER BY created DESC
-			LIMIT %s
-		""".format(where),tup)
-	newest_routers = mysql.utcawaretuple(newest_routers,"created")
-	
-	clients = stattools.total_clients(mysql)
-	router_status = stattools.router_status(mysql)
-	router_models = stattools.router_models(mysql,selecthood,selectgw)
-	router_firmwares = stattools.router_firmwares(mysql,selecthood,selectgw)
-	hoods_sum = stattools.hoods_sum(mysql,selectgw)
-	gws = stattools.gws(mysql,selecthood)
-	gws_sum = stattools.gws_sum(mysql,selecthood)
-	mysql.close()
-	
-	return render_template("statistics.html",
-		selecthood = selecthood,
-		selectgw = selectgw,
-		stats = stats,
-		clients = clients,
-		router_status = router_status,
-		router_models = router_models,
-		router_firmwares = router_firmwares,
-		hoods = hoods,
-		hoods_sum = hoods_sum,
-		newest_routers = newest_routers,
-		gws = gws,
-		gws_sum = gws_sum
-	)
+			if selecthood:
+				where = " AND hood = %s"
+				tup = (selecthood,numnew,)
+			else:
+				where = ""
+				tup = (numnew,)
+			newest_routers = mysql.fetchall("""
+				SELECT id, hostname, hood, created
+				FROM router
+				WHERE hardware <> 'Legacy' {}
+				ORDER BY created DESC
+				LIMIT %s
+			""".format(where),tup)
+		newest_routers = mysql.utcawaretuple(newest_routers,"created")
+		
+		clients = stattools.total_clients(mysql)
+		router_status = stattools.router_status(mysql)
+		router_models = stattools.router_models(mysql,selecthood,selectgw)
+		router_firmwares = stattools.router_firmwares(mysql,selecthood,selectgw)
+		hoods_sum = stattools.hoods_sum(mysql,selectgw)
+		gws = stattools.gws(mysql,selecthood)
+		gws_sum = stattools.gws_sum(mysql,selecthood)
+		mysql.close()
+		
+		return render_template("statistics.html",
+			selecthood = selecthood,
+			selectgw = selectgw,
+			stats = stats,
+			clients = clients,
+			router_status = router_status,
+			router_models = router_models,
+			router_firmwares = router_firmwares,
+			hoods = hoods,
+			hoods_sum = hoods_sum,
+			newest_routers = newest_routers,
+			gws = gws,
+			gws_sum = gws_sum
+		)
+	except Exception as e:
+		writelog(CONFIG["debug_dir"] + "/fail_stats.txt", str(e))
+		import traceback
+		writefulllog("Warning: Failed to display stats page: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
