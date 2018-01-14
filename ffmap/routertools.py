@@ -242,13 +242,12 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 		
 		gwdata = []
 		for g in router_update["gws"]:
-			gwdata.append((router_id,g["mac"],g["batX"],g["quality"],g["nexthop"],g["netif"],g["gw_class"],g["selected"],))
+			gwdata.append((router_id,g["mac"],g["quality"],g["nexthop"],g["netif"],g["gw_class"],g["selected"],))
 		
 		mysql.executemany("""
-			INSERT INTO router_gw (router, mac, batX, quality, nexthop, netif, gw_class, selected)
-			VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+			INSERT INTO router_gw (router, mac, quality, nexthop, netif, gw_class, selected)
+			VALUES (%s, %s, %s, %s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
-				batX=VALUES(batX),
 				quality=VALUES(quality),
 				nexthop=VALUES(nexthop),
 				netif=VALUES(netif),
@@ -768,7 +767,6 @@ def parse_nodewatcher_xml(xml):
 			if (gw_mac and len(gw_mac)>12): # Throw away headline
 				gw = {
 					"mac": gw_mac.lower(),
-					"batX": None,
 					"quality": evalxpathint(gw,"link_quality/text()"),
 					"nexthop": evalxpath(gw,"nexthop/text()",None),
 					"netif": evalxpath(gw,"outgoing_interface/text()",None),

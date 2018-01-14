@@ -113,7 +113,6 @@ mysql.execute("""
 	CREATE TABLE router_gw (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
-		`batX` char(17) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`quality` smallint(6) NOT NULL,
 		`nexthop` char(17) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
