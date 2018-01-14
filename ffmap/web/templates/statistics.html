@@ -1,5 +1,5 @@
 {% extends "bootstrap.html" %}
-{% block title %}{{super()}} :: Statistics for {{ selecthood }}{% endblock %}
+{% block title %}{{super()}} :: Statistics{%- if selecthood %} for {{ selecthood }}{%- endif -%}{%- if selectgw %} for GW {{ selectgw }}{%- endif -%}{% endblock %}
 {% block head %}{{super()}}
 	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
