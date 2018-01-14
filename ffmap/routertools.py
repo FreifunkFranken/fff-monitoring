@@ -387,6 +387,7 @@ def delete_unlinked_routers(mysql):
 
 def delete_old_stats(mysql):
 	threshold=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
+	threshold_netif=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
 	
 	start_time = time.time()
 	mysql.execute("""
@@ -427,7 +428,7 @@ def delete_old_stats(mysql):
 		LEFT JOIN router AS r ON s.router = r.id
 		SET s.deletebit = 1
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
-	""",(threshold,))
+	""",(threshold_netif,))
 	mysql.commit()
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Update netif stats: %.3f seconds" % (time.time() - start_time))
 	print("--- Update netif stats: %.3f seconds ---" % (time.time() - start_time))
