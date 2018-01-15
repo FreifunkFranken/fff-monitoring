@@ -335,6 +335,12 @@ def detect_offline_routers(mysql):
 		SET status = 'offline', clients = 0
 		WHERE last_contact < %s AND status <> 'offline' AND status <> 'orphaned'
 	""",(threshold,))
+	mysql.execute("""
+		UPDATE router_netif AS n
+		INNER JOIN router ON router.id = router_netif.router
+		SET n.rx = 0, n.tx = 0
+		WHERE last_contact < %s AND status <> 'offline' AND status <> 'orphaned'
+	""",(threshold,))
 	mysql.commit()
 
 def detect_orphaned_routers(mysql):
