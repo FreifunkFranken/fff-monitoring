@@ -63,7 +63,7 @@ def router_list():
 	return render_template("router_list.html", query_str=query_str, routers=routers, numrouters=len(routers))
 
 # router by mac (short link version)
-@app.route('/mac/<mac>')
+@app.route('/mac/<mac>', methods=['GET'])
 def router_mac(mac):
 	mysql = FreifunkMySQL()
 	res_routers = mysql.fetchall("""
@@ -76,6 +76,10 @@ def router_mac(mac):
 	mysql.close()
 	if len(res_routers) != 1:
 		return redirect(url_for("router_list", q="mac:%s" % mac))
+	elif request.args.get('fffconfig', None) != None:
+		return redirect(url_for("router_info", dbid=res_routers[0]["id"], fffconfig=1))
+	elif request.args.get('json', None) != None:
+		return redirect(url_for("router_info", dbid=res_routers[0]["id"], json=1))
 	else:
 		return redirect(url_for("router_info", dbid=res_routers[0]["id"]))
 
