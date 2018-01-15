@@ -331,6 +331,13 @@ def detect_offline_routers(mysql):
 	""",rdata)
 	
 	mysql.execute("""
+		UPDATE router_netif AS n
+		INNER JOIN router AS r ON r.id = n.router
+		SET n.rx = 0, n.tx = 0
+		WHERE r.last_contact < %s AND r.status <> 'offline' AND r.status <> 'orphaned'
+	""",(threshold,))
+	# Online to Offline has to be updated after other queries!
+	mysql.execute("""
 		UPDATE router
 		SET status = 'offline', clients = 0
 		WHERE last_contact < %s AND status <> 'offline' AND status <> 'orphaned'
