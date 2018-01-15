@@ -46,7 +46,7 @@ mysql.execute("""
 		`gw` smallint(5) UNSIGNED NOT NULL,
 		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-		`vpnif` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL
+		`vpnmac` char(17) COLLATE utf8_unicode_ci DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 

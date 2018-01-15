@@ -28,23 +28,30 @@ def import_gw_data(mysql, gw_data):
 		
 		newid = mysql.findone("SELECT id FROM gw WHERE name = %s LIMIT 1",(gw_data["hostname"],),"id")
 		
+		nmacs = {}
+		for n in gw_data["netifs"]:
+			nmacs[n["netif"]] = n["mac"]
+		
 		ndata = []
 		for n in gw_data["netifs"]:
 			if len(n["mac"])<17:
 				continue
 			#if n["netif"].startswith("l2tp") or n["netif"].startswith("br-"):
 			#	continue
-			if not "vpnif" in n or not n["vpnif"]:
-				n["vpnif"] = None
-			ndata.append((newid,n["mac"],n["netif"],n["vpnif"]))
+			if "vpnif" in n and n["vpnif"]:
+				n["vpnmac"] = nmacs.get(n["vpnif"],None)
+			else:
+				n["vpnmac"] = None
+			
+			ndata.append((newid,n["mac"],n["netif"],n["vpnmac"]))
 		
 		mysql.executemany("""
-			INSERT INTO gw_netif (gw, mac, netif, vpnif)
+			INSERT INTO gw_netif (gw, mac, netif, vpnmac)
 			VALUES (%s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
 				gw=VALUES(gw),
 				netif=VALUES(netif),
-				vpnif=VALUES(vpnif)
+				vpnmac=VALUES(vpnmac)
 		""",ndata)
 		
 		adata = []
