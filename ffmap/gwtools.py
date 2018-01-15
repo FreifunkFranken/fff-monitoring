@@ -32,7 +32,7 @@ def import_gw_data(mysql, gw_data):
 		for n in gw_data["netifs"]:
 			if len(n["mac"])<17:
 				continue
-			if n["netif"].startswith("l2tp") or n["netif"].startswith("br-"):
+			if n["netif"].startswith("l2tp"): # Filter l2tp interfaces
 				continue
 			if not "vpnif" in n or not n["vpnif"]:
 				n["vpnif"] = None
