@@ -140,6 +140,11 @@ def router_info(dbid):
 			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
 			router["events"] = mysql.utcawaretuple(router["events"],"time")
 			
+			## Create json with all data except stats
+			if request.args.get('json', None) != None:
+				mysql.close()
+				return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
+			
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
 				s["time"] = mysql.utcawareint(s["time"])
@@ -208,21 +213,16 @@ def router_info(dbid):
 			mysql.close()
 			return "Router not found"
 		
-		if request.args.get('json', None) != None:
-			del router["stats"]
-			#FIXME: Only as admin
-			return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
-		else:
-			return render_template("router.html",
-				router = router,
-				mac = mac,
-				tileurls = tileurls,
-				netifstats = netiffetch,
-				neighstats = neighfetch,
-				gwstats = gwfetch,
-				authuser = is_authorized(router["user"], session),
-				authadmin = session.get('admin')
-				)
+		return render_template("router.html",
+			router = router,
+			mac = mac,
+			tileurls = tileurls,
+			netifstats = netiffetch,
+			neighstats = neighfetch,
+			gwstats = gwfetch,
+			authuser = is_authorized(router["user"], session),
+			authadmin = session.get('admin')
+			)
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_router.txt", str(e))
 		import traceback
