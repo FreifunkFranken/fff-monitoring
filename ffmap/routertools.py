@@ -390,69 +390,58 @@ def delete_old_stats(mysql):
 	threshold_netif=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
 	
 	start_time = time.time()
-	mysql.execute("""
+	rowsaffected = mysql.execute("""
 		DELETE s FROM router_stats AS s
 		LEFT JOIN router AS r ON s.router = r.id
 		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
 	""",(threshold,))
 	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete stats: %.3f seconds" % (time.time() - start_time))
-	print("--- Delete stats: %.3f seconds ---" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from stats: %.3f seconds" % (rowsaffected,time.time() - start_time))
+	print("--- Deleted %i rows from stats: %.3f seconds ---" % (rowsaffected,time.time() - start_time))
 
 	time.sleep(10)
 	start_time = time.time()
-	mysql.execute("""
-		DELETE s FROM router_stats_gw AS s
-		LEFT JOIN router AS r ON s.router = r.id
-		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
+	rowsaffected = mysql.execute("""
+		DELETE FROM router_stats_gw
+		WHERE router_stats_gw.time < %s
 	""",(threshold,))
 	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete gw-stats: %.3f seconds" % (time.time() - start_time))
-	print("--- Delete gw-stats: %.3f seconds ---" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from gw-stats: %.3f seconds" % (rowsaffected,time.time() - start_time))
+	print("--- Deleted %i rows from gw-stats: %.3f seconds ---" % (rowsaffected,time.time() - start_time))
 
 	time.sleep(10)
 	start_time = time.time()
-	mysql.execute("""
-		DELETE s FROM router_stats_neighbor AS s
-		LEFT JOIN router AS r ON s.router = r.id
-		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
+	rowsaffected = mysql.execute("""
+		DELETE FROM router_stats_neighbor
+		WHERE router_stats_neighbor.time < %s
 	""",(threshold,))
 	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete neighbor-stats: %.3f seconds" % (time.time() - start_time))
-	print("--- Delete neighbor-stats: %.3f seconds ---" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from neighbor-stats: %.3f seconds" % (rowsaffected,time.time() - start_time))
+	print("--- Deleted %i rows from neighbor-stats: %.3f seconds ---" % (rowsaffected,time.time() - start_time))
 
-	time.sleep(10)
-	start_time = time.time()
-	mysql.execute("""
-		UPDATE router_stats_netif AS s
-		LEFT JOIN router AS r ON s.router = r.id
-		SET s.deletebit = 1
-		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
-	""",(threshold_netif,))
-	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Update netif stats: %.3f seconds" % (time.time() - start_time))
-	print("--- Update netif stats: %.3f seconds ---" % (time.time() - start_time))
-	
 	time.sleep(30)
 	minustime=0
 	rowsaffected=1
+	allrows=0
 	start_time = time.time()
 	while rowsaffected > 0:
 		try:
 			rowsaffected = mysql.execute("""
 				DELETE FROM router_stats_netif
-				WHERE deletebit = 1
-				LIMIT 50000
-			""")
+				WHERE router_stats_netif.time < %s
+				LIMIT 100000
+			""",(threshold_netif,))
 			mysql.commit()
+			allrows += rowsaffected
 		except my.OperationalError:
 			rowsaffected = 1
 		time.sleep(10)
 		minustime += 10
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete netif stats: %.3f seconds" % (time.time() - start_time - minustime))
-	print("--- Delete netif stats: %.3f seconds ---" % (time.time() - start_time - minustime))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from netif stats: %.3f seconds" % (allrows,time.time() - start_time - minustime))
+	print("--- Deleted %i rows from netif stats: %.3f seconds ---" % (allrows,time.time() - start_time - minustime))
 
 	start_time = time.time()
+	allrows=0
 	events = mysql.fetchall("""
 		SELECT router, COUNT(time) AS count FROM router_events
 		GROUP BY router
@@ -461,16 +450,16 @@ def delete_old_stats(mysql):
 	for e in events:
 		delnum = int(e["count"] - CONFIG["event_num_entries"])
 		if delnum > 0:
-			mysql.execute("""
+			allrows += mysql.execute("""
 				DELETE FROM router_events
 				WHERE router = %s
 				ORDER BY time ASC
 				LIMIT %s
 			""",(e["router"],delnum,))
 	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Delete events: %.3f seconds" % (time.time() - start_time))
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from events: %.3f seconds" % (allrows,time.time() - start_time))
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "-------")
-	print("--- Delete events: %.3f seconds ---" % (time.time() - start_time))
+	print("--- Deleted %i rows from events: %.3f seconds ---" % (allrows,time.time() - start_time))
 
 def events_append(mysql,router_id,event,comment):
 	mysql.execute("""
