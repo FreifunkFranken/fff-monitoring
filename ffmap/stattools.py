@@ -177,7 +177,7 @@ def gws(mysql,selecthood=None):
 		ON router_gw.mac = gw_netif.mac
 		{}
 		GROUP BY router_gw.mac
-		ORDER BY ISNULL(gw.name), gw.name ASC, router_gw.mac ASC
+		ORDER BY ISNULL(gw.name), gw.name ASC, gw_netif.netif ASC, router_gw.mac ASC
 	""".format(wherewhere),tup,"mac")
 	selected = mysql.fetchall("""
 		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
