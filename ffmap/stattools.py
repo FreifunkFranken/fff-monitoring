@@ -190,7 +190,7 @@ def gws(mysql,selecthood=None):
 		tup = ()
 	
 	macs = mysql.fetchall("""
-		SELECT router_gw.mac
+		SELECT router_gw.mac, CONCAT(ISNULL(gw.name),'-',IF(NOT ISNULL(gw.name),CONCAT(gw.name,'-',gw_netif.netif),router_gw.mac)) AS sort
 		FROM router
 		INNER JOIN router_gw ON router.id = router_gw.router
 		LEFT JOIN (gw_netif INNER JOIN gw ON gw_netif.gw = gw.id)
@@ -198,7 +198,7 @@ def gws(mysql,selecthood=None):
 		{}
 		GROUP BY router_gw.mac
 		ORDER BY ISNULL(gw.name), gw.name ASC, gw_netif.netif ASC, router_gw.mac ASC
-	""".format(wherewhere),tup,"mac")
+	""".format(wherewhere),tup)
 	selected = mysql.fetchall("""
 		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
 		FROM router
@@ -216,7 +216,7 @@ def gws(mysql,selecthood=None):
 	
 	result = OrderedDict()
 	for m in macs:
-		result[m] = {"selected":{},"others":{}}
+		result[m["mac"]] = {"selected":{},"others":{},"sort":m["sort"]}
 	for rs in selected:
 		result[rs["mac"]]["selected"][rs["status"]] = rs["count"]
 	for rs in others:

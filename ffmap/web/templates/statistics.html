@@ -12,6 +12,9 @@
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.pie.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.tooltip.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap.min.js') }}"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables/dataTables.bootstrap.min.css') }}">
 	<style type="text/css">
 		.table-condensed {
 			margin-bottom: 0;
@@ -51,29 +54,34 @@
 			<div class="panel panel-default">
 				<div class="panel-heading">Hoods</div>
 				<div class="panel-body">
-					<table class="table table-condensed table-hoods">
+					<table id="hoodlist" class="table table-condensed table-hoods">
+					<thead>
 						<tr>
 							<th class="firstrow">Hood</th>
-							<th class="stats" title="Gateways">GW</th>
+							<th class="stats" title="Gateways">G</th>
 							<th class="success" title="Online Routers">On</th>
 							<th class="danger" title="Offline Routers">Off</th>
-							<th class="warning" title="Unknown Routers">Unkn.</th>
+							<th class="warning" title="Unknown Routers">Unk.</th>
 							<th class="active" title="Total Routers">Sum</th>
-							<th class="info">Clients</th>
-							<th class="stats">Stats</th>
+							<th class="info">User</th>
+							<th class="stats">Stat</th>
 						</tr>
+					</thead>
+					<tbody>
 						{%- for hood, value in hoods|dictsort %}
 						<tr>
 							<td class="firstrow"><a href="{{ url_for('router_list', q='hood:^%s$' % hood.replace(' ','_')) }}">{{ hood }}</a></td>
 							<td class="stats">{{ hoods_gws[hood] or "-" }}</td>
 							<td class="success">{{ value["online"] or 0 }}</td>
-							<td class="danger">{{ value["offline"] or 0 }}{%- if value["orphaned"] %} ({{ value["orphaned"] or 0 }}){%- endif %}</td>
+							<td class="danger" data-order="{{ value["offline"] or 0 }}">{{ value["offline"] or 0 }}{%- if value["orphaned"] %} ({{ value["orphaned"] or 0 }}){%- endif %}</td>
 							<td class="warning">{{ value["unknown"] or 0 }}</td>
 							<td class="active">{{ hoods_sum[hood]["routers"] }}</td>
 							<td class="info">{{ hoods_sum[hood]["clients"] }}</td>
 							<td class="stats"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hood) }}">Stats</a></td> 
 						</tr>
 						{%- endfor %}
+					</tbody>
+					<tfoot>
 						<tr>
 							<th class="firstrow">Sum</th>
 							<td class="stats">&nbsp;</td>
@@ -84,6 +92,7 @@
 							<td class="info">{{ clients }}</td>
 							<td class="stats"><a href="{{ url_for('global_statistics') }}">Global</a></td> 
 						</tr>
+					</tfoot>
 					</table>
 				</div>
 			</div>
@@ -129,18 +138,21 @@
 			<div class="panel panel-default">
 				<div class="panel-heading">Gateways (selected / others){%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
-					<table class="table table-condensed table-hoods">
+					<table id="gwlist" class="table table-condensed table-hoods">
+					<thead>
 						<tr>
 							<th class="firstrow">Gateway</th>
-							<th class="success" title="Online Routers">Online</th>
-							<th class="danger" title="Offline Routers">Offline</th>
-							<th class="warning" title="Unknown Routers">Unkn.</th>
-							<th class="active" title="Total Routers">Total</th>
-							<th class="stats">Stats</th>
+							<th class="success" title="Online Routers">On</th>
+							<th class="danger" title="Offline Routers">Off</th>
+							<th class="warning" title="Unknown Routers">Unk.</th>
+							<th class="active" title="Total Routers">Sum</th>
+							<th class="stats">Stat</th>
 						</tr>
+					</thead>
+					<tbody>
 						{%- for mac, value in gws.items() %}
 						<tr>
-							<td class="firstrow"><p style="margin:0"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ gws_info[mac]["label"] }}</a></p>
+							<td class="firstrow" data-order="{{ value["sort"] }}"><p style="margin:0"><a href="{{ url_for('router_list', q='selected:^%s$' % mac) }}">{{ gws_info[mac]["label"] }}</a></p>
 							{%- if gws_info[mac]["gw"] %}
 							<p style="margin:0;font-size:12px">{{ mac }}
 							{%- if gws_info[mac]["batmac"] %}
@@ -149,13 +161,14 @@
 							</p>
 							{%- endif %}
 							</td>
-							<td class="success"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
-							<td class="danger"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
-							<td class="warning"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>
-							<td class="active"><span style="font-weight:bold">{{ gws_sum[mac]["routers"] if gws_sum[mac] else 0 }}</span> / {{ value["others"]|sumdict if value["others"] else 0 }}</td>
+							<td class="success" data-order="{{ (value["selected"]["online"] or 0) + (value["others"]["online"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
+							<td class="danger" data-order="{{ (value["selected"]["offline"] or 0) + (value["others"]["offline"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
+							<td class="warning" data-order="{{ (value["selected"]["unknown"] or 0) + (value["others"]["unknown"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>
+							<td class="active" data-order="{{ (value["selected"]|sumdict if value["selected"] else 0) + (value["others"]|sumdict if value["others"] else 0) }}"><span style="font-weight:bold">{{ gws_sum[mac]["routers"] if gws_sum[mac] else 0 }}</span> / {{ value["others"]|sumdict if value["others"] else 0 }}</td>
 							<td class="stats"><a href="{{ url_for('global_gwstatistics', selectgw='%s' % mac) }}">Stats</a></td>
 						</tr>
 						{%- endfor %}
+					</tbody>
 					</table>
 				</div>
 			</div>
@@ -210,6 +223,32 @@
 			global_router_graph();
 			global_router_firmwares_graph();
 			global_router_models_graph();
+			
+			$("#hoodlist").DataTable({
+				"order": [],
+				"paging": false,
+				"info": false,
+				"searching": false,
+				/*"responsive": {
+					"details": false
+				},*/
+				"columnDefs": [
+					{"orderable": false, "targets": -1},
+				]
+			});
+			
+			$("#gwlist").DataTable({
+				"order": [],
+				"paging": false,
+				"info": false,
+				"searching": false,
+				/*"responsive": {
+					"details": false
+				},*/
+				"columnDefs": [
+					{"orderable": false, "targets": -1},
+				]
+			});
 		});
 	</script>
 {% endblock %}
