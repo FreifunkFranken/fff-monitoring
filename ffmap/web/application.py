@@ -393,6 +393,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		router_models = stattools.router_models(mysql,selecthood,selectgw)
 		router_firmwares = stattools.router_firmwares(mysql,selecthood,selectgw)
 		hoods_sum = stattools.hoods_sum(mysql,selectgw)
+		hoods_gws = stattools.hoods_gws(mysql)
 		gws = stattools.gws(mysql,selecthood)
 		gws_sum = stattools.gws_sum(mysql,selecthood)
 		gws_info = stattools.gws_info(mysql,selecthood)
@@ -409,6 +410,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 			router_firmwares = router_firmwares,
 			hoods = hoods,
 			hoods_sum = hoods_sum,
+			hoods_gws = hoods_gws,
 			newest_routers = newest_routers,
 			gws = gws,
 			gws_sum = gws_sum,

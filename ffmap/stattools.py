@@ -159,6 +159,26 @@ def hoods_sum(mysql,selectgw=None):
 		result[rs["hood"]] = {"routers": rs["count"], "clients": rs["clients"]}
 	return result
 
+def hoods_gws(mysql):
+	data = mysql.fetchall("""
+		SELECT hood, COUNT(sub.mac) AS count
+		FROM (
+			SELECT hood, router_gw.mac, COUNT(router.id) AS routers
+			FROM router
+			INNER JOIN router_gw ON router.id = router_gw.router
+			WHERE router.status = 'online'
+			GROUP BY hood, router_gw.mac
+		) AS sub
+		WHERE routers > 1
+		GROUP BY hood
+	""")
+	result = {}
+	for rs in data:
+		if not rs["hood"]:
+			rs["hood"] = "Default"
+		result[rs["hood"]] = rs["count"]
+	return result
+
 def gws(mysql,selecthood=None):
 	if selecthood:
 		where = " AND hood=%s"

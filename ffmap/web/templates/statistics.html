@@ -54,16 +54,18 @@
 					<table class="table table-condensed table-hoods">
 						<tr>
 							<th class="firstrow">Hood</th>
-							<th class="success" title="Online Routers">Online</th>
-							<th class="danger" title="Offline Routers">Offline</th>
-							<th class="warning" title="Unknown Routers">Unknown</th>
-							<th class="active" title="Total Routers">Total</th>
+							<th class="stats" title="Gateways">GW</th>
+							<th class="success" title="Online Routers">On</th>
+							<th class="danger" title="Offline Routers">Off</th>
+							<th class="warning" title="Unknown Routers">Unkn.</th>
+							<th class="active" title="Total Routers">Sum</th>
 							<th class="info">Clients</th>
 							<th class="stats">Stats</th>
 						</tr>
 						{%- for hood, value in hoods|dictsort %}
 						<tr>
 							<td class="firstrow"><a href="{{ url_for('router_list', q='hood:^%s$' % hood.replace(' ','_')) }}">{{ hood }}</a></td>
+							<td class="stats">{{ hoods_gws[hood] or "-" }}</td>
 							<td class="success">{{ value["online"] or 0 }}</td>
 							<td class="danger">{{ value["offline"] or 0 }}{%- if value["orphaned"] %} ({{ value["orphaned"] or 0 }}){%- endif %}</td>
 							<td class="warning">{{ value["unknown"] or 0 }}</td>
@@ -74,6 +76,7 @@
 						{%- endfor %}
 						<tr>
 							<th class="firstrow">Sum</th>
+							<td class="stats">&nbsp;</td>
 							<td class="success">{{ router_status.online or 0 }}</td>
 							<td class="danger">{{ router_status.offline or 0 }}</td>
 							<td class="warning">{{ router_status.unknown or 0 }}</td>
