@@ -42,7 +42,9 @@
 		<tbody>
 			{%- for router in routers %}
 			<tr>
-				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router.id) }}">{{ router.hostname }}</a>{%- if router.reset %} (Reset!){%- endif %}</td>
+				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router.id) }}">{{ router.hostname }}</a>
+				{%- if router.reset %} - <span style="color:#d90000">Reset!</span>{%- endif %}{%- if router.blocked %} - <span style="color:#d90000">Denied!</span>{%- endif %}
+				</td>
 				<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
 				<td>{{ router.hood }}</td>
 				<td>{{ router.nickname if router.nickname else "" }}</td>
