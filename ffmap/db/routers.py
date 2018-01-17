@@ -21,6 +21,18 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	CREATE TABLE blocked (
+		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`added` datetime NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE blocked
+		ADD PRIMARY KEY (`mac`)
+""")
+
+mysql.execute("""
 	CREATE TABLE netifs (
 		`id` smallint(6) UNSIGNED NOT NULL,
 		`name` varchar(15) COLLATE utf8_unicode_ci NOT NULL

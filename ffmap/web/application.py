@@ -51,9 +51,15 @@ def router_list():
 	mysql = FreifunkMySQL()
 	
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, clients, reset
+		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, clients, reset, blocked
 		FROM router
 		LEFT JOIN users ON router.contact = users.email
+		LEFT JOIN (
+			SELECT router, blocked.mac AS blocked FROM router_netif
+			INNER JOIN blocked ON router_netif.mac = blocked.mac
+			WHERE netif = 'br-mesh'
+		) AS b
+		ON router.id = b.router
 		{}
 		ORDER BY hostname ASC
 	""".format(where),tuple)
@@ -195,6 +201,17 @@ def router_info(dbid):
 							flash("<b>Router has no br-mesh and thus cannot be banned!</b>", "danger")
 					else:
 						flash("<b>You are not authorized to perform this action!</b>", "danger")
+				elif request.form.get("act") == "changeblocked" and mac:
+					if session.get('admin'):
+						if request.form.get("blocked") == "true":
+							added = mysql.utcnow()
+							mysql.execute("INSERT INTO blocked (mac, added) VALUES (%s, %s)",(mac,added,))
+							mysql.commit()
+						else:
+							mysql.execute("DELETE FROM blocked WHERE mac = %s",(mac,))
+							mysql.commit()
+					else:
+						flash("<b>You are not authorized to perform this action!</b>", "danger")
 				elif request.form.get("act") == "report":
 					abusemails = mysql.fetchall("SELECT email FROM users WHERE abuse = 1")
 					for a in abusemails:
@@ -208,10 +225,17 @@ def router_info(dbid):
 									"Regards,\nFreifunk Franken Monitoring System"
 						)
 					flash("<b>Router reported to administrators!</b>", "success")
-			mysql.close()
 		else:
 			mysql.close()
 			return "Router not found"
+		
+		router["blocked"] = mysql.findone("""
+			SELECT blocked.mac
+			FROM router_netif AS n
+			LEFT JOIN blocked ON n.mac = blocked.mac
+			WHERE n.router = %s AND n.netif = 'br-mesh'
+		""",(dbid,),"mac")
+		mysql.close()
 		
 		return render_template("router.html",
 			router = router,
@@ -320,8 +344,14 @@ def user_info(nickname):
 			else:
 				flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers = mysql.fetchall("""
-		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients, reset
+		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients, reset, blocked
 		FROM router
+		LEFT JOIN (
+			SELECT router, blocked.mac AS blocked FROM router_netif
+			INNER JOIN blocked ON router_netif.mac = blocked.mac
+			WHERE netif = 'br-mesh'
+		) AS b
+		ON router.id = b.router
 		WHERE contact = %s
 		ORDER BY hostname ASC
 	""",(user["email"],))
