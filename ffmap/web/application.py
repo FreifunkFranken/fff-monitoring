@@ -386,6 +386,14 @@ def global_gwstatistics(selectgw):
 def helper_statistics(mysql,stats,selecthood,selectgw):
 	try:
 		hoods = stattools.hoods(mysql,selectgw)
+		gws = stattools.gws(mysql,selecthood)
+		
+		if selecthood and not selecthood in hoods:
+			mysql.close()
+			return "Hood not found"
+		if selectgw and not selectgw in gws:
+			mysql.close()
+			return "Gateway not found"
 		
 		stats = mysql.utcawaretupleint(stats,"time")
 		
@@ -424,7 +432,6 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		router_firmwares = stattools.router_firmwares(mysql,selecthood,selectgw)
 		hoods_sum = stattools.hoods_sum(mysql,selectgw)
 		hoods_gws = stattools.hoods_gws(mysql)
-		gws = stattools.gws(mysql,selecthood)
 		gws_sum = stattools.gws_sum(mysql,selecthood)
 		gws_info = stattools.gws_info(mysql,selecthood)
 		gws_admin = stattools.gws_admin(mysql,selectgw)
