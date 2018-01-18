@@ -106,6 +106,8 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 				""",(lat,lng,lat,),"name")
 		if not router_update["hood"]:
 			router_update["hood"] = "Default"
+			if router_update["neighbours"] and not router_update["has_wan_uplink"]:
+				router_update["hood"] = "NoCoordinates"
 		if not router_update['lat'] and not router_update['lng'] and olddata and olddata['lat'] and olddata['lng']:
 			# Enable reset state; do before variable fallback
 			reset = True
