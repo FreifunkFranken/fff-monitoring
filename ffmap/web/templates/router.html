@@ -62,7 +62,7 @@
 						{%- endif %}
 						{%- if authadmin %}
 						<li><a href="#" onclick="$('#act').val('ban'); $('#actform').submit()">Ban Router</a></li>
-						<li><a href="#" onclick="$('#deniedform').submit()">Toggle denied status</a></li>
+						<li><a href="#" onclick="$('#blockedform').submit()">Toggle blocked status</a></li>
 						{%- endif %}
 						<li><a href="#" onclick="$('#act').val('report'); $('#actform').submit()">Report abusive Router</a></li>
 					</ul>
@@ -156,7 +156,7 @@
 						<tr><th>Hardware</th><td><span title="{{ router.chipset }}">{{ router.hardware }}</span></td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.wan_uplink else "glyphicon glyphicon-remove" }}"></span>
 						{%- if router.blocked %}
-						<span style="color:#d90000"> &nbsp; - &nbsp; Router DENIED by KeyXchange!</span>
+						<span style="color:#d90000"> &nbsp; - &nbsp; Router BLOCKED by KeyXchange!</span>
 						{%- endif -%}
 						</td></tr>
 						<tr><th>Clients</th><td>{{ router.clients }}</td></tr>
@@ -424,9 +424,9 @@
 	</script>
 	
 {%- if session.admin %}
-<form method="post" id="deniedform">
-	<input type="hidden" name="act" value="changedenied" />
-	<input type="hidden" name="denied" value="{{ "false" if router.blocked else "true" }}" />
+<form method="post" id="blockedform">
+	<input type="hidden" name="act" value="changeblocked" />
+	<input type="hidden" name="blocked" value="{{ "false" if router.blocked else "true" }}" />
 </form>
 {%- endif %}
 {% endblock %}

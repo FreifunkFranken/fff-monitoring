@@ -201,9 +201,9 @@ def router_info(dbid):
 							flash("<b>Router has no br-mesh and thus cannot be banned!</b>", "danger")
 					else:
 						flash("<b>You are not authorized to perform this action!</b>", "danger")
-				elif request.form.get("act") == "changedenied" and mac:
+				elif request.form.get("act") == "changeblocked" and mac:
 					if session.get('admin'):
-						if request.form.get("denied") == "true":
+						if request.form.get("blocked") == "true":
 							added = mysql.utcnow()
 							mysql.execute("INSERT INTO blocked (mac, added) VALUES (%s, %s)",(mac,added,))
 							mysql.commit()
