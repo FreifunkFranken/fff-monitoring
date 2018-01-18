@@ -18,15 +18,19 @@ def import_gw_data(mysql, gw_data):
 		stats_page = gw_data.get("stats_page","")
 		if not stats_page:
 			stats_page = None
-		mysql.execute("""
-			INSERT INTO gw (name, stats_page, last_contact)
-			VALUES (%s, %s, %s)
-			ON DUPLICATE KEY UPDATE
-				stats_page=VALUES(stats_page),
-				last_contact=VALUES(last_contact)
-		""",(gw_data["hostname"],gw_data["stats_page"],time,))
-		
 		newid = mysql.findone("SELECT id FROM gw WHERE name = %s LIMIT 1",(gw_data["hostname"],),"id")
+		if newid:
+			mysql.execute("""
+				UPDATE gw
+				SET stats_page = %s, last_contact = %s
+				WHERE id = %s
+			""",(gw_data["stats_page"],time,newid,))
+		else:
+			mysql.execute("""
+				INSERT INTO gw (name, stats_page, last_contact)
+				VALUES (%s, %s, %s)
+			""",(gw_data["hostname"],gw_data["stats_page"],time,))
+			newid = mysql.cursor().lastrowid
 		
 		nmacs = {}
 		for n in gw_data["netifs"]:
