@@ -11,6 +11,11 @@ mysql = FreifunkMySQL()
 
 hoods = [
 {
+	"keyxchange_id": 0,
+	"name": "NoCoordinates",
+	"net": ""
+},
+{
 	"keyxchange_id": 1,
 	"name": "Default",
 	"net": "10.50.16.0/20"
