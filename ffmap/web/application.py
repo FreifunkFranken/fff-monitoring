@@ -340,6 +340,8 @@ def user_info(nickname):
 				mysql.commit()
 				flash("<b>User <i>%s</i> deleted!</b>" % nickname, "success")
 				mysql.close()
+				if user["nickname"] == session.get("user"):
+					session.pop('user', None)
 				return redirect(url_for("user_list"))
 			else:
 				flash("<b>You are not authorized to perform this action!</b>", "danger")
