@@ -208,7 +208,7 @@
 	</div>
 </div>
 
-{%- if session.admin %}
+{%- if authadmin %}
 <form method="post" id="adminform">
 	<input type="hidden" name="action" value="changeadmin" />
 	<input type="hidden" name="admin" value="{{ "false" if user.admin else "true" }}" />
@@ -217,6 +217,8 @@
 	<input type="hidden" name="action" value="changeabuse" />
 	<input type="hidden" name="abuse" value="{{ "false" if user.abuse else "true" }}" />
 </form>
+{%- endif %}
+{%- if authuser %}
 <form method="post" id="delaccform">
 	<input type="hidden" name="action" value="deleteaccount" />
 </form>
