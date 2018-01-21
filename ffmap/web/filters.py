@@ -114,9 +114,18 @@ def nbsp(txt):
 def humanize_bytes(num, suffix='B'):
 	for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
 		if abs(num) < 1024.0 and unit != '':
-			return "%3.1f%s%s" % (num, unit, suffix)
+			return "%3.1f %s%s" % (num, unit, suffix)
 		num /= 1024.0
-	return "%.1f%s%s" % (num, 'Yi', suffix)
+	return "%.1f %s%s" % (num, 'Yi', suffix)
+
+@filters.app_template_filter('bytes_to_bits')
+def bytes_to_bits(num, suffix='b'):
+	num *= 8.0
+	for unit in ['','k','M','G','T','P','E','Z']:
+		if abs(num) < 1000.0 and unit != '':
+			return "%3.1f %s%s" % (num, unit, suffix)
+		num /= 1000.0
+	return "%.1f %s%s" % (num, 'Y', suffix)
 
 @filters.app_template_filter('mac2fe80')
 def mac_to_ipv6_linklocal(mac):

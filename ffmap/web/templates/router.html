@@ -273,8 +273,8 @@
 							</div>
 							{%- if netif.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
-								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.rx|humanize_bytes }}/s
-								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.rx|bytes_to_bits }}/s
+								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|bytes_to_bits }}/s
 							</div>
 							{%- endif %}
 						</div>
@@ -318,8 +318,8 @@
 							</div>
 							{%- if netif.rx is defined %}
 							<div class="col-xs-7 col-sm-7 text-right">
-								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.rx|humanize_bytes }}/s
-								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|humanize_bytes }}/s
+								<span class="glyphicon glyphicon-arrow-down"></span>{{ netif.rx|bytes_to_bits }}/s
+								<span class="glyphicon glyphicon-arrow-up"></span>{{ netif.tx|bytes_to_bits }}/s
 							</div>
 							{%- endif %}
 						</div>

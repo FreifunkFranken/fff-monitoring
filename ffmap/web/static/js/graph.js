@@ -77,8 +77,8 @@ function network_graph(netif) {
 			var rx_value = netif_stats[i].rx;
 			var date_value = netif_stats[i].time.$date;
 			if(tx_value != null && rx_value != null) {
-				tx.push([date_value, tx_value]);
-				rx.push([date_value, rx_value]);
+				tx.push([date_value, tx_value * 8]);
+				rx.push([date_value, rx_value * 8]);
 			}
 		}
 		catch(TypeError) {
@@ -92,7 +92,7 @@ function network_graph(netif) {
 	var plot = $.plot(netstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0, mode: "byteRate"},
+		yaxis: {min: 0, mode: "bitRate"},
 		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(netstat.width() * points_per_px)}}
 	});
