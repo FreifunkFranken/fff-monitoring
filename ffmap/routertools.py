@@ -122,18 +122,24 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 					router_update[v] = olddata[v] # preserve contact information after router reset
 		
 		# Calculate airtime
-		fields_w2 = (router_update["w2_active"], router_update["w2_busy"], olddata["w2_busy"], olddata["w2_active"],);
+		fields_w2 = (router_update["w2_active"], router_update["w2_busy"], olddata["w2_busy"], olddata["w2_active"],)
 		router_update["w2_airtime"] = None
 		if not any(w == None for w in fields_w2):
 			diff_active = router_update["w2_active"] - olddata["w2_active"]
 			diff_busy = router_update["w2_busy"] - olddata["w2_busy"]
-			router_update["w2_airtime"] = diff_busy / diff_active # auto float-division in Python3
-		fields_w5 = (router_update["w5_active"], router_update["w5_busy"], olddata["w5_busy"], olddata["w5_active"],);
+			if diff_active:
+				router_update["w2_airtime"] = diff_busy / diff_active # auto float-division in Python3
+			else:
+				router_update["w2_airtime"] = 0
+		fields_w5 = (router_update["w5_active"], router_update["w5_busy"], olddata["w5_busy"], olddata["w5_active"],)
 		router_update["w5_airtime"] = None
 		if not any(w == None for w in fields_w5):
 			diff_active = router_update["w5_active"] - olddata["w5_active"]
 			diff_busy = router_update["w5_busy"] - olddata["w5_busy"]
-			router_update["w5_airtime"] = diff_busy / diff_active # auto float-division in Python3
+			if diff_active:
+				router_update["w5_airtime"] = diff_busy / diff_active # auto float-division in Python3
+			else:
+				router_update["w5_airtime"] = 0
 		
 		if router_id:
 			# statistics
