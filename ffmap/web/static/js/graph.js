@@ -339,6 +339,45 @@ function loadavg_graph() {
 	setup_plot_zoom(plot, pdata, len);
 }
 
+function airtime_graph() {
+	var airstat = $("#airstat");
+	var airtime2 = [];
+	var airtime5 = [];
+	var len, i;
+	for (len=router_stats.length, i=0; i<len; i++) {
+		try {
+			var air2_value = router_stats[i].airtime_w2;
+			var air5_value = router_stats[i].airtime_w5;
+			var date_value = router_stats[i].time.$date;
+			if(air2_value != null) {
+				airtime2.push([date_value, air2_value * 100]);
+			}
+			if(air5_value != null) {
+				airtime5.push([date_value, air5_value * 100]);
+			}
+		}
+		catch(TypeError) {
+			// pass
+		}
+	}
+	var pdata = [
+		{"label": "Airtime 2.4 GHz / %", "data": airtime2, "color": "#CB4B4B"}
+	];
+	if (airtime5.length > 0) {
+		pdata.push(
+			{"label": "Airtime 5 GHz / %", "data": airtime5, "color": "#EDC240"}
+		);
+	}
+	var plot = $.plot(airstat, pdata, {
+		xaxis: {mode: "time", timezone: "browser"},
+		selection: {mode: "x"},
+		yaxis: {min: 0},
+		legend: {noColumns: 2, hideable: true},
+		series: {downsample: {threshold: Math.floor(airstat.width() * points_per_px)}}
+	});
+	setup_plot_zoom(plot, pdata, len);
+}
+
 
 // Global statistics
 

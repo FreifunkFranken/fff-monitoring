@@ -75,7 +75,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 		
 		if findrouter:
 			router_id = findrouter["router"]
-			olddata = mysql.findone("SELECT sys_uptime, firmware, hostname, hood, status, lat, lng, contact, description, position_comment FROM router WHERE id = %s LIMIT 1",(router_id,))
+			olddata = mysql.findone("SELECT sys_uptime, firmware, hostname, hood, status, lat, lng, contact, description, position_comment, w2_active, w2_busy, w5_active, w5_busy FROM router WHERE id = %s LIMIT 1",(router_id,))
 			if olddata:
 				uptime = olddata["sys_uptime"]
 
@@ -121,6 +121,28 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 				if not router_update[v]:
 					router_update[v] = olddata[v] # preserve contact information after router reset
 		
+		# Calculate airtime
+		router_update["w2_airtime"] = None
+		router_update["w5_airtime"] = None
+		# Only use new data
+		if olddata and router_update["sys_uptime"] > olddata["sys_uptime"]:
+			fields_w2 = (router_update["w2_active"], router_update["w2_busy"], olddata["w2_busy"], olddata["w2_active"],)
+			if not any(w == None for w in fields_w2):
+				diff_active = router_update["w2_active"] - olddata["w2_active"]
+				diff_busy = router_update["w2_busy"] - olddata["w2_busy"]
+				if diff_active:
+					router_update["w2_airtime"] = diff_busy / diff_active # auto float-division in Python3
+				else:
+					router_update["w2_airtime"] = 0
+			fields_w5 = (router_update["w5_active"], router_update["w5_busy"], olddata["w5_busy"], olddata["w5_active"],)
+			if not any(w == None for w in fields_w5):
+				diff_active = router_update["w5_active"] - olddata["w5_active"]
+				diff_busy = router_update["w5_busy"] - olddata["w5_busy"]
+				if diff_active:
+					router_update["w5_airtime"] = diff_busy / diff_active # auto float-division in Python3
+				else:
+					router_update["w5_airtime"] = 0
+		
 		if router_id:
 			# statistics
 			calculate_network_io(mysql, router_id, uptime, router_update)
@@ -128,13 +150,15 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			mysql.execute("""
 				UPDATE router
 				SET status = %s, hostname = %s, last_contact = %s, sys_time = %s, sys_uptime = %s, sys_memfree = %s, sys_membuff = %s, sys_memcache = %s,
-				sys_loadavg = %s, sys_procrun = %s, sys_proctot = %s, clients = %s, clients_eth = %s, clients_w2 = %s, clients_w5 = %s, wan_uplink = %s, cpu = %s, chipset = %s, hardware = %s, os = %s,
+				sys_loadavg = %s, sys_procrun = %s, sys_proctot = %s, clients = %s, clients_eth = %s, clients_w2 = %s, clients_w5 = %s,
+				w2_active = %s, w2_busy = %s, w5_active = %s, w5_busy = %s, w2_airtime = %s, w5_airtime = %s, wan_uplink = %s, cpu = %s, chipset = %s, hardware = %s, os = %s,
 				batman = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s,
 				status_text = %s, contact = %s, lng = %s, lat = %s, neighbors = %s, reset = %s
 				WHERE id = %s
 			""",(
 				ru["status"],ru["hostname"],ru["last_contact"],ru["sys_time"],ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
-				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],ru["has_wan_uplink"],ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
+				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
+				ru["w2_active"],ru["w2_busy"],ru["w5_active"],ru["w5_busy"],ru["w2_airtime"],ru["w5_airtime"],ru["has_wan_uplink"],ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
 				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
@@ -182,13 +206,15 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			router_update["status"] = "online" # use 'online' here, as anything different is only evaluated if olddata is present
 			mysql.execute("""
 				INSERT INTO router (status, hostname, created, last_contact, sys_time, sys_uptime, sys_memfree, sys_membuff, sys_memcache,
-				sys_loadavg, sys_procrun, sys_proctot, clients, clients_eth, clients_w2, clients_w5, wan_uplink, cpu, chipset, hardware, os,
+				sys_loadavg, sys_procrun, sys_proctot, clients, clients_eth, clients_w2, clients_w5,
+				w2_active, w2_busy, w5_active, w5_busy, w2_airtime, w5_airtime, wan_uplink, cpu, chipset, hardware, os,
 				batman, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood,
 				status_text, contact, lng, lat, neighbors)
-				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
 				ru["status"],ru["hostname"],created,ru["last_contact"],ru["sys_time"],ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
-				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],ru["has_wan_uplink"],ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
+				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
+				None,None,None,None,None,None,ru["has_wan_uplink"],ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
 				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],))
 			router_id = mysql.cursor().lastrowid
@@ -497,8 +523,9 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 		stattime = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
 		if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
 			mysql.execute("""
-				INSERT INTO router_stats (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot, clients, clients_eth, clients_w2, clients_w5)
-				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+				INSERT INTO router_stats (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot,
+				clients, clients_eth, clients_w2, clients_w5, airtime_w2, airtime_w5)
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
 				time,
 				router_id,
@@ -512,6 +539,8 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 				router_update["clients_eth"],
 				router_update["clients_w2"],
 				router_update["clients_w5"],
+				router_update["w2_airtime"],
+				router_update["w5_airtime"],
 				))
 		
 		netiftime = mysql.findone("SELECT time FROM router_stats_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
@@ -661,6 +690,10 @@ def parse_nodewatcher_xml(xml):
 			"clients_eth": evalxpathint(tree,"/data/clients/*[starts-with(name(), 'eth')]/text()",None),
 			"clients_w2": evalxpathint(tree,"/data/clients/w2ap/text()",None),
 			"clients_w5": evalxpathint(tree,"/data/clients/w5ap/text()",None),
+			"w2_busy": evalxpathint(tree,"/data/airtime2/busy/text()",None),
+			"w2_active": evalxpathint(tree,"/data/airtime2/active/text()",None),
+			"w5_busy": evalxpathint(tree,"/data/airtime5/busy/text()",None),
+			"w5_active": evalxpathint(tree,"/data/airtime5/active/text()",None),
 			"has_wan_uplink": (
 				(len(tree.xpath("/data/system_data/vpn_active")) > 0
 				and evalxpathint(tree,"/data/system_data/vpn_active/text()") == 1)

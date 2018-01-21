@@ -380,6 +380,12 @@
 				</div>
 			</div>
 			<div class="panel panel-default">
+				<div class="panel-heading">Airtime (requires Firmware-Update)</div>
+				<div class="panel-body">
+					<div id="airstat" class="graph"></div>
+				</div>
+			</div>
+			<div class="panel panel-default">
 				<div class="panel-heading">Memory</div>
 				<div class="panel-body">
 					<div id="memstat" class="graph"></div>
@@ -419,6 +425,7 @@
 			process_graph();
 			client_graph();
 			loadavg_graph();
+			airtime_graph();
 
 			$("#netif-list li").on("click", function() {
 				$("#netif-list li").removeClass("active");

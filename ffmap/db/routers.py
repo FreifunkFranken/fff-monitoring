@@ -69,6 +69,12 @@ mysql.execute("""
 		`clients_eth` smallint(6) DEFAULT NULL,
 		`clients_w2` smallint(6) DEFAULT NULL,
 		`clients_w5` smallint(6) DEFAULT NULL,
+		`w2_busy` bigint(20) UNSIGNED DEFAULT NULL,
+		`w2_active` bigint(20) UNSIGNED DEFAULT NULL,
+		`w5_busy` bigint(20) UNSIGNED DEFAULT NULL,
+		`w5_active` bigint(20) UNSIGNED DEFAULT NULL,
+		`w2_airtime` float DEFAULT NULL,
+		`w5_airtime` float DEFAULT NULL,
 		`wan_uplink` tinyint(1) NOT NULL,
 		`cpu` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`chipset` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
@@ -208,7 +214,9 @@ mysql.execute("""
 		`clients` smallint(6) NOT NULL,
 		`clients_eth` smallint(6) DEFAULT NULL,
 		`clients_w2` smallint(6) DEFAULT NULL,
-		`clients_w5` smallint(6) DEFAULT NULL
+		`clients_w5` smallint(6) DEFAULT NULL,
+		`airtime_w2` float DEFAULT NULL,
+		`airtime_w5` float DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
