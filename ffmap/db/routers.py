@@ -66,6 +66,9 @@ mysql.execute("""
 		`sys_procrun` smallint(6) NOT NULL,
 		`sys_proctot` smallint(6) NOT NULL,
 		`clients` smallint(6) NOT NULL,
+		`clients_eth` smallint(6) DEFAULT NULL,
+		`clients_w2` smallint(6) DEFAULT NULL,
+		`clients_w5` smallint(6) DEFAULT NULL,
 		`wan_uplink` tinyint(1) NOT NULL,
 		`cpu` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`chipset` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
@@ -202,7 +205,10 @@ mysql.execute("""
 		`sys_membuff` int(11) NOT NULL,
 		`sys_memfree` int(11) NOT NULL,
 		`loadavg` float NOT NULL,
-		`clients` smallint(6) NOT NULL
+		`clients` smallint(6) NOT NULL,
+		`clients_eth` smallint(6) DEFAULT NULL,
+		`clients_w2` smallint(6) DEFAULT NULL,
+		`clients_w5` smallint(6) DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 

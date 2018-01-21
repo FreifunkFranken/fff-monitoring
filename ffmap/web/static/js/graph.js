@@ -254,28 +254,57 @@ function process_graph() {
 
 function client_graph() {
 	var clientstat = $("#clientstat");
-	var clients = [];
+	var clients = [], clients_eth = [], clients_w2 = [], clients_w5 = [];
 	var len, i;
 	for (len=router_stats.length, i=0; i<len; i++) {
 		try {
 			var client_value = router_stats[i].clients;
+			var client_eth = router_stats[i].clients_eth;
+			var client_w2 = router_stats[i].clients_w2;
+			var client_w5 = router_stats[i].clients_w5;
 			var date_value = router_stats[i].time.$date;
 			if(client_value != null) {
 				clients.push([date_value, client_value]);
+			}
+			if(client_eth != null) {
+				clients_eth.push([date_value, client_eth]);
+			}
+			if(client_w2 != null) {
+				clients_w2.push([date_value, client_w2]);
+			}
+			if(client_w5 != null) {
+				clients_w5.push([date_value, client_w5]);
 			}
 		}
 		catch(TypeError) {
 			// pass
 		}
 	}
-	var pdata = [
-		{"label": "clients", "data": clients, "color": "#8CACC6", lines: {fill: true}}
-	];
+	var pdata = [];
+	if (clients_w2.length > 0) {
+		pdata.push(
+			{"label": "2.4 GHz", "data": clients_w2, "color": "#CB4B4B"}
+		);
+	}
+	if (clients_w5.length > 0) {
+		pdata.push(
+			{"label": "5 GHz", "data": clients_w5, "color": "#EDC240"}
+		);
+	}
+	if (clients_eth.length > 0) {
+		pdata.push(
+			{"label": "Ethernet", "data": clients_eth, "color": "#4DA74A"}
+		);
+	}
+	pdata.push(
+		{"label": "Total", "data": clients, "color": "#8CACC6"}
+	);
+	
 	var plot = $.plot(clientstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0},
-		legend: {hideable: true},
+		legend: {noColumns: 4, hideable: true},
 		series: {downsample: {threshold: Math.floor(clientstat.width() * points_per_px)}}
 	});
 	setup_plot_zoom(plot, pdata, len);
