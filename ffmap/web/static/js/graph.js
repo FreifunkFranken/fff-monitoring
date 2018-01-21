@@ -263,10 +263,16 @@ function client_graph() {
 			var client_w2 = router_stats[i].clients_w2;
 			var client_w5 = router_stats[i].clients_w5;
 			var date_value = router_stats[i].time.$date;
-			if(client_value != null && client_eth != null && client_w2 != null && client_w5 != null) {
+			if(client_value != null) {
 				clients.push([date_value, client_value]);
+			}
+			if(client_eth != null) {
 				clients_eth.push([date_value, client_eth]);
+			}
+			if(client_w2 != null) {
 				clients_w2.push([date_value, client_w2]);
+			}
+			if(client_w5 != null) {
 				clients_w5.push([date_value, client_w5]);
 			}
 		}
@@ -274,12 +280,26 @@ function client_graph() {
 			// pass
 		}
 	}
-	var pdata = [
-		{"label": "2.4 GHz", "data": clients_w2, "color": "#CB4B4B"},
-		{"label": "5 GHz", "data": clients_w5, "color": "#EDC240"},
-		{"label": "Ethernet", "data": clients_eth, "color": "#4DA74A"},
+	var pdata = [];
+	if (clients_w2.length > 0) {
+		pdata.push(
+			{"label": "2.4 GHz", "data": clients_w2, "color": "#CB4B4B"}
+		);
+	}
+	if (clients_w5.length > 0) {
+		pdata.push(
+			{"label": "5 GHz", "data": clients_w5, "color": "#EDC240"}
+		);
+	}
+	if (clients_eth.length > 0) {
+		pdata.push(
+			{"label": "Ethernet", "data": clients_eth, "color": "#4DA74A"}
+		);
+	}
+	pdata.push(
 		{"label": "Total", "data": clients, "color": "#8CACC6"}
-	];
+	);
+	
 	var plot = $.plot(clientstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
