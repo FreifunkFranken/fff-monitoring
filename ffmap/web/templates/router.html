@@ -30,6 +30,9 @@
 			font-weight:bold;
 			font-style:italic;
 		}
+		.clientinfo {
+			font-weight:bold;
+		}
 
 		/* hack to remove flex css on small single-column layout */
 		@media(max-width:991px) {
@@ -159,7 +162,11 @@
 						<span style="color:#d90000"> &nbsp; - &nbsp; Router BLOCKED by KeyXchange!</span>
 						{%- endif -%}
 						</td></tr>
-						<tr><th>Clients</th><td>{{ router.clients }}</td></tr>
+						<tr><th>Clients</th><td><span class="clientinfo">{{ router.clients }}</span>
+						{%- if router.clients_eth or router.clients_w2 or router.clients_w5 %}
+						 &nbsp; (Ethernet: <span class="clientinfo">{{ router.clients_eth }}</span>, 2.4 GHz: <span class="clientinfo">{{ router.clients_w2 }}</span>, 5 GHz: <span class="clientinfo">{{ router.clients_w5 }}</span>)
+						{%- endif -%}
+						</td></tr>
 					</table>
 				</div>
 			</div>
