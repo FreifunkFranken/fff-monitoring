@@ -92,6 +92,7 @@ def router_models(mysql,selecthood=None,selectgw=None):
 			FROM router
 			WHERE hood = %s
 			GROUP BY hardware
+			ORDER BY hardware
 		""",(selecthood,),"hardware","count")
 	elif selectgw:
 		return mysql.fetchdict("""
@@ -100,12 +101,14 @@ def router_models(mysql,selecthood=None,selectgw=None):
 			INNER JOIN router_gw ON router.id = router_gw.router
 			WHERE mac = %s
 			GROUP BY hardware
+			ORDER BY hardware
 		""",(selectgw,),"hardware","count")
 	else:
 		return mysql.fetchdict("""
 			SELECT hardware, COUNT(id) AS count
 			FROM router
 			GROUP BY hardware
+			ORDER BY hardware
 		""",(),"hardware","count")
 
 def router_firmwares(mysql,selecthood=None,selectgw=None):
@@ -115,6 +118,7 @@ def router_firmwares(mysql,selecthood=None,selectgw=None):
 			FROM router
 			WHERE hood = %s
 			GROUP BY firmware
+			ORDER BY firmware
 		""",(selecthood,),"firmware","count")
 	elif selectgw:
 		return mysql.fetchdict("""
@@ -123,12 +127,14 @@ def router_firmwares(mysql,selecthood=None,selectgw=None):
 			INNER JOIN router_gw ON router.id = router_gw.router
 			WHERE mac = %s
 			GROUP BY firmware
+			ORDER BY firmware
 		""",(selectgw,),"firmware","count")
 	else:
 		return mysql.fetchdict("""
 			SELECT firmware, COUNT(id) AS count
 			FROM router
 			GROUP BY firmware
+			ORDER BY firmware
 		""",(),"firmware","count")
 
 def hoods(mysql,selectgw=None):
