@@ -296,7 +296,7 @@ def routers():
 				'hardware': router['hardware'],
 				'firmware': router['firmware'],
 				'loadavg': router['sys_loadavg'],
-				'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['id']),
+				'href': 'https://monitoring.freifunk-franken.de/mac/' + router['mac'],
 				'clients': router['clients'],
 				'lastcontact': router['last_contact'].isoformat(),
 				'uplink': {
