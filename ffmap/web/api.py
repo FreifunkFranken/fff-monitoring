@@ -250,7 +250,7 @@ def routers():
 	# Suppresses routers without br-mesh
 	mysql = FreifunkMySQL()
 	router_data = mysql.fetchall("""
-		SELECT router.id, hostname, status, hood, contact, nickname, hardware, firmware, clients, lat, lng, last_contact, mac
+		SELECT router.id, hostname, status, hood, contact, nickname, hardware, firmware, clients, lat, lng, last_contact, mac, sys_loadavg
 		FROM router
 		INNER JOIN router_netif ON router.id = router_netif.router
 		LEFT JOIN users ON router.contact = users.email
@@ -300,6 +300,7 @@ def routers():
 				'user': user,
 				'hardware': router['hardware'],
 				'firmware': firmware,
+				'loadavg': router['sys_loadavg'],
 				'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['id']),
 				'clients': router['clients'],
 				'lastcontact': router['last_contact'].isoformat(),
