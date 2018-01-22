@@ -276,11 +276,6 @@ def routers():
 		fastd = 0
 		l2tp = 0
 		
-		hood = router['hood']
-		user = router['nickname']
-		firmware = router['firmware']
-		mac = router['mac']
-		
 		if router["id"] in net_dict:
 			for netif in net_dict[router["id"]]:
 				if netif == 'fffVPN':
@@ -294,12 +289,12 @@ def routers():
 			{
 				'id': str(router['id']),
 				'name': router['hostname'],
-				'mac': mac,
-				'hood': hood,
+				'mac': router['mac'],
+				'hood': router['hood'],
 				'status': router['status'],
-				'user': user,
+				'user': router['nickname'],
 				'hardware': router['hardware'],
-				'firmware': firmware,
+				'firmware': router['firmware'],
 				'loadavg': router['sys_loadavg'],
 				'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['id']),
 				'clients': router['clients'],
