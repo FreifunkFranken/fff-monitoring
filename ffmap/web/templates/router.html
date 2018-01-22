@@ -164,7 +164,7 @@
 						</td></tr>
 						<tr><th>Clients</th><td><span class="clientinfo">{{ router.clients }}</span>
 						{%- if router.clients_eth or router.clients_w2 or router.clients_w5 %}
-						 &nbsp; (Ethernet: <span class="clientinfo">{{ router.clients_eth }}</span>, 2.4 GHz: <span class="clientinfo">{{ router.clients_w2 }}</span>, 5 GHz: <span class="clientinfo">{{ router.clients_w5 }}</span>)
+						 &nbsp; (Ethernet: <span class="clientinfo">{{ router.clients_eth }}</span>{%- if router.clients_w2 != None %}, 2.4 GHz: <span class="clientinfo">{{ router.clients_w2 }}</span>{%- endif -%}{%- if router.clients_w5 != None %}, 5 GHz: <span class="clientinfo">{{ router.clients_w5 }}</span>{%- endif -%})
 						{%- endif -%}
 						</td></tr>
 					</table>
