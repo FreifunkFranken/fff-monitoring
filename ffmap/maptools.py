@@ -137,7 +137,7 @@ def update_mapnik_csv(mysql):
 		else:
 			# Check for duplicate
 			if row["nid"] in dictl2.keys() and row["rid"] in dictl2[row["nid"]].keys():
-				row["quality"] = int(0.5 * (dictl2[row["nid"]][row["rid"]][4] + row["quality"]))
+				row["quality"] = int(0.5 * (dictl2[row["nid"]][row["rid"]]["data"][4] + row["quality"]))
 				del dictl2[row["nid"]][row["rid"]] # Delete old entry, as we create a new one with averaged quality
 			# Write current set to dict
 			if not row["rid"] in dictl2.keys():
@@ -150,14 +150,14 @@ def update_mapnik_csv(mysql):
 				row["nlat"],
 				row["quality"],
 			)
-			dictl2[row["rid"]][row["nid"]] = tmp
+			dictl2[row["rid"]][row["nid"]] = {'hood':row["hood"],'data':tmp}
 	
 	for d1 in dictl2.values():
-		for tmp in d1.values():
-			if row["hood"]:
-				links.append(tmp)
+		for d2 in d1.values():
+			if d2["hood"]:
+				links.append(d2["data"])
 			else:
-				linksv2.append(tmp)
+				linksv2.append(d2["data"])
 	
 	with open(os.path.join(CONFIG["csv_dir"], "links.csv"), "w") as csv:
 		csv.write("WKT,quality\n")
