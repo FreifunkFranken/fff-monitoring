@@ -95,7 +95,7 @@ def update_mapnik_csv(mysql):
 		csv.write(rv2)
 
 	dblinks = mysql.fetchall("""
-		SELECT r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, MAX(quality) AS quality, hoods.name AS hood
+		SELECT r1.id AS rid, r2.id AS nid, r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, MAX(quality) AS quality, hoods.name AS hood
 		FROM router AS r1
 		LEFT JOIN hoods ON r1.hood = hoods.name
 		INNER JOIN router_neighbor AS n ON r1.id = n.router
@@ -111,26 +111,49 @@ def update_mapnik_csv(mysql):
 	linksl3 = []
 	linksv2 = []
 	linksl3v2 = []
+	dictl3 = {}
+	dictl2 = {}
+	# The following code is very ugly, but works and is not too slow. Maybe make it nicer at some point ...
 	for row in dblinks:
 		if row.get("type")=="l3":
+			# Check for duplicate
+			if row["nid"] in dictl3.keys() and row["rid"] in dictl3[row["nid"]]:
+				continue
+			# Write current set to dict
+			if not row["rid"] in dictl3.keys():
+				dictl3[row["rid"]] = []
+			dictl3[row["rid"]].append(row["nid"])
+			
 			tmp = (
 				row["rlng"],
 				row["rlat"],
 				row["nlng"],
-				row["nlat"]
+				row["nlat"],
 			)
 			if row["hood"]:
 				linksl3.append(tmp)
 			else:
 				linksl3v2.append(tmp)
 		else:
+			# Check for duplicate
+			if row["nid"] in dictl2.keys() and row["rid"] in dictl2[row["nid"]].keys():
+				row["quality"] = int(0.5 * (dictl2[row["nid"]][row["rid"]][4] + row["quality"]))
+				del dictl2[row["nid"]][row["rid"]] # Delete old entry, as we create a new one with averaged quality
+			# Write current set to dict
+			if not row["rid"] in dictl2.keys():
+				dictl2[row["rid"]] = {}
+			
 			tmp = (
 				row["rlng"],
 				row["rlat"],
 				row["nlng"],
 				row["nlat"],
-				row["quality"]
+				row["quality"],
 			)
+			dictl2[row["rid"]][row["nid"]] = tmp
+	
+	for d1 in dictl2.values():
+		for tmp in d1.values():
 			if row["hood"]:
 				links.append(tmp)
 			else:
