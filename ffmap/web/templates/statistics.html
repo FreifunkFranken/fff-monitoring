@@ -45,6 +45,9 @@
 		.table-hoods .firstrow {
 			text-align: left;
 		}
+		.hoodv2 a {
+			color: #2db200;
+		}
 	</style>
 {% endblock %}
 
@@ -70,7 +73,7 @@
 					<tbody>
 						{%- for hood, value in hoods|dictsort %}
 						<tr>
-							<td class="firstrow"><a href="{{ url_for('router_list', q='hood:^%s$' % hood.replace(' ','_')) }}">{{ hood }}</a></td>
+							<td class="firstrow{%- if hoods_sum[hood]["v2"] %} hoodv2{%- endif %}"><a href="{{ url_for('router_list', q='hood:^%s$' % hood.replace(' ','_')) }}">{{ hood }}</a></td>
 							<td class="stats">{{ hoods_gws[hood] or "-" }}</td>
 							<td class="success">{{ value["online"] or 0 }}</td>
 							<td class="danger" data-order="{{ value["offline"] or 0 }}">{{ value["offline"] or 0 }}{%- if value["orphaned"] %} ({{ value["orphaned"] or 0 }}){%- endif %}</td>

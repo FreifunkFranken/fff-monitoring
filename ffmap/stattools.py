@@ -154,7 +154,7 @@ def hoods(mysql,selectgw=None):
 
 def hoods_sum(mysql,selectgw=None):
 	data = mysql.fetchall("""
-		SELECT hood, COUNT(id) AS count, SUM(clients) AS clients
+		SELECT hood, COUNT(id) AS count, SUM(clients) AS clients, MAX(v2) AS v2
 		FROM router
 		GROUP BY hood
 	""")
@@ -162,7 +162,7 @@ def hoods_sum(mysql,selectgw=None):
 	for rs in data:
 		if not rs["hood"]:
 			rs["hood"] = "Default"
-		result[rs["hood"]] = {"routers": rs["count"], "clients": rs["clients"]}
+		result[rs["hood"]] = {"routers": rs["count"], "clients": rs["clients"], "v2": rs["v2"]}
 	return result
 
 def hoods_gws(mysql):
