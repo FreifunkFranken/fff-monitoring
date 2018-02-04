@@ -241,7 +241,7 @@ def gws_sum(mysql,selecthood=None):
 		SELECT router_gw.mac, COUNT(router_gw.router) AS count, SUM(router.clients) AS clients
 		FROM router
 		INNER JOIN router_gw ON router.id = router_gw.router
-		WHERE router_gw.selected = TRUE {}
+		WHERE router_gw.selected = TRUE AND router.status <> 'orphaned' {}
 		GROUP BY router_gw.mac
 	""".format(where),tup)
 	result = {}
