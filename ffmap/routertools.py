@@ -808,12 +808,18 @@ def parse_nodewatcher_xml(xml):
 			if (gw_mac and len(gw_mac)>12): # Throw away headline
 				gw = {
 					"mac": gw_mac.lower(),
-					"quality": evalxpathint(gw,"link_quality/text()"),
+					"quality": evalxpath(gw,"link_quality/text()"),
 					"nexthop": evalxpath(gw,"nexthop/text()",None),
 					"netif": evalxpath(gw,"outgoing_interface/text()",None),
 					"gw_class": evalxpath(gw,"gw_class/text()",None),
 					"selected": evalxpathbool(gw,"selected/text()")
 				}
+				if gw["quality"].startswith("false"):
+					gw["quality"] = gw["quality"][5:]
+				if gw["quality"]:
+					gw["quality"] = int(gw["quality"])
+				else:
+					gw["quality"] = 0
 				if gw["netif"]=="false":
 					tmp = gw["gw_class"].split(None,1)
 					gw["netif"] = tmp[0]
