@@ -188,11 +188,9 @@ def hoods_gws(mysql):
 def gws(mysql,selecthood=None):
 	if selecthood:
 		where = " AND hood=%s"
-		wherewhere = "WHERE hood=%s"
 		tup = (selecthood,)
 	else:
 		where = ""
-		wherewhere = ""
 		tup = ()
 	
 	macs = mysql.fetchall("""
@@ -201,22 +199,22 @@ def gws(mysql,selecthood=None):
 		INNER JOIN router_gw ON router.id = router_gw.router
 		LEFT JOIN (gw_netif INNER JOIN gw ON gw_netif.gw = gw.id)
 		ON router_gw.mac = gw_netif.mac
-		{}
+		WHERE router.status <> 'orphaned' {}
 		GROUP BY router_gw.mac
 		ORDER BY ISNULL(gw.name), gw.name ASC, gw_netif.netif ASC, router_gw.mac ASC
-	""".format(wherewhere),tup)
+	""".format(where),tup)
 	selected = mysql.fetchall("""
 		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
 		FROM router
 		INNER JOIN router_gw ON router.id = router_gw.router
-		WHERE router_gw.selected = TRUE {}
+		WHERE router_gw.selected = TRUE AND router.status <> 'orphaned' {}
 		GROUP BY router_gw.mac, router.status
 	""".format(where),tup)
 	others = mysql.fetchall("""
 		SELECT router_gw.mac, router.status, COUNT(router_gw.router) AS count
 		FROM router
 		INNER JOIN router_gw ON router.id = router_gw.router
-		WHERE router_gw.selected = FALSE {}
+		WHERE router_gw.selected = FALSE AND router.status <> 'orphaned' {}
 		GROUP BY router_gw.mac, router.status
 	""".format(where),tup)
 	
