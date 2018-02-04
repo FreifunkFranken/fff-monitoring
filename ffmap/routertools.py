@@ -780,7 +780,6 @@ def parse_nodewatcher_xml(xml):
 			o_nexthop = evalxpath(originator,"nexthop/text()")
 			# mac is the mac of the neighbour w2/5mesh if
 			# (which might also be called wlan0-1)
-			o_link_quality = evalxpath(originator,"link_quality/text()")
 			o_out_if = evalxpath(originator,"outgoing_interface/text()")
 			if o_mac.upper() == o_nexthop.upper():
 				# skip vpn server
@@ -793,7 +792,7 @@ def parse_nodewatcher_xml(xml):
 				neighbour = {
 					"mac": o_mac.lower(),
 					"netif": o_out_if,
-					"quality": int(o_link_quality),
+					"quality": evalxpathfloat(originator,"link_quality/text()"),
 					"type": "l2"
 				}
 				router_update["neighbours"].append(neighbour)
@@ -817,7 +816,7 @@ def parse_nodewatcher_xml(xml):
 				if gw["quality"].startswith("false"):
 					gw["quality"] = gw["quality"][5:]
 				if gw["quality"]:
-					gw["quality"] = int(gw["quality"])
+					gw["quality"] = float(gw["quality"])
 				else:
 					gw["quality"] = 0
 				if gw["netif"]=="false":
