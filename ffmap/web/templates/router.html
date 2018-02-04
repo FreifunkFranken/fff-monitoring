@@ -65,7 +65,7 @@
 						{%- endif %}
 						{%- if authadmin %}
 						<li><a href="#" onclick="$('#act').val('ban'); $('#actform').submit()">Ban Router</a></li>
-						<li><a href="#" onclick="$('#blockedform').submit()">Toggle blocked status</a></li>
+						<li><a href="#" onclick="$('#blockedform').submit()">{{ "Remove blocked status" if router.blocked else "Mark as blocked" }}</a></li>
 						{%- endif %}
 						<li><a href="#" onclick="$('#act').val('report'); $('#actform').submit()">Report abusive Router</a></li>
 					</ul>
@@ -158,7 +158,7 @@
 						{%- endif %}
 						<tr><th>Hardware</th><td><span title="{{ router.chipset }}">{{ router.hardware }}</span></td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.wan_uplink else "glyphicon glyphicon-remove" }}"></span>
-						{%- if router.blocked %}
+						{%- if router.blocked and not router.v2 %}
 						<span style="color:#d90000"> &nbsp; - &nbsp; Router BLOCKED by KeyXchange!</span>
 						{%- endif -%}
 						</td></tr>
