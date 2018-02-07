@@ -135,7 +135,7 @@ function neighbour_graph(neighbours) {
 	var plot = $.plot(meshstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0},
+		yaxis: {min: 0, autoscaleMargin: 0.5},
 		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(meshstat.width() * points_per_px)}}
 	});
