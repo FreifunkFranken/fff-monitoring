@@ -124,7 +124,7 @@ function neighbour_graph(neighbours) {
 				if(quality == null) {
 					quality = 0;
 				}
-				data.push([date_value, quality]);
+				data.push([date_value, Math.abs(quality)]);
 			}
 			catch(TypeError) {
 				// pass
@@ -135,7 +135,7 @@ function neighbour_graph(neighbours) {
 	var plot = $.plot(meshstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0, max: 400},
+		yaxis: {min: 0, autoscaleMargin: 0.5},
 		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(meshstat.width() * points_per_px)}}
 	});
