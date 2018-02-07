@@ -51,7 +51,7 @@ def router_list():
 	mysql = FreifunkMySQL()
 	
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, clients, reset, blocked, v2
+		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, last_contact, clients, reset, blocked, v2
 		FROM router
 		LEFT JOIN users ON router.contact = users.email
 		LEFT JOIN (
@@ -65,6 +65,7 @@ def router_list():
 	""".format(where),tuple)
 	mysql.close()
 	routers = mysql.utcawaretuple(routers,"created")
+	routers = mysql.utcawaretuple(routers,"last_contact")
 	
 	return render_template("router_list.html", query_str=query_str, routers=routers, numrouters=len(routers))
 
