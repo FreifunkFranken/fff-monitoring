@@ -29,7 +29,7 @@
 	<table id="routerlist" class="table table-condensed table-striped table-bordered" style="margin-bottom: 8px;">
 		<thead>
 			<tr>
-				<th style="width: 1%; padding-right: 5px; min-width: 90px;">Hostname</th>
+				<th style="width: 1%; padding-right: 5px; min-width: 240px;">Hostname</th>
 				<th style="width: 45px; padding-right: 5px;">Status</th>
 				<th style="padding-right: 5px;">Hood</th>
 				<th style="padding-right: 5px;">User</th>
@@ -37,13 +37,13 @@
 				<th style="padding-right: 5px;">Created</th>
 				<th style="padding-right: 5px;">Uptime</th>
 				<th style="padding-right: 5px;">Last contact</th>
-				<th>Clients</th>
+				<th>Users</th>
 			</tr>
 		</thead>
 		<tbody>
 			{%- for router in routers %}
 			<tr>
-				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router.id) }}">{{ router.hostname }}</a>
+				<td class="text-responsive"><a href="{{ url_for("router_info", dbid=router.id) }}">{{ router.hostname }}</a>
 				{%- if router.reset %} - <span style="color:#d90000">Reset!</span>{%- endif %}{%- if router.blocked and not router.v2 %} - <span style="color:#d90000">Blocked!</span>{%- endif %}
 				</td>
 				<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
@@ -51,7 +51,7 @@
 				<td>{{ router.nickname if router.nickname else "" }}</td>
 				<td class="text-nowrap">{{ router.hardware }}</td>
 				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
-				<td class="text-nowrap">{{ router.sys_uptime|format_ts_diff }}</td>
+				<td class="text-nowrap" data-order="{{ router.sys_uptime if router.status == "online" else 0 }}">{{ router.sys_uptime|format_ts_diff }}</td>
 				<td class="text-nowrap">{{ router.last_contact|utc2local|format_dt_date }}</td>
 				<td>{{ router.clients }}</td>
 			</tr>
@@ -73,7 +73,6 @@
 			},*/
 			"columnDefs": [
 				{"orderable": false, "targets": 1},
-				{"orderable": false, "targets": -3},
 			]
 		});
 	});
