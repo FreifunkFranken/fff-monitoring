@@ -18,7 +18,7 @@ filters = Blueprint("filters", __name__)
 @filters.app_template_filter('neighbour_color')
 def neighbour_color(quality):
 	color = "#04ff0a"
-	if quality == -1:
+	if quality < 0:
 		color = "#06a4f4"
 	elif quality < 105:
 		color = "#ff1e1e"
