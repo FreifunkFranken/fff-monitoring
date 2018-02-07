@@ -36,6 +36,7 @@
 				<th style="padding-right: 5px;">Hardware</th>
 				<th style="padding-right: 5px;">Created</th>
 				<th style="padding-right: 5px;">Uptime</th>
+				<th style="padding-right: 5px;">Last contact</th>
 				<th>Clients</th>
 			</tr>
 		</thead>
@@ -51,6 +52,7 @@
 				<td class="text-nowrap">{{ router.hardware }}</td>
 				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
 				<td class="text-nowrap">{{ router.sys_uptime|format_ts_diff }}</td>
+				<td class="text-nowrap">{{ router.last_contact|utc2local|format_dt_date }}</td>
 				<td>{{ router.clients }}</td>
 			</tr>
 			{%- endfor %}
@@ -71,7 +73,7 @@
 			},*/
 			"columnDefs": [
 				{"orderable": false, "targets": 1},
-				{"orderable": false, "targets": -2},
+				{"orderable": false, "targets": -3},
 			]
 		});
 	});
