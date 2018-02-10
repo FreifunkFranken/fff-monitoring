@@ -157,6 +157,7 @@ def status2css(status):
 		"netmon": "primary",
 		"update": "primary",
 		"orphaned": "default",
+		"admin": "warning",
 	}
 	return "label label-%s" % status_map.get(status, "default")
 
