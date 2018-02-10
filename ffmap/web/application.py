@@ -112,10 +112,13 @@ def router_info(dbid):
 
 			router["user"] = mysql.findone("SELECT nickname FROM users WHERE email = %s",(router["contact"],),"nickname")
 			router["netifs"] = mysql.fetchall("""SELECT * FROM router_netif WHERE router = %s""",(dbid,))
+			
+			netifs = []
 			for n in router["netifs"]:
 				n["ipv6_addrs"] = mysql.fetchall("""SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = %s""",(dbid,n["netif"],),"ipv6")
 				if n["netif"]=="br-mesh":
 					mac = n["mac"]
+				netifs.append(n["netif"])
 			
 			router["neighbours"] = mysql.fetchall("""
 				SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
@@ -150,6 +153,75 @@ def router_info(dbid):
 			if request.args.get('json', None) != None:
 				mysql.close()
 				return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
+			
+			cwan = "blue"
+			cclient = "orange"
+			cbatman = "green"
+			cvpn = "red"
+			chidden = "gray"
+			
+			## Label netifs AFTER json if clause
+			for n in router["netifs"]:
+				netif = n["netif"];
+				desc = None
+				color = None
+				if netif == 'br-mesh':
+					desc = "Bridge"
+				elif netif.endswith('.1'):
+					desc = "Clients via Ethernet"
+					color = cclient
+				elif netif.endswith('.2'):
+					desc = "WAN"
+					color = cwan
+				elif netif.endswith('.3'):
+					desc = "Mesh via Ethernet"
+					color = cbatman
+				elif netif == "w2ap":
+					desc = "Clients @ 2.4 GHz"
+					color = cclient
+				elif netif == "w2mesh" or netif == "w2ibss":
+					desc = "Mesh @ 2.4 GHz"
+					color = cbatman
+				elif netif == "w2configap":
+					desc = "Config @ 2.4 GHz"
+					color = chidden
+				elif netif == "w5ap":
+					desc = "Clients @ 5 GHz"
+					color = cclient
+				elif netif == "w5mesh" or netif == "w5ibss":
+					desc = "Mesh @ 5 GHz"
+					color = cbatman
+				elif netif == "w5configap":
+					desc = "Config @ 5 GHz"
+					color = chidden
+				elif netif == "fffVPN":
+					desc = "Fastd VPN Tunnel"
+					color = cvpn
+				elif netif.startswith("l2tp"):
+					desc = "L2TP VPN Tunnel"
+					color = cvpn
+				elif netif.startswith("bat"):
+					desc = "Batman Interface"
+				elif netif.startswith("eth") and any(item.startswith("{}.".format(netif)) for item in netifs):
+					desc = "Switch"
+				elif netif == "eth1":
+					# already known from above: no switch; no one-port, as there must be eth0
+					if not "eth0" in netifs or any(item.startswith("eth0.") for item in netifs):
+						desc = "WAN"
+						color = cwan
+					else:
+						# Second port of Nanostation M2
+						desc = "Ethernet Multi-Port"
+				elif netif == "eth0":
+					if any(item.startswith("eth1.") for item in netifs):
+						# already known from above: no switch
+						desc = "WAN"
+						color = cwan
+					else:
+						# First port of Nanostation M2 or ONE-Port
+						desc = "Ethernet Multi-Port"
+				n["description"] = desc
+				n["color"] = color
 			
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:

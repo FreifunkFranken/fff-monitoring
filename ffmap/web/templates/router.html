@@ -33,6 +33,9 @@
 		.clientinfo {
 			font-weight:bold;
 		}
+		.netifdesc {
+			font-style:italic;
+		}
 
 		/* hack to remove flex css on small single-column layout */
 		@media(max-width:991px) {
@@ -254,8 +257,8 @@
 				{%- for netif in router.netifs if netif.netif == 'br-mesh' %}
 					<li class="list-group-item active" data-name="{{ netif.netif|replace('.', '')|replace('$', '') }}">
 						<div class="row">
-							<div class="col-xs-6 col-sm-6"><h4 class="list-group-item-heading">{{ netif.netif }}</h4></div>
-							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;"><h4 class="list-group-item-heading">{{ netif.mac }}</h4></div>
+							<div class="col-xs-7 col-sm-7"><h4 class="list-group-item-heading">br-mesh: <span class="netifdesc">Bridge</span></h4></div>
+							<div class="col-xs-5 col-sm-5 text-right" style="text-transform: uppercase;"><h4 class="list-group-item-heading">{{ netif.mac }}</h4></div>
 						</div>
 						<div class="row">
 							<div class="col-xs-5 col-sm-5">
@@ -283,8 +286,8 @@
 				{%- for netif in router.netifs if netif.netif != 'br-mesh' %}
 					<li class="list-group-item" data-name="{{ netif.netif|replace('.', '')|replace('$', '') }}">
 						<div class="row">
-							<div class="col-xs-6 col-sm-6"><h4 class="list-group-item-heading">{{ netif.netif }}</h4></div>
-							<div class="col-xs-6 col-sm-6 text-right" style="text-transform: uppercase;"><h4 class="list-group-item-heading">{{ netif.mac }}</h4></div>
+							<div class="col-xs-7 col-sm-7"><h4 class="list-group-item-heading" style="{%- if netif.color -%}color:{{ netif.color }}{%- endif -%}">{{ netif.netif }}{%- if netif.description -%}: <span class="netifdesc">{{ netif.description }}</span>{%- endif %}</h4></div>
+							<div class="col-xs-5 col-sm-5 text-right" style="text-transform: uppercase;"><h4 class="list-group-item-heading">{{ netif.mac }}</h4></div>
 						</div>
 						<div class="row">
 							<div class="col-xs-12 col-sm-12" style="padding-bottom:6px;font-size:14px">
