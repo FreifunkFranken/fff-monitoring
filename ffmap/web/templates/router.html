@@ -194,7 +194,7 @@
 						<tr><th>Firmware</th><td><span title="{{ router.firmware_rev }}">{{ router.firmware }}</span></td></tr>
 						<tr><th>Operating&nbsp;System</th><td>{{ router.os }}</td></tr>
 						<tr><th>Kernel</th><td>{{ router.kernel }}</td></tr>
-						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.batman }}</td></tr>
+						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.batman }}{%- if router.routing_protocol -%}&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;Routing: {{ router.routing_protocol }}{%- endif -%}</td></tr>
 						<tr><th>Nodewatcher</th><td>{{ router.nodewatcher }}</td></tr>
 					</table>
 				</div>
