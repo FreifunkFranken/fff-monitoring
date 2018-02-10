@@ -6,7 +6,7 @@ from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats
 from ffmap.config import CONFIG
-from ffmap.misc import writelog, writefulllog
+from ffmap.misc import writelog, writefulllog, neighbor_color
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from bson.json_util import dumps as bson2json
@@ -37,8 +37,8 @@ def get_nearest_router():
 		where = " AND h.id IS NULL "
 	
 	mysql = FreifunkMySQL()
-	res_router = mysql.findone("""
-		SELECT r.id, r.hostname, r.lat, r.lng, r.description,
+	router = mysql.findone("""
+		SELECT r.id, r.hostname, r.lat, r.lng, r.description, r.routing_protocol,
 			( acos(  cos( radians(%s) )
 						  * cos( radians( r.lat ) )
 						  * cos( radians( r.lng ) - radians(%s) )
@@ -54,17 +54,19 @@ def get_nearest_router():
 		LIMIT 1
 	""",(lat,lng,lat,))
 	
-	res_router["neighbours"] = mysql.fetchall("""
+	router["neighbours"] = mysql.fetchall("""
 		SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
 		FROM router_neighbor AS nb
 		INNER JOIN (
 			SELECT router, mac FROM router_netif GROUP BY mac, router
 			) AS net ON nb.mac = net.mac
 		INNER JOIN router as r ON net.router = r.id
-		WHERE nb.router = %s""",(res_router["id"],))
+		WHERE nb.router = %s""",(router["id"],))
 	mysql.close()
+	for n in router["neighbours"]:
+		n["color"] = neighbor_color(n["quality"],router["routing_protocol"])
 	
-	r = make_response(bson2json(res_router))
+	r = make_response(bson2json(router))
 	r.mimetype = 'application/json'
 	return r
 

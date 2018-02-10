@@ -144,15 +144,7 @@ map.on('click', function(pos) {
 					neighbour = router.neighbours[i];
 					// skip unknown neighbours
 					if ('id' in neighbour) {
-						var tr_color = "#04ff0a";
-						if      (neighbour.quality < 0) { tr_color = "#06a4f4"; }
-						else if (neighbour.quality < 105) { tr_color = "#ff1e1e"; }
-						else if (neighbour.quality < 130) { tr_color = "#ff4949"; }
-						else if (neighbour.quality < 155) { tr_color = "#ff6a6a"; }
-						else if (neighbour.quality < 180) { tr_color = "#ffac53"; }
-						else if (neighbour.quality < 205) { tr_color = "#ffeb79"; }
-						else if (neighbour.quality < 230) { tr_color = "#79ff7c"; }
-						popup_html += "<tr style=\"background-color: "+tr_color+";\">";
+						popup_html += "<tr style=\"background-color: "+neighbour.color+";\">";
 						popup_html += '<td><a href="'+url_router_info+neighbour.id+'" title="'+escapeHTML(neighbour.mac)+'">'+escapeHTML(neighbour.hostname)+'</a></td>';
 						popup_html += "<td>"+neighbour.quality+"</td>";
 						popup_html += "<td>"+escapeHTML(neighbour.netif)+"</td>";

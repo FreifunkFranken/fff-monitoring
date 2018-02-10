@@ -233,7 +233,7 @@
 								<th>Interface</th>
 							</tr>
 							{%- for neighbour in router.neighbours %}
-							<tr style="background-color: {{ neighbour.quality|neighbour_color }};">
+							<tr style="background-color: {{ neighbour.color }};">
 								
 								<td>{%- if neighbour.hostname -%}<a href="{{ url_for('router_info', dbid=neighbour.id) }}">{{ neighbour.hostname }}</a>{%- else -%}---{%- endif -%}</td>
 								<td>{{ neighbour.mac }}</td>
