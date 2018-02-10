@@ -175,6 +175,11 @@
 						 &nbsp; (Ethernet: <span class="clientinfo">{{ router.clients_eth }}</span>{%- if router.clients_w2 != None %}, 2.4 GHz: <span class="clientinfo">{{ router.clients_w2 }}</span>{%- endif -%}{%- if router.clients_w5 != None %}, 5 GHz: <span class="clientinfo">{{ router.clients_w5 }}</span>{%- endif -%})
 						{%- endif -%}
 						</td></tr>
+						{%- if router.w2_airtime != None or router.w5_airtime != None -%}
+						<tr><th>Airtime</th><td>
+						{%- if router.w2_airtime != None -%}2.4 GHz: <span class="clientinfo">{{ router.w2_airtime|format_airtime }}</span>{%- endif -%}{%- if router.w2_airtime != None and router.w5_airtime != None -%},&nbsp;{%- endif -%}{%- if router.w5_airtime != None -%}5 GHz: <span class="clientinfo">{{ router.w5_airtime|format_airtime }}</span>{%- endif -%}
+						</td></tr>
+						{%- endif -%}
 					</table>
 				</div>
 			</div>
