@@ -50,6 +50,7 @@ if (window.matchMedia("(min--moz-device-pixel-ratio: 1.5),(-o-min-device-pixel-r
 }
 
 var popup;
+var popupopen = false;
 
 function update_mappos_permalink() {
 	if (typeof mapurl != 'undefined') {
@@ -105,6 +106,7 @@ map.on('click', function(pos) {
 
 		// check if mouse click was on the router icon
 		if (router && px_distance <= router_pointer_radius) {
+			popupopen = true;
 			console.log("Click on '"+router.hostname+"' detected.");
 			console.log(router);
 			var popup_html = "";
@@ -163,7 +165,10 @@ map.on('click', function(pos) {
 				.setLatLng([router.lat, router.lng])
 				.setContent(popup_html)
 				.openOn(map);
+		} else if(popupopen) {
+			popupopen = false;
 		} else {
+			popupopen = true;
 			console.log("Click on lat: "+lat+", lng: "+lng+" detected.");
 			var popup_html = "<div class=\"popup-headline\">";
 			
