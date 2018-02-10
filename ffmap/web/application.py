@@ -116,7 +116,44 @@ def router_info(dbid):
 			
 			netifs = []
 			for n in router["netifs"]:
+				n["ipv6_addrs"] = mysql.fetchall("""SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = %s""",(dbid,n["netif"],),"ipv6")
+				if n["netif"]=="br-mesh":
+					mac = n["mac"]
 				netifs.append(n["netif"])
+			
+			router["neighbours"] = mysql.fetchall("""
+				SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
+				FROM router_neighbor AS nb
+				LEFT JOIN (
+					SELECT router, mac FROM router_netif GROUP BY mac, router
+					) AS net ON nb.mac = net.mac
+				LEFT JOIN router as r ON net.router = r.id
+				WHERE nb.router = %s
+				ORDER BY nb.quality DESC
+			""",(dbid,))
+			# FIX SQL: only one from router_netif
+			
+			router["gws"] = mysql.fetchall("""
+				SELECT router_gw.mac AS mac, quality, router_gw.netif AS netif, gw_class, selected, gw.name AS gw, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac
+				FROM router_gw
+				LEFT JOIN (
+					gw_netif AS n1
+					INNER JOIN gw ON n1.gw = gw.id
+					LEFT JOIN gw_netif AS n2 ON n1.mac = n2.vpnmac AND n1.gw = n2.gw
+				) ON router_gw.mac = n1.mac
+				WHERE router = %s
+			""",(dbid,))
+			for gw in router["gws"]:
+				gw["label"] = gw_name(gw)
+				gw["batX"] = gw_bat(gw)
+			
+			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
+			router["events"] = mysql.utcawaretuple(router["events"],"time")
+			
+			## Create json with all data except stats
+			if request.args.get('json', None) != None:
+				mysql.close()
+				return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 			
 			cwan = "blue"
 			cclient = "orange"
@@ -124,11 +161,8 @@ def router_info(dbid):
 			cvpn = "red"
 			chidden = "gray"
 			
+			## Label netifs AFTER json if clause
 			for n in router["netifs"]:
-				n["ipv6_addrs"] = mysql.fetchall("""SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = %s""",(dbid,n["netif"],),"ipv6")
-				if n["netif"]=="br-mesh":
-					mac = n["mac"]
-				
 				netif = n["netif"];
 				desc = None
 				color = None
@@ -181,40 +215,6 @@ def router_info(dbid):
 					color = cwan
 				n["description"] = desc
 				n["color"] = color
-			
-			router["neighbours"] = mysql.fetchall("""
-				SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
-				FROM router_neighbor AS nb
-				LEFT JOIN (
-					SELECT router, mac FROM router_netif GROUP BY mac, router
-					) AS net ON nb.mac = net.mac
-				LEFT JOIN router as r ON net.router = r.id
-				WHERE nb.router = %s
-				ORDER BY nb.quality DESC
-			""",(dbid,))
-			# FIX SQL: only one from router_netif
-			
-			router["gws"] = mysql.fetchall("""
-				SELECT router_gw.mac AS mac, quality, router_gw.netif AS netif, gw_class, selected, gw.name AS gw, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac
-				FROM router_gw
-				LEFT JOIN (
-					gw_netif AS n1
-					INNER JOIN gw ON n1.gw = gw.id
-					LEFT JOIN gw_netif AS n2 ON n1.mac = n2.vpnmac AND n1.gw = n2.gw
-				) ON router_gw.mac = n1.mac
-				WHERE router = %s
-			""",(dbid,))
-			for gw in router["gws"]:
-				gw["label"] = gw_name(gw)
-				gw["batX"] = gw_bat(gw)
-			
-			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
-			router["events"] = mysql.utcawaretuple(router["events"],"time")
-			
-			## Create json with all data except stats
-			if request.args.get('json', None) != None:
-				mysql.close()
-				return Response(bson2json(router, sort_keys=True, indent=4), mimetype='application/json')
 			
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
