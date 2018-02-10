@@ -13,7 +13,7 @@ from ffmap.routertools import delete_router, ban_router
 from ffmap.gwtools import gw_name, gw_bat
 from ffmap.web.helpers import *
 from ffmap.config import CONFIG
-from ffmap.misc import writelog, writefulllog
+from ffmap.misc import writelog, writefulllog, neighbor_color
 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash, session
 import bson
@@ -215,6 +215,10 @@ def router_info(dbid):
 					color = cwan
 				n["description"] = desc
 				n["color"] = color
+			
+			## Set color for neighbors AFTER json if clause
+			for n in router["neighbours"]:
+				n["color"] = neighbor_color(n["quality"],router["routing_protocol"])
 			
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
