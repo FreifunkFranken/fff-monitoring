@@ -113,10 +113,74 @@ def router_info(dbid):
 
 			router["user"] = mysql.findone("SELECT nickname FROM users WHERE email = %s",(router["contact"],),"nickname")
 			router["netifs"] = mysql.fetchall("""SELECT * FROM router_netif WHERE router = %s""",(dbid,))
+			
+			netifs = []
+			for n in router["netifs"]:
+				netifs.append(n["netif"])
+			
+			cwan = "blue"
+			cclient = "orange"
+			cbatman = "green"
+			cvpn = "red"
+			chidden = "gray"
+			
 			for n in router["netifs"]:
 				n["ipv6_addrs"] = mysql.fetchall("""SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = %s""",(dbid,n["netif"],),"ipv6")
 				if n["netif"]=="br-mesh":
 					mac = n["mac"]
+				
+				netif = n["netif"];
+				desc = None
+				color = None
+				if netif == 'br-mesh':
+					desc = "Bridge"
+				elif netif.endswith('.1'):
+					desc = "Clients via Ethernet"
+					color = cclient
+				elif netif.endswith('.2'):
+					desc = "WAN"
+					color = cwan
+				elif netif.endswith('.3'):
+					desc = "Mesh via Ethernet"
+					color = cbatman
+				elif netif == "w2ap":
+					desc = "Clients @ 2.4 GHz"
+					color = cclient
+				elif netif == "w2mesh" or netif == "w2ibss":
+					desc = "Mesh @ 2.4 GHz"
+					color = cbatman
+				elif netif == "w2configap":
+					desc = "Config @ 2.4 GHz"
+					color = chidden
+				elif netif == "w5ap":
+					desc = "Clients @ 5 GHz"
+					color = cclient
+				elif netif == "w5mesh" or netif == "w5ibss":
+					desc = "Mesh @ 5 GHz"
+					color = cbatman
+				elif netif == "w5configap":
+					desc = "Config @ 5 GHz"
+					color = chidden
+				elif netif == "fffVPN":
+					desc = "Fastd tunnel"
+					color = cvpn
+				elif netif.startswith("l2tp"):
+					desc = "L2TP tunnel"
+					color = cvpn
+				elif netif.startswith("bat"):
+					desc = "Batman interface"
+				elif netif.startswith("eth") and "{}.1".format(netif) in netifs:
+					desc = "Switch"
+				elif netif == "eth0" and not "eth1" in netifs:
+					desc = "One-Port"
+				elif netif == "eth1" and "eth0.1" in netifs:
+					desc = "WAN"
+					color = cwan
+				elif netif == "eth0" and "eth1.1" in netifs:
+					desc = "WAN"
+					color = cwan
+				n["description"] = desc
+				n["color"] = color
 			
 			router["neighbours"] = mysql.fetchall("""
 				SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
