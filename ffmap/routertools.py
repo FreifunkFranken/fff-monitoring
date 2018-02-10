@@ -153,7 +153,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 				sys_loadavg = %s, sys_procrun = %s, sys_proctot = %s, clients = %s, clients_eth = %s, clients_w2 = %s, clients_w5 = %s,
 				w2_active = %s, w2_busy = %s, w5_active = %s, w5_busy = %s, w2_airtime = %s, w5_airtime = %s, wan_uplink = %s, tc_enabled = %s, tc_in = %s, tc_out = %s,
 				cpu = %s, chipset = %s, hardware = %s, os = %s,
-				batman = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s, v2 = %s,
+				batman = %s, routing_protocol = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s, v2 = %s,
 				status_text = %s, contact = %s, lng = %s, lat = %s, neighbors = %s, reset = %s
 				WHERE id = %s
 			""",(
@@ -161,7 +161,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				ru["w2_active"],ru["w2_busy"],ru["w5_active"],ru["w5_busy"],ru["w2_airtime"],ru["w5_airtime"],ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
 			# Previously, I just deleted all entries and recreated them again with INSERT.
@@ -211,15 +211,15 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 				sys_loadavg, sys_procrun, sys_proctot, clients, clients_eth, clients_w2, clients_w5,
 				w2_active, w2_busy, w5_active, w5_busy, w2_airtime, w5_airtime, wan_uplink, tc_enabled, tc_in, tc_out,
 				cpu, chipset, hardware, os,
-				batman, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood, v2,
+				batman, routing_protocol, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood, v2,
 				status_text, contact, lng, lat, neighbors)
-				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
 				ru["status"],ru["hostname"],created,ru["last_contact"],ru["sys_time"],ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				None,None,None,None,None,None,ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],))
 			router_id = mysql.cursor().lastrowid
 			
@@ -711,6 +711,7 @@ def parse_nodewatcher_xml(xml):
 			"os": "%s (%s)" % (evalxpath(tree,"/data/system_data/distname/text()"),
 					   evalxpath(tree,"/data/system_data/distversion/text()")),
 			"batman_adv": evalxpath(tree,"/data/system_data/batman_advanced_version/text()"),
+			"rt_protocol": evalxpath(tree,"/data/system_data/rt_protocol/text()",None),
 			"kernel": evalxpath(tree,"/data/system_data/kernel_version/text()"),
 			"nodewatcher": evalxpath(tree,"/data/system_data/nodewatcher_version/text()"),
 			#"fastd": evalxpath(tree,"/data/system_data/fastd_version/text()"),
