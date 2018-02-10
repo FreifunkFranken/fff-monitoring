@@ -199,3 +199,7 @@ def webui_addr(router_netifs):
 					return ipv6
 	except (KeyError, TypeError):
 		return None
+
+@filters.app_template_filter('format_airtime')
+def format_airtime(airtime):
+	return "%.0f %%" % (airtime*100)
