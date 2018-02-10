@@ -414,7 +414,7 @@
 		];
 		var gws = [
 		{%- for gw in router.gws %}
-			{"name": "{{ gw.mac }}", "mac": "{{ gw.mac }}", "netif": "{{ gw.netif }}"},
+			{"name": "{{ gw.label }}", "mac": "{{ gw.mac }}", "netif": "{{ gw.netif }}"},
 		{%- endfor %}
 		];
 		$(document).ready(function() {
