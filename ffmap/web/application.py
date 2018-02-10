@@ -162,21 +162,21 @@ def router_info(dbid):
 					desc = "Config @ 5 GHz"
 					color = chidden
 				elif netif == "fffVPN":
-					desc = "Fastd tunnel"
+					desc = "Fastd VPN Tunnel"
 					color = cvpn
 				elif netif.startswith("l2tp"):
-					desc = "L2TP tunnel"
+					desc = "L2TP VPN Tunnel"
 					color = cvpn
 				elif netif.startswith("bat"):
-					desc = "Batman interface"
-				elif netif.startswith("eth") and "{}.1".format(netif) in netifs:
+					desc = "Batman Interface"
+				elif netif.startswith("eth") and any(item.startswith("{}.".format(netif)) for item in netifs):
 					desc = "Switch"
 				elif netif == "eth0" and not "eth1" in netifs:
-					desc = "One-Port"
-				elif netif == "eth1" and "eth0.1" in netifs:
+					desc = "Ethernet Multi-Port"
+				elif netif == "eth1": # already known from above: no switch; no one-port, as there must be eth0
 					desc = "WAN"
 					color = cwan
-				elif netif == "eth0" and "eth1.1" in netifs:
+				elif netif == "eth0": # already known from above: no switch, eth1 present
 					desc = "WAN"
 					color = cwan
 				n["description"] = desc
