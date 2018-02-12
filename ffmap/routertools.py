@@ -424,6 +424,24 @@ def delete_unlinked_routers(mysql):
 		print("--- Deleted %i rows from %s: %.3f seconds ---" % (mysql.cursor().rowcount,t,time.time() - start_time))
 	mysql.commit()
 
+def delete_stats_helper(mysql,label,query,tuple):
+	minustime=0
+	rowsaffected=1
+	allrows=0
+	start_time = time.time()
+	while rowsaffected > 0:
+		try:
+			rowsaffected = mysql.execute(query,tuple)
+			mysql.commit()
+			allrows += rowsaffected
+		except my.OperationalError:
+			rowsaffected = 1
+		time.sleep(10)
+		minustime += 10
+	end_time = time.time()
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from %s stats: %.3f seconds" % (allrows,label,end_time - start_time - minustime))
+	print("--- Deleted %i rows from %s stats: %.3f seconds ---" % (allrows,label,end_time - start_time - minustime))
+
 def delete_old_stats(mysql):
 	threshold=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
 	threshold_netif=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
@@ -439,45 +457,28 @@ def delete_old_stats(mysql):
 	print("--- Deleted %i rows from stats: %.3f seconds ---" % (rowsaffected,time.time() - start_time))
 
 	time.sleep(10)
-	start_time = time.time()
-	rowsaffected = mysql.execute("""
-		DELETE FROM router_stats_gw
-		WHERE router_stats_gw.time < %s
-	""",(threshold,))
-	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from gw-stats: %.3f seconds" % (rowsaffected,time.time() - start_time))
-	print("--- Deleted %i rows from gw-stats: %.3f seconds ---" % (rowsaffected,time.time() - start_time))
-
-	time.sleep(10)
-	start_time = time.time()
-	rowsaffected = mysql.execute("""
-		DELETE FROM router_stats_neighbor
-		WHERE router_stats_neighbor.time < %s
-	""",(threshold,))
-	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from neighbor-stats: %.3f seconds" % (rowsaffected,time.time() - start_time))
-	print("--- Deleted %i rows from neighbor-stats: %.3f seconds ---" % (rowsaffected,time.time() - start_time))
+	query = """
+				DELETE FROM router_stats_gw
+				WHERE router_stats_gw.time < %s
+				LIMIT 100000
+			"""
+	delete_stats_helper(mysql,"gw-stats",query,(threshold,))
 
 	time.sleep(30)
-	minustime=0
-	rowsaffected=1
-	allrows=0
-	start_time = time.time()
-	while rowsaffected > 0:
-		try:
-			rowsaffected = mysql.execute("""
+	query = """
+				DELETE FROM router_stats_neighbor
+				WHERE router_stats_neighbor.time < %s
+				LIMIT 100000
+			"""
+	delete_stats_helper(mysql,"neighbor-stats",query,(threshold,))
+
+	time.sleep(30)
+	query = """
 				DELETE FROM router_stats_netif
 				WHERE router_stats_netif.time < %s
 				LIMIT 100000
-			""",(threshold_netif,))
-			mysql.commit()
-			allrows += rowsaffected
-		except my.OperationalError:
-			rowsaffected = 1
-		time.sleep(10)
-		minustime += 10
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from netif stats: %.3f seconds" % (allrows,time.time() - start_time - minustime))
-	print("--- Deleted %i rows from netif stats: %.3f seconds ---" % (allrows,time.time() - start_time - minustime))
+			"""
+	delete_stats_helper(mysql,"netif-stats",query,(threshold_netif,))
 
 	start_time = time.time()
 	allrows=0
