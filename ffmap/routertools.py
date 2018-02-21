@@ -749,19 +749,6 @@ def parse_nodewatcher_xml(xml):
 		router_update["lng"] = lng
 		router_update["lat"] = lat
 
-		#FIXME: tmp workaround to get similar hardware names
-		router_update["hardware"] = router_update["hardware"].replace("nanostation-m", "Ubiquiti Nanostation M")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr1043nd-v1", "TP-Link TL-WR1043N/ND v1")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr1043nd-v2", "TP-Link TL-WR1043N/ND v2")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr741nd-v2", "TP-Link TL-WR741N/ND v2")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr741nd-v4", "TP-Link TL-WR741N/ND v4")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr841nd-v7", "TP-Link TL-WR841N/ND v7")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr841n-v8", "TP-Link TL-WR841N/ND v8")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr841n-v9", "TP-Link TL-WR841N/ND v9")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr841nd-v9", "TP-Link TL-WR841N/ND v9")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wr842n-v2", "TP-Link TL-WR842N/ND v2")
-		router_update["hardware"] = router_update["hardware"].replace("tl-wdr4300", "TP-Link TL-WDR4300")
-
 		for netif in tree.xpath("/data/interface_data/*"):
 			interface = {
 				"name": evalxpath(netif,"name/text()"),
