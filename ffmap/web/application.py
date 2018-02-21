@@ -205,14 +205,20 @@ def router_info(dbid):
 					desc = "Batman Interface"
 				elif netif.startswith("eth") and any(item.startswith("{}.".format(netif)) for item in netifs):
 					desc = "Switch"
-				elif netif == "eth0" and not "eth1" in netifs:
+				elif netif == "eth1" and any(item.startswith("eth0.") for item in netifs):
+					# already known from above: no switch; no one-port, as there must be eth0
+					desc = "WAN"
+					color = cwan
+				elif netif == "eth1":
+					# Second port of Nanostation M2
 					desc = "Ethernet Multi-Port"
-				elif netif == "eth1": # already known from above: no switch; no one-port, as there must be eth0
+				elif netif == "eth0" and any(item.startswith("eth1.") for item in netifs):
+					# already known from above: no switch
 					desc = "WAN"
 					color = cwan
-				elif netif == "eth0": # already known from above: no switch, eth1 present
-					desc = "WAN"
-					color = cwan
+				elif netif == "eth0":
+					# First port of Nanostation M2 or ONE-Port
+					desc = "Ethernet Multi-Port"
 				n["description"] = desc
 				n["color"] = color
 			
