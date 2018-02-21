@@ -147,7 +147,6 @@
 							{%- endif -%}
 						</td></tr>
 						{%- endif %}
-						{%- if router.user or router.contact %}
 						<tr><th>User</th><td>
 						{%- if router.user -%}
 						<a href="{{ url_for('user_info', nickname=router.user) }}">{{ router.user }}</a>
@@ -155,10 +154,13 @@
 						(<a href="{{ url_for('router_list', q='contact:%s' % router.contact|anon_email_regex) }}">{{ router.contact|anon_email }}</a>)
 						{%- endif -%}
 						{%- else -%}
+						{%- if router.contact %}
 						<a href="{{ url_for('router_list', q='contact:%s' % router.contact|anon_email_regex) }}">{{ router.contact|anon_email }}</a>
+						{%- else -%}
+						<span style="color:#d90000">FFF routers must have a contact address, but none is set.<br />Please provide a valid e-mail address!</span>
+						{%- endif -%}
 						{%- endif -%}
 						</td></tr>
-						{%- endif %}
 						<tr><th>Hardware</th><td><span title="{{ router.chipset }}">{{ router.hardware }}</span></td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.wan_uplink else "glyphicon glyphicon-remove" }}"></span>
 						{%- if router.blocked and not router.v2 %}
