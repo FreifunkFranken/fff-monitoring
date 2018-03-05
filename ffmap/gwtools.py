@@ -16,6 +16,7 @@ def import_gw_data(mysql, gw_data):
 	if "hostname" in gw_data and "netifs" in gw_data:
 		time = utcnow().strftime('%Y-%m-%d %H:%M:%S')
 		stats_page = gw_data.get("stats_page","")
+
 		if not stats_page:
 			stats_page = None
 		newid = mysql.findone("SELECT id FROM gw WHERE name = %s LIMIT 1",(gw_data["hostname"],),"id")
@@ -47,17 +48,18 @@ def import_gw_data(mysql, gw_data):
 			else:
 				n["vpnmac"] = None
 			
-			ndata.append((newid,n["mac"],n["netif"],n["vpnmac"]))
+			ndata.append((newid,n["mac"],n["netif"],n["vpnmac"],time,))
 		
 		mysql.executemany("""
-			INSERT INTO gw_netif (gw, mac, netif, vpnmac)
-			VALUES (%s, %s, %s, %s)
+			INSERT INTO gw_netif (gw, mac, netif, vpnmac, last_contact)
+			VALUES (%s, %s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
 				gw=VALUES(gw),
 				netif=VALUES(netif),
-				vpnmac=VALUES(vpnmac)
+				vpnmac=VALUES(vpnmac),
+				last_contact=VALUES(last_contact)
 		""",ndata)
-		
+
 		adata = []
 		aid = 0
 		for a in gw_data["admins"]:

@@ -7,6 +7,7 @@ CONFIG = {
 	"offline_threshold_minutes": 15,	# Router switches to offline after X minutes
 	"orphan_threshold_days": 7,			# Router switches to orphaned state after X days
 	"delete_threshold_days": 180,		# Router is deleted after X days
+	"gw_netif_threshold_hours": 48,		# Hours which outdated netif from gwinfo is preserved for statistics
 	"router_stat_days": 30,				# Router stats are collected for X days
 	"router_stat_netif": 21,			# Router stats for netifs are collected for X days
 	"router_stat_mindiff_secs": 10,		# Time difference (uptime) in seconds required for a new entry in router stats

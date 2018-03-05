@@ -451,8 +451,9 @@ def delete_stats_helper(mysql,label,query,tuple):
 	print("--- Deleted %i rows from %s stats: %.3f seconds ---" % (allrows,label,end_time - start_time - minustime))
 
 def delete_old_stats(mysql):
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
-	threshold_netif=(utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
+	threshold		= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
+	threshold_netif	= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
+	threshold_gw	= mysql.formatdt(utcnow() - datetime.timedelta(hours=CONFIG["gw_netif_threshold_hours"]))
 	
 	start_time = time.time()
 	rowsaffected = mysql.execute("""
@@ -488,6 +489,13 @@ def delete_old_stats(mysql):
 			"""
 	delete_stats_helper(mysql,"netif-stats",query,(threshold_netif,))
 
+	start_time = time.time()
+	allrows = mysql.execute("DELETE FROM gw_netif WHERE last_contact < %s",(threshold_gw,))
+	mysql.commit()
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from gw_netif: %.3f seconds" % (allrows,time.time() - start_time))
+	print("--- Deleted %i rows from gw_netif: %.3f seconds ---" % (allrows,time.time() - start_time))
+
+	time.sleep(10)
 	start_time = time.time()
 	allrows=0
 	events = mysql.fetchall("""
