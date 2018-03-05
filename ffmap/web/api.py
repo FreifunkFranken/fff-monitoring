@@ -247,6 +247,44 @@ def wifianalhelper(router_data, headline):
 	
 	return Response(s,mimetype='text/plain')
 
+@api.route('/dnslist')
+def dnslist():
+	mysql = FreifunkMySQL()
+	router_data = mysql.fetchall("""
+		SELECT hostname, mac, MIN(ipv6) AS fd43
+		FROM router
+		INNER JOIN router_netif ON router.id = router_netif.router
+		INNER JOIN router_ipv6 ON router.id = router_ipv6.router AND router_netif.netif = router_ipv6.netif
+		WHERE LEFT(ipv6,4) = 'fd43'
+		GROUP BY hostname, mac
+	""",())
+	mysql.close()
+
+	s = ""
+	for router in router_data:
+		s += router["mac"].replace(":","") + "\t" + router["fd43"] + "\n"
+
+	return Response(s,mimetype='text/plain')
+
+@api.route('/dnsentries')
+def dnsentries():
+	mysql = FreifunkMySQL()
+	router_data = mysql.fetchall("""
+		SELECT hostname, mac, MIN(ipv6) AS fd43
+		FROM router
+		INNER JOIN router_netif ON router.id = router_netif.router
+		INNER JOIN router_ipv6 ON router.id = router_ipv6.router AND router_netif.netif = router_ipv6.netif
+		WHERE LEFT(ipv6,4) = 'fd43'
+		GROUP BY hostname, mac
+	""",())
+	mysql.close()
+
+	s = ""
+	for router in router_data:
+		s += router["mac"].replace(":","") + ".fff.community  300  IN  AAAA  " + router["fd43"] + "    ; " + router["hostname"] + "\n"
+
+	return Response(s,mimetype='text/plain')
+
 @api.route('/routers')
 def routers():
 	# Suppresses routers without br-mesh
