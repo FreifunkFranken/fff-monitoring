@@ -281,7 +281,7 @@ def dnsentries():
 
 	s = ""
 	for router in router_data:
-		s += router["mac"].replace(":","") + ".fff.community  300  IN  AAAA  " + router["fd43"] + "    ; " + router["hostname"] + "\n"
+		s += router["mac"].replace(":","") + ".fff.community.  300  IN  AAAA  " + router["fd43"] + "    ; " + router["hostname"] + "\n"
 
 	return Response(s,mimetype='text/plain')
 
