@@ -15,7 +15,6 @@ import time
 def import_gw_data(mysql, gw_data):
 	if "hostname" in gw_data and "netifs" in gw_data:
 		time = utcnow().strftime('%Y-%m-%d %H:%M:%S')
-		threshold = mysql.formatdt(utcnow() - datetime.timedelta(hours=CONFIG["gw_netif_threshold_hours"]))
 		stats_page = gw_data.get("stats_page","")
 
 		if not stats_page:
@@ -60,8 +59,6 @@ def import_gw_data(mysql, gw_data):
 				vpnmac=VALUES(vpnmac),
 				last_contact=VALUES(last_contact)
 		""",ndata)
-
-		mysql.execute("DELETE FROM gw_netif WHERE last_contact < %s",(threshold,))
 
 		adata = []
 		aid = 0
