@@ -451,9 +451,10 @@ def delete_stats_helper(mysql,label,query,tuple):
 	print("--- Deleted %i rows from %s stats: %.3f seconds ---" % (allrows,label,end_time - start_time - minustime))
 
 def delete_old_stats(mysql):
-	threshold		= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
-	threshold_netif	= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
-	threshold_gw	= mysql.formatdt(utcnow() - datetime.timedelta(hours=CONFIG["gw_netif_threshold_hours"]))
+	threshold			= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
+	threshold_netif		= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
+	threshold_gw		= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_gw"])).timestamp()
+	threshold_gw_netif	= mysql.formatdt(utcnow() - datetime.timedelta(hours=CONFIG["gw_netif_threshold_hours"]))
 	
 	start_time = time.time()
 	rowsaffected = mysql.execute("""
@@ -471,7 +472,7 @@ def delete_old_stats(mysql):
 				WHERE router_stats_gw.time < %s
 				LIMIT 100000
 			"""
-	delete_stats_helper(mysql,"gw-stats",query,(threshold,))
+	delete_stats_helper(mysql,"gw-stats",query,(threshold_gw,))
 
 	time.sleep(30)
 	query = """
@@ -490,7 +491,7 @@ def delete_old_stats(mysql):
 	delete_stats_helper(mysql,"netif-stats",query,(threshold_netif,))
 
 	start_time = time.time()
-	allrows = mysql.execute("DELETE FROM gw_netif WHERE last_contact < %s",(threshold_gw,))
+	allrows = mysql.execute("DELETE FROM gw_netif WHERE last_contact < %s",(threshold_gw_netif,))
 	mysql.commit()
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from gw_netif: %.3f seconds" % (allrows,time.time() - start_time))
 	print("--- Deleted %i rows from gw_netif: %.3f seconds ---" % (allrows,time.time() - start_time))
