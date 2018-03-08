@@ -53,7 +53,7 @@
 				<a href="{{ url_for('user_info', nickname=session.user) }}" class="navbar-link">{{ session.user }}</a>
 				[<a href="{{ url_for('logout') }}" class="navbar-link">Logout</a>]
 				{%- else %}
-				<a href="{{ url_for('login') }}" class="navbar-link">Login</a>
+				<a href="{{ url_for('login',_external=True,_scheme='https') }}" class="navbar-link">Login</a>
 				{%- endif %}
 				</p>
 				{%- endblock %}
