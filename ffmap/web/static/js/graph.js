@@ -371,7 +371,7 @@ function airtime_graph() {
 	var plot = $.plot(airstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
-		yaxis: {min: 0},
+		yaxis: {min: 0, max: 100},
 		legend: {noColumns: 2, hideable: true},
 		series: {downsample: {threshold: Math.floor(airstat.width() * points_per_px)}}
 	});
