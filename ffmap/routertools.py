@@ -549,6 +549,7 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 			INSERT INTO router_stats (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot,
 			clients, clients_eth, clients_w2, clients_w5, airtime_w2, airtime_w5)
 			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+			ON DUPLICATE KEY UPDATE time=time
 		""",(
 			time,
 			router_id,
@@ -598,6 +599,7 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 		mysql.executemany("""
 			INSERT INTO router_stats_netif (time, router, netif, rx, tx)
 			VALUES (%s, %s, %s, %s, %s)
+			ON DUPLICATE KEY UPDATE time=time
 		""",ndata)
 	
 	# reuse timestamp from router_stats to avoid additional queries
@@ -609,6 +611,7 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 		mysql.executemany("""
 			INSERT INTO router_stats_neighbor (time, router, mac, quality)
 			VALUES (%s, %s, %s, %s)
+			ON DUPLICATE KEY UPDATE time=time
 		""",nbdata)
 	
 	# reuse timestamp from router_stats to avoid additional queries
@@ -620,6 +623,7 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
 		mysql.executemany("""
 			INSERT INTO router_stats_gw (time, router, mac, quality)
 			VALUES (%s, %s, %s, %s)
+			ON DUPLICATE KEY UPDATE time=time
 		""",gwdata)
 
 def calculate_network_io(mysql, router_id, uptime, router_update):
