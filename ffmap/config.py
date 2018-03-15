@@ -4,7 +4,7 @@ CONFIG = {
 	"vpn_netif": "fffVPN",				# Name of VPN interface
 	"vpn_netif_l2tp": "l2tp",			# Beginning of names of L2TP interfaces
 	"vpn_netif_aux": "fffauxVPN",		# Name of AUX interface
-	"offline_threshold_minutes": 15,	# Router switches to offline after X minutes
+	"offline_threshold_minutes": 10,	# Router switches to offline after X minutes
 	"orphan_threshold_days": 7,			# Router switches to orphaned state after X days
 	"delete_threshold_days": 180,		# Router is deleted after X days
 	"gw_netif_threshold_hours": 48,		# Hours which outdated netif from gwinfo is preserved for statistics
