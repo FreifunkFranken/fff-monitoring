@@ -16,7 +16,7 @@ import time
 from bson import SON
 from contextlib import suppress
 
-router_rate_limit_list = {}
+#router_rate_limit_list = {}
 
 def delete_router(mysql,dbid):
 	mysql.execute("DELETE FROM router WHERE id = %s",(dbid,))
@@ -41,12 +41,12 @@ def ban_router(mysql,dbid):
 		mysql.commit()
 
 def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
-	global router_rate_limit_list
+	#global router_rate_limit_list
 
-	if mac in router_rate_limit_list:
-		if (statstime - router_rate_limit_list[mac]) < datetime.timedelta(minutes=5):
-			return
-	router_rate_limit_list[mac] = statstime
+	#if mac in router_rate_limit_list:
+	#	if (statstime - router_rate_limit_list[mac]) < datetime.timedelta(minutes=5):
+	#		return
+	#router_rate_limit_list[mac] = statstime
 
 	# The following values should stay available after router reset
 	keepvalues = ['lat','lng','description','position_comment','contact']
