@@ -182,11 +182,19 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 					akeys = n["ipv6_addrs"]
 			
 			if nkeys:
-				mysql.execute("DELETE FROM router_netif WHERE router = %s AND netif NOT IN ({})".format(','.join(['%s'] * len(nkeys))),tuple([router_id] + nkeys))
+				ndata = mysql.fetchall("SELECT netif FROM router_netif WHERE router = %s",(router_id,),"netif")
+				for n in ndata:
+					if n in nkeys:
+						continue
+					mysql.execute("DELETE FROM router_netif WHERE router = %s AND netif = %s",(router_id,n,))
 			else:
 				mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
 			if akeys:
-				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = 'br-mesh' AND ipv6 NOT IN ({})".format(','.join(['%s'] * len(akeys))),tuple([router_id] + akeys))
+				adata = mysql.fetchall("SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = 'br-mesh'",(router_id,),"ipv6")
+				for a in adata:
+					if a in akeys:
+						continue
+					mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = 'br-mesh' AND ipv6 = %s",(router_id,a,))
 				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif <> 'br-mesh'",(router_id,))
 			else:
 				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
@@ -195,7 +203,11 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			for n in router_update["neighbours"]:
 				nbkeys.append(n["mac"])
 			if nbkeys:
-				mysql.execute("DELETE FROM router_neighbor WHERE router = %s AND mac NOT IN ({})".format(','.join(['%s'] * len(nbkeys))),tuple([router_id] + nbkeys))
+				nbdata = mysql.fetchall("SELECT mac FROM router_neighbor WHERE router = %s",(router_id,),"mac")
+				for n in nbdata:
+					if n in nbkeys:
+						continue
+					mysql.execute("DELETE FROM router_neighbor WHERE router = %s AND mac = %s",(router_id,n,))
 			else:
 				mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(router_id,))
 			
@@ -203,7 +215,11 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			for g in router_update["gws"]:
 				gwkeys.append(g["mac"])
 			if gwkeys:
-				mysql.execute("DELETE FROM router_gw WHERE router = %s AND mac NOT IN ({})".format(','.join(['%s'] * len(gwkeys))),tuple([router_id] + gwkeys))
+				gwdata = mysql.fetchall("SELECT mac FROM router_gw WHERE router = %s",(router_id,),"mac")
+				for g in gwdata:
+					if g in gwkeys:
+						continue
+					mysql.execute("DELETE FROM router_gw WHERE router = %s AND mac = %s",(router_id,g,))
 			else:
 				mysql.execute("DELETE FROM router_gw WHERE router = %s",(router_id,))
 			
