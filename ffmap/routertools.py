@@ -190,12 +190,11 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			else:
 				mysql.execute("DELETE FROM router_netif WHERE router = %s",(router_id,))
 			if akeys:
-				adata = mysql.fetchall("SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = 'br-mesh'",(router_id,),"ipv6")
+				adata = mysql.fetchall("SELECT netif, ipv6 FROM router_ipv6 WHERE router = %s",(router_id,))
 				for a in adata:
-					if a in akeys:
+					if a["netif"]=='br-mesh' and a["ipv6"] in akeys:
 						continue
-					mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = 'br-mesh' AND ipv6 = %s",(router_id,a,))
-				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif <> 'br-mesh'",(router_id,))
+					mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = %s AND ipv6 = %s",(router_id,a["netif"],a["ipv6"],))
 			else:
 				mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(router_id,))
 			
