@@ -40,14 +40,13 @@ def ban_router(mysql,dbid):
 		mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added,))
 		mysql.commit()
 
-def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
+def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 	global router_rate_limit_list
 
-	t = utcnow()
 	if mac in router_rate_limit_list:
-		if (t - router_rate_limit_list[mac]) < datetime.timedelta(minutes=5):
+		if (statstime - router_rate_limit_list[mac]) < datetime.timedelta(minutes=5):
 			return
-	router_rate_limit_list[mac] = t
+	router_rate_limit_list[mac] = statstime
 
 	# The following values should stay available after router reset
 	keepvalues = ['lat','lng','description','position_comment','contact']
@@ -61,7 +60,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 	
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
-		router_update = parse_nodewatcher_xml(xml)
+		router_update = parse_nodewatcher_xml(xml,statstime)
 		
 		# cancel if banned mac found
 		for n in router_update["netifs"]:
@@ -224,7 +223,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 			
 		else:
 			# insert new router
-			created = mysql.utcnow()
+			created = mysql.formatdt(statstime)
 			#events = [] # don't fire sub-events of created events
 			ru = router_update
 			router_update["status"] = "online" # use 'online' here, as anything different is only evaluated if olddata is present
@@ -310,7 +309,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict):
 		""",gwdata)
 		
 		if router_id:
-			new_router_stats(mysql, router_id, uptime, router_update, netifdict)
+			new_router_stats(mysql, router_id, uptime, router_update, netifdict, statstime)
 		
 	except ValueError as e:
 		import traceback
@@ -553,10 +552,10 @@ def set_status(mysql,router_id,status):
 		mysql.utcnow(),
 		router_id,))
 
-def new_router_stats(mysql, router_id, uptime, router_update, netifdict):
+def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statstime):
 	#if not (uptime + CONFIG["router_stat_mindiff_secs"]) < router_update["sys_uptime"]:
 	#	return
-	time = mysql.utctimestamp()
+	time = mysql.formattimestamp(statstime)
 	
 	stattime = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
 	if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
@@ -688,7 +687,7 @@ def evalxpathbool(tree,p,default=False):
 		return (tmp.lower()=="true" or tmp=="1")
 	return default
 
-def parse_nodewatcher_xml(xml):
+def parse_nodewatcher_xml(xml,statstime):
 	try:
 		assert xml != ""
 		tree = lxml.etree.fromstring(xml)
@@ -696,7 +695,7 @@ def parse_nodewatcher_xml(xml):
 		router_update = {
 			"status": evalxpath(tree,"/data/system_data/status/text()"),
 			"hostname": evalxpath(tree,"/data/system_data/hostname/text()"),
-			"last_contact": utcnow().strftime('%Y-%m-%d %H:%M:%S'),
+			"last_contact": statstime.strftime('%Y-%m-%d %H:%M:%S'),
 			"gws": [],
 			"neighbours": [],
 			"netifs": [],
