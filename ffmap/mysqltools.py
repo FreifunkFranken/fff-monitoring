@@ -82,6 +82,9 @@ class FreifunkMySQL:
 	def formatdt(self,dt):
 		return dt.strftime('%Y-%m-%d %H:%M:%S')
 	
+	def formattimestamp(self,t):
+		return int(t.timestamp())
+	
 	def utcawareint(self,data,keys=None):
 		if keys:
 			for k in keys:
