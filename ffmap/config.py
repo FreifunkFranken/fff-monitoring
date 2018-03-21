@@ -14,7 +14,7 @@ CONFIG = {
 	"router_stat_mindiff_secs": 10,		# Time difference (uptime) in seconds required for a new entry in router stats
 	"router_stat_mindiff_default": 270,	# Time difference (router stats tables) in seconds required for a new entry in router stats
 	"router_stat_mindiff_netif": 570,	# Time difference (router netif stats) in seconds required for a new entry in router stats
-	"event_num_entries": 30,			# Number of events stored per router
+	"event_num_entries": 300,			# Number of events stored per router
 	"global_stat_days": 365,			# Global/hood stats are collected for X days
 	"csv_dir": "/var/lib/ffmap/csv",	# Directory where the .csv files for TileStache/mapnik are stored
 	"debug_dir": "/data/fff",			# Output directory for debug .txt files
