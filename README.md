@@ -1,14 +1,14 @@
 ## Debian Dependencies
 ```bash
 apt-get install mysql-server python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx
-pip3 install pymongo pillow modestmaps simplejson werkzeug
+pip3 install wheel pymongo pillow modestmaps simplejson werkzeug
 ```
 
 ## When updating
 ```bash
 apt-get install mysql-server python3-mysqldb python3-mapnik
 apt-get uninstall mongodb python-mapnik uwsgi-plugin-python tilestache
-pip3 install pillow modestmaps simplejson werkzeug
+pip3 install wheel pillow modestmaps simplejson werkzeug
 pip3 uninstall uuid
 ```
 
@@ -35,6 +35,8 @@ systemctl start uwsgi-tiles
 cd ffmap/db/
 ./init_db.py
 # Then apply NGINX Config
+cd ../.. # go back to fff-monitoring root directory
+./scripts/setupcron.sh
 ```
 
 ## NGINX Config
