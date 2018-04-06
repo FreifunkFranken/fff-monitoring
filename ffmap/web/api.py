@@ -19,6 +19,22 @@ import time
 
 api = Blueprint("api", __name__)
 
+# Load router neighbor statistics
+@api.route('/load_neighbor_stats/<dbid>')
+def load_neighbor_stats(dbid):
+	mysql = FreifunkMySQL()
+	neighfetch = mysql.fetchall("""
+		SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s
+	""",(dbid,))
+	mysql.close()
+
+	for ns in neighfetch:
+		ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
+
+	r = make_response(json.dumps(neighfetch))
+	r.mimetype = 'application/json'
+	return r
+
 # map ajax
 @api.route('/get_nearest_router')
 def get_nearest_router():

@@ -84,6 +84,7 @@
 					<script type="text/javascript">
 						var url_get_nearest_router = "{{ url_for('api.get_nearest_router') }}";
 						var url_router_info = "{{ url_for('router_info', dbid='') }}";
+						var url_load_neigh_stats = "{{ url_for('api.load_neighbor_stats', dbid='%s' % router.id) }}";
 						var tileurls = {{ tileurls|tojson|safe }};
 					</script>
 					<script src="{{ url_for('static', filename='js/map.js') }}"></script>
@@ -224,7 +225,7 @@
 		{%- if router.neighbours|length > 0 %}
 		<div class="col-xs-12 col-md-6" style="display: flex; flex-flow: column;">
 			<div class="panel panel-default" style="flex: 1 1 auto;">
-				<div class="panel-heading">Neighbours</div>
+				<div class="panel-heading">Neighbours <span id="loadneighstats">(<a  href="#" onclick="load_neigh_stats();return false;">Load full stats</a>)</span></div>
 				<div class="panel-body" style="height: 100%;">
 					<div class="table-responsive">
 						<table class="neighbours" style="width: 100%; margin-bottom: 6px;">
@@ -450,6 +451,18 @@
 			});
 			network_graph("br-mesh");
 		});
+		{%- if router.neighbours|length > 0 %}
+		function load_neigh_stats() {
+			$("#loadneighstats").css('font-style', 'italic');
+			$("#loadneighstats").html("(Loading ...)");
+			var starttimeneigh = performance.now();
+			ajax_get_request(url_load_neigh_stats, function(neighstats) {
+				neigh_stats = neighstats;
+				neighbour_graph(neighbours) && $("#loadneighstats").hide();
+				console.debug("Loaded full neighbor stats in "+((performance.now() - starttimeneigh)/1000).toFixed(3)+" seconds.");
+				});
+		}
+		{%- endif %}
 	</script>
 	
 {%- if session.admin %}

@@ -140,6 +140,7 @@ function neighbour_graph(neighbours) {
 		series: {downsample: {threshold: Math.floor(meshstat.width() * points_per_px)}}
 	});
 	setup_plot_zoom(plot, pdata, len);
+	return true;
 }
 
 function gw_graph(gws) {
