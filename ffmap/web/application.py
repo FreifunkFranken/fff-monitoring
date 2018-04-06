@@ -276,9 +276,10 @@ def router_info(dbid):
 				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"statsnetif",time.time() - start_time))
 			
 			start_time = time.time()
+			threshold_neighstats = (utcnow() - datetime.timedelta(hours=24)).timestamp()
 			neighfetch = mysql.fetchall("""
-				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s
-			""",(dbid,))
+				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s AND time > %s
+			""",(dbid,threshold_neighstats,))
 			
 			for ns in neighfetch:
 				ns["time"] = mysql.utcawareint(ns["time"])
