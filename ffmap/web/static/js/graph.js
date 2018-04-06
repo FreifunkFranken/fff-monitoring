@@ -71,7 +71,7 @@ function network_graph(netif) {
 	var tx = [], rx = [];
 	var len, i;
 	for (len=netif_stats.length, i=0; i<len; i++) {
-		if (netif_stats[i].netif != netif) { continue; }
+		//if (netif_stats[i].netif != netif) { continue; }
 		try {
 			var tx_value = netif_stats[i].tx;
 			var rx_value = netif_stats[i].rx;
