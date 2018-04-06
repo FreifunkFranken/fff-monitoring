@@ -490,10 +490,10 @@ function global_router_models_graph() {
 	var plot = $.plot(placeholder, pdata, {
 		legend: {noColumns: 1, show: true, "labelFormatter": legendFormatter},
 		grid: {hoverable: true, clickable: true},
-		tooltip: {show: true, content: "<b>%s</b>: %p.0%", shifts: {x: 15, y: 5}, defaultTheme: true},
+		tooltip: {show: true, content: "<b>%s</b>: %p.1%", shifts: {x: 15, y: 5}, defaultTheme: true},
 		series: {pie: {
 			show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.2},
-			combine: {threshold: 0.029}
+			combine: {threshold: 0.019}
 		}}
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
