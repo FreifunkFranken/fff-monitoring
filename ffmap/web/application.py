@@ -93,15 +93,11 @@ def router_mac(mac):
 @app.route('/routers/<dbid>', methods=['GET', 'POST'])
 def router_info(dbid):
 	try:
-		start_time = time.time()
 		mysql = FreifunkMySQL()
 		router = mysql.findone("""SELECT * FROM router WHERE id = %s LIMIT 1""",(dbid,))
 		mac = None
-		if request.args.get('json', None) == None:
-			writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"router",time.time() - start_time))
 		
 		if router:
-			start_time = time.time()
 			if request.args.get('fffconfig', None) != None:
 				mysql.close()
 				s = "\nconfig fff 'system'\n"
@@ -114,29 +110,17 @@ def router_info(dbid):
 				return Response(s,mimetype='text/plain')
 
 			router = mysql.utcaware(router,["created","last_contact"])
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"init",time.time() - start_time))
 
-			start_time = time.time()
 			router["user"] = mysql.findone("SELECT nickname FROM users WHERE email = %s",(router["contact"],),"nickname")
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"user",time.time() - start_time))
-			start_time = time.time()
 			router["netifs"] = mysql.fetchall("""SELECT * FROM router_netif WHERE router = %s""",(dbid,))
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"netif",time.time() - start_time))
 			
-			start_time = time.time()
 			netifs = []
 			for n in router["netifs"]:
 				n["ipv6_addrs"] = mysql.fetchall("""SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = %s""",(dbid,n["netif"],),"ipv6")
 				if n["netif"]=="br-mesh":
 					mac = n["mac"]
 				netifs.append(n["netif"])
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"ipv6",time.time() - start_time))
 			
-			start_time = time.time()
 			router["neighbours"] = mysql.fetchall("""
 				SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
 				FROM router_neighbor AS nb
@@ -148,10 +132,7 @@ def router_info(dbid):
 				ORDER BY nb.quality DESC
 			""",(dbid,))
 			# FIX SQL: only one from router_netif
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"neigh",time.time() - start_time))
 			
-			start_time = time.time()
 			router["gws"] = mysql.fetchall("""
 				SELECT router_gw.mac AS mac, quality, router_gw.netif AS netif, gw_class, selected, gw.name AS gw, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac
 				FROM router_gw
@@ -165,16 +146,10 @@ def router_info(dbid):
 			for gw in router["gws"]:
 				gw["label"] = gw_name(gw)
 				gw["batX"] = gw_bat(gw)
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"gw",time.time() - start_time))
 			
-			start_time = time.time()
 			router["events"] = mysql.fetchall("""SELECT * FROM router_events WHERE router = %s""",(dbid,))
 			router["events"] = mysql.utcawaretuple(router["events"],"time")
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"events",time.time() - start_time))
 			
-			start_time = time.time()
 			## Create json with all data except stats
 			if request.args.get('json', None) != None:
 				mysql.close()
@@ -252,17 +227,11 @@ def router_info(dbid):
 			## Set color for neighbors AFTER json if clause
 			for n in router["neighbours"]:
 				n["color"] = neighbor_color(n["quality"],router["routing_protocol"])
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"jsonandlabel",time.time() - start_time))
 			
-			start_time = time.time()
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
 				s["time"] = mysql.utcawareint(s["time"])
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"stats",time.time() - start_time))
 			
-			start_time = time.time()
 			threshold_neighstats = (utcnow() - datetime.timedelta(hours=24)).timestamp()
 			neighfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s AND time > %s
@@ -270,20 +239,14 @@ def router_info(dbid):
 			
 			for ns in neighfetch:
 				ns["time"] = mysql.utcawareint(ns["time"])
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"statsneigh",time.time() - start_time))
 
-			start_time = time.time()
 			gwfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_gw WHERE router = %s
 			""",(dbid,))
 			
 			for ns in gwfetch:
 				ns["time"] = mysql.utcawareint(ns["time"])
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"statsgw",time.time() - start_time))
 
-			start_time = time.time()
 			if request.method == 'POST':
 				if request.form.get("act") == "delete":
 					# a router may not have a owner, but admin users still can delete it
@@ -340,13 +303,10 @@ def router_info(dbid):
 									"Regards,\nFreifunk Franken Monitoring System"
 						)
 					flash("<b>Router reported to administrators!</b>", "success")
-			if request.args.get('json', None) == None:
-				writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"post",time.time() - start_time))
 		else:
 			mysql.close()
 			return "Router not found"
 		
-		start_time = time.time()
 		router["blocked"] = mysql.findone("""
 			SELECT blocked.mac
 			FROM router_netif AS n
@@ -354,11 +314,8 @@ def router_info(dbid):
 			WHERE n.router = %s AND n.netif = 'br-mesh'
 		""",(dbid,),"mac")
 		mysql.close()
-		if request.args.get('json', None) == None:
-			writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"final",time.time() - start_time))
 		
-		start_time = time.time()
-		tmp = render_template("router.html",
+		return render_template("router.html",
 			router = router,
 			mac = mac,
 			tileurls = tileurls,
@@ -367,10 +324,6 @@ def router_info(dbid):
 			authuser = is_authorized(router["user"], session),
 			authadmin = session.get('admin')
 			)
-		if request.args.get('json', None) == None:
-			writelog(CONFIG["debug_dir"] + "/routerperf.txt", "%s - %s - %.3f" % (router["hostname"],"render",time.time() - start_time))
-		return tmp
-		
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_router.txt", str(e))
 		import traceback
