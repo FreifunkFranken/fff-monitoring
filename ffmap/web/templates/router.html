@@ -85,6 +85,7 @@
 						var url_get_nearest_router = "{{ url_for('api.get_nearest_router') }}";
 						var url_router_info = "{{ url_for('router_info', dbid='') }}";
 						var url_load_neigh_stats = "{{ url_for('api.load_neighbor_stats', dbid='%s' % router.id) }}";
+						var url_load_netif_stats = "{{ url_for('api.load_netif_stats', dbid='%s' % router.id) }}";
 						var tileurls = {{ tileurls|tojson|safe }};
 					</script>
 					<script src="{{ url_for('static', filename='js/map.js') }}"></script>
@@ -417,7 +418,7 @@
 	</div>
 	<script type="text/javascript">
 		var router_stats = {{ router.stats|statbson2json|safe }};
-		var netif_stats = {{ netifstats|statbson2json|safe }};
+		var netif_stats = null;
 		var neigh_stats = {{ neighstats|statbson2json|safe }};
 		var gw_stats = {{ gwstats|statbson2json|safe }};
 		var neighbours = [
@@ -446,10 +447,10 @@
 			$("#netif-list li").on("click", function() {
 				$("#netif-list li").removeClass("active");
 				var netif = this.getAttribute("data-name");
-				network_graph(netif);
+				load_netif_stats(netif);
 				$(this).addClass("active");
 			});
-			network_graph("br-mesh");
+			load_netif_stats("br-mesh");
 		});
 		{%- if router.neighbours|length > 0 %}
 		function load_neigh_stats() {
@@ -462,8 +463,16 @@
 				});
 		}
 		{%- endif %}
+		function load_netif_stats(netif) {
+			var starttimenetif = performance.now();
+			ajax_get_request(url_load_netif_stats + "?netif=" + netif, function(netifstats) {
+				netif_stats = netifstats;
+				network_graph(netif);
+				console.debug("Loaded netif stats for "+netif+" in "+((performance.now() - starttimenetif)/1000).toFixed(3)+" seconds.");
+				});
+		}
 	</script>
-	
+
 {%- if session.admin %}
 <form method="post" id="blockedform">
 	<input type="hidden" name="act" value="changeblocked" />

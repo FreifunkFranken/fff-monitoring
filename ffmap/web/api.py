@@ -19,6 +19,26 @@ import time
 
 api = Blueprint("api", __name__)
 
+# Load router netif statistics
+@api.route('/load_netif_stats/<dbid>')
+def load_netif_stats(dbid):
+	netif = request.args.get("netif","")
+	mysql = FreifunkMySQL()
+	netiffetch = mysql.fetchall("""
+		SELECT netifs.name AS netif, rx, tx, time
+		FROM router_stats_netif
+		INNER JOIN netifs ON router_stats_netif.netif = netifs.id
+		WHERE router = %s AND netifs.name = %s
+	""",(dbid,netif,))
+	mysql.close()
+
+	for ns in netiffetch:
+		ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
+
+	r = make_response(json.dumps(netiffetch))
+	r.mimetype = 'application/json'
+	return r
+
 # Load router neighbor statistics
 @api.route('/load_neighbor_stats/<dbid>')
 def load_neighbor_stats(dbid):
