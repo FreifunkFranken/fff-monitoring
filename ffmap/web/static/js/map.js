@@ -30,6 +30,7 @@ var routers = new L.TileLayer(tileurls.routers + '/{z}/{x}/{y}.png', overlay_con
 var routers_v2 = new L.TileLayer(tileurls.routers_v2 + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
 var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
 var hoods_v2 = new L.TileLayer(tileurls.hoods_v2 + '/{z}/{x}/{y}.png', overlay_config);
+var popuplayer = new L.TileLayer('');
 layersControl = new L.Control.Layers({
 	"openstreetmap.org": tilesosmorg,
 	"openstreetmap.de": tilesosmde,
@@ -38,7 +39,8 @@ layersControl = new L.Control.Layers({
 	"Routers": routers,
 	"Routers v2 und dezentral": routers_v2,
 	"Hoods": hoods,
-	"Hoods v2": hoods_v2
+	"Hoods v2": hoods_v2,
+	"Position-Popup": popuplayer
 });
 map.addControl(layersControl);
 
@@ -159,7 +161,7 @@ map.on('click', function(pos) {
 				.openOn(map);
 		} else if(popupopen) {
 			popupopen = false;
-		} else {
+		} else if(map.hasLayer(popuplayer)) {
 			popupopen = true;
 			console.log("Click on lat: "+lat+", lng: "+lng+" detected.");
 			var popup_html = "<div class=\"popup-headline\">";
