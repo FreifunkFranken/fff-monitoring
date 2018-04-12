@@ -102,36 +102,44 @@ function network_graph(netif) {
 function neighbour_graph(neighbours) {
 	var meshstat = $("#meshstat");
 	var pdata = [];
-	for (j=0; j<neighbours.length; j++) {
-		var label = neighbours[j].name;
-
-		// add network interface when there are multiple links to same node
-		var k;
-		for(k=0; k<neighbours.length; k++) {
-			if(label == neighbours[k].name && k != j) {
-				label += "@" + neighbours[j].netif;
-			}
+	var data = {};
+	var len, i;
+	var mac;
+	
+	for (len=neigh_stats.length, i=0; i<len; i++) {
+		mac = neigh_stats[i].mac;
+		if(!(mac in data)) {
+			data[mac] = [];
 		}
-
-		var mac = neighbours[j].mac;
-		var data = [];
-		var len, i;
-		for (len=neigh_stats.length, i=0; i<len; i++) {
-			if (neigh_stats[i].mac != mac) { continue; }
-			try {
-				var quality = neigh_stats[i].quality;
-				var date_value = neigh_stats[i].time.$date;
-				if(quality == null) {
-					quality = 0;
-				}
-				data.push([date_value, Math.abs(quality)]);
+		try {
+			var quality = neigh_stats[i].quality;
+			var date_value = neigh_stats[i].time.$date;
+			if(quality == null) {
+				quality = 0;
 			}
-			catch(TypeError) {
-				// pass
-			}
+			data[mac].push([date_value, Math.abs(quality)]);
 		}
-		pdata.push({"label": label, "data": data});
+		catch(TypeError) {
+			// pass
+		}
 	}
+	
+	for (var j in data) {
+		var label = j;
+		for(n=0; n<neighbours.length; n++) {
+			if (neigh_stats[n].mac != j) { continue; }
+			label = neighbours[n].name;
+			// add network interface when there are multiple links to same node
+			var k;
+			for(k=0; k<neighbours.length; k++) {
+				if(label == neighbours[k].name && k != n) {
+					label += "@" + neighbours[n].netif;
+				}
+			}
+		}
+		pdata.push({"label": label, "data": data[j]});
+	}
+	if(pdata.length == 0) { pdata.push({"label": "empty", "data": []}); }
 	var plot = $.plot(meshstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
