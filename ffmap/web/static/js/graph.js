@@ -1,5 +1,5 @@
 var points_per_px = 0.3;
-var controls_container = "<div style='right:60px;top:13px;position:absolute;display:none;' id='controls'></div>";
+var controls_container = "<div style='position:absolute;left:0;bottom:0;display:none;' id='controls'></div>";
 var reset_button = "<div class='btn btn-default btn-xs'>Reset</div>";
 
 function labelFormatter(label, series) {
@@ -37,7 +37,7 @@ function setup_plot_zoom(plot, pdata, num_data_points) {
 		plot.draw();
 		plot.clearSelection();
 		plot.getPlaceholder().children("#controls")
-			.css("top", (plot.getPlotOffset().top+5) + "px")
+			.css("bottom", (plot.getPlotOffset().bottom+5) + "px")
 			.css("left", (plot.getPlotOffset().left+5) + "px")
 			.css("display", "block");
 	});
@@ -55,12 +55,12 @@ function setup_plot_zoom(plot, pdata, num_data_points) {
 			plot.setupGrid();
 			plot.draw();
 			plot.getPlaceholder().children("#controls")
-				.css("top", (plot.getPlotOffset().top+5) + "px")
+				.css("bottom", (plot.getPlotOffset().bottom+5) + "px")
 				.css("left", (plot.getPlotOffset().left+5) + "px")
 				.css("display", "none");
 		});
 	plot.getPlaceholder().children("#controls")
-		.css("top", (plot.getPlotOffset().top+5) + "px")
+		.css("bottom", (plot.getPlotOffset().bottom+5) + "px")
 		.css("left", (plot.getPlotOffset().left+5) + "px");
 }
 
