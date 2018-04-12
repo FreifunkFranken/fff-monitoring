@@ -48,3 +48,32 @@ def neighbor_color(quality,rt_protocol):
 		elif quality < 230:
 			color = "#79ff7c"
 	return color
+
+def defrag_table(mysql,table,sleep):
+	minustime=0
+	allrows=0
+	start_time = time.time()
+
+	qry = "ALTER TABLE `%s` ENGINE = InnoDB" % (table)
+	mysql.execute(qry)
+	mysql.commit()
+
+	end_time = time.time()
+	if sleep > 0:
+		time.sleep(sleep)
+
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Defragmented table %s: %.3f seconds" % (table,end_time - start_time))
+	print("--- Defragmented table %s: %.3f seconds ---" % (table,end_time - start_time))
+
+def defrag_all(mysql,doall=False):
+	alltables = ('gw','gw_admin','gw_netif','hoods','netifs','router','router_events','router_gw','router_ipv6','router_neighbor','router_netif','users')
+	stattables = ('router_stats','router_stats_gw','router_stats_neighbor','router_stats_netif','stats_global','stats_gw','stats_hood')
+
+	for t in alltables:
+		defrag_table(mysql,t,1)
+
+	if doall:
+		for t in stattables:
+			defrag_table(mysql,t,60)
+
+	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "-------")
