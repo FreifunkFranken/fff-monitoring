@@ -88,28 +88,28 @@ def router_status_gw(mysql):
 def router_models(mysql,selecthood=None,selectgw=None):
 	if selecthood:
 		return mysql.fetchdict("""
-			SELECT hardware, COUNT(id) AS count
+			SELECT hardware, COUNT(id) AS count, SUM(clients) AS clients
 			FROM router
 			WHERE hood = %s
 			GROUP BY hardware
 			ORDER BY hardware
-		""",(selecthood,),"hardware","count")
+		""",(selecthood,),"hardware")
 	elif selectgw:
 		return mysql.fetchdict("""
-			SELECT hardware, COUNT(router_gw.router) AS count
+			SELECT hardware, COUNT(router_gw.router) AS count, SUM(clients) AS clients
 			FROM router
 			INNER JOIN router_gw ON router.id = router_gw.router
 			WHERE mac = %s
 			GROUP BY hardware
 			ORDER BY hardware
-		""",(selectgw,),"hardware","count")
+		""",(selectgw,),"hardware")
 	else:
 		return mysql.fetchdict("""
-			SELECT hardware, COUNT(id) AS count
+			SELECT hardware, COUNT(id) AS count, SUM(clients) AS clients
 			FROM router
 			GROUP BY hardware
 			ORDER BY hardware
-		""",(),"hardware","count")
+		""",(),"hardware")
 
 def router_firmwares(mysql,selecthood=None,selectgw=None):
 	if selecthood:

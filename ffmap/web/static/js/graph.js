@@ -478,13 +478,13 @@ function global_router_firmwares_graph() {
 	});
 }
 
-function global_router_models_graph() {
-	var placeholder = $("#globroutermodelsstat");
+function global_router_models_graph(id,field) {
+	var placeholder = $("#"+id);
 	var pdata = [];
 	for (var mdname in router_models) {
 		pdata.push({
 			"label": mdname,
-			"data": [router_models[mdname]]
+			"data": [router_models[mdname][field]]
 		});
 	}
 	var plot = $.plot(placeholder, pdata, {
