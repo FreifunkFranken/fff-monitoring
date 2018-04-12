@@ -23,10 +23,12 @@ def delete_router(mysql,dbid):
 	mysql.execute("DELETE FROM router_netif WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_ipv6 WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_gw WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_events WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_stats WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_stats_neighbor WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_stats_netif WHERE router = %s",(dbid,))
+	mysql.execute("DELETE FROM router_stats_gw WHERE router = %s",(dbid,))
 	mysql.commit()
 
 def ban_router(mysql,dbid):
