@@ -208,6 +208,12 @@
 					<div id="globroutermodelsstat" class="graph-pie"></div>
 				</div>
 			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">Router Models per Client{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
+				<div class="panel-body">
+					<div id="globroutermodelsperclient" class="graph-pie"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<script type="text/javascript">
@@ -225,7 +231,8 @@
 			global_client_graph();
 			global_router_graph();
 			global_router_firmwares_graph();
-			global_router_models_graph();
+			global_router_models_graph("globroutermodelsstat","count");
+			global_router_models_graph("globroutermodelsperclient","clients");
 			
 			$("#hoodlist").DataTable({
 				"order": [],
