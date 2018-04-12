@@ -127,7 +127,7 @@ function neighbour_graph(neighbours) {
 	for (var j in data) {
 		var label = j;
 		for(n=0; n<neighbours.length; n++) {
-			if (neigh_stats[n].mac != j) { continue; }
+			if (neighbours[n].mac != j) { continue; }
 			label = neighbours[n].name;
 			// add network interface when there are multiple links to same node
 			var k;
