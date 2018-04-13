@@ -244,6 +244,24 @@ def router_info(dbid):
 					neighdata[ns["mac"]] = []
 				neighdata[ns["mac"]].append(ns)
 
+			neighident = mysql.fetchall("""
+				SELECT snb.mac, r.hostname, n.netif
+				FROM router_stats_neighbor AS snb
+				INNER JOIN router_netif AS n ON snb.mac = n.mac
+				INNER JOIN router AS r ON n.router = r.id
+				WHERE snb.router = %s AND n.netif <> 'w2ap' AND n.netif <> 'w5ap'
+				GROUP BY snb.mac, r.hostname, n.netif
+			""",(dbid,))
+			neighlabel = {}
+			for ni in neighident:
+				label = ni["hostname"]
+				# add network interface when there are multiple links to same node
+				for ni2 in neighident:
+					if label == ni2["hostname"] and ni["mac"] != ni2["mac"]:
+						# This shows the NEIGHBOR'S interface name
+						label += "@" + ni["netif"]
+				neighlabel[ni["mac"]] = label
+
 			gwfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_gw WHERE router = %s
 			""",(dbid,))
@@ -324,6 +342,7 @@ def router_info(dbid):
 			mac = mac,
 			tileurls = tileurls,
 			neighstats = neighdata,
+			neighlabel = neighlabel,
 			gwstats = gwfetch,
 			authuser = is_authorized(router["user"], session),
 			authadmin = session.get('admin')

@@ -99,7 +99,7 @@ function network_graph(netif) {
 	setup_plot_zoom(plot, pdata, len);
 }
 
-function neighbour_graph(neighbours) {
+function neighbour_graph(neigh_label) {
 	var meshstat = $("#meshstat");
 	var pdata = [];
 	var len, i;
@@ -109,16 +109,8 @@ function neighbour_graph(neighbours) {
 		var dataset = neigh_stats[j];
 		var label = j;
 		var data = [];
-		for(n=0; n<neighbours.length; n++) {
-			if (neighbours[n].mac != j) { continue; }
-			label = neighbours[n].name;
-			// add network interface when there are multiple links to same node
-			var k;
-			for(k=0; k<neighbours.length; k++) {
-				if(label == neighbours[k].name && k != n) {
-					label += "@" + neighbours[n].netif;
-				}
-			}
+		if(j in neigh_label) {
+			label = neigh_label[j];
 		}
 		for (len=dataset.length, i=0; i<len; i++) {
 			try {
