@@ -223,22 +223,26 @@ def router_info(dbid):
 						desc = "Ethernet Multi-Port"
 				n["description"] = desc
 				n["color"] = color
-			
+
 			## Set color for neighbors AFTER json if clause
 			for n in router["neighbours"]:
 				n["color"] = neighbor_color(n["quality"],router["routing_protocol"])
-			
+
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:
 				s["time"] = mysql.utcawareint(s["time"])
-			
+
 			threshold_neighstats = (utcnow() - datetime.timedelta(hours=24)).timestamp()
 			neighfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s AND time > %s
 			""",(dbid,threshold_neighstats,))
-			
+
+			neighdata = {}
 			for ns in neighfetch:
-				ns["time"] = mysql.utcawareint(ns["time"])
+				ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
+				if not ns["mac"] in neighdata:
+					neighdata[ns["mac"]] = []
+				neighdata[ns["mac"]].append(ns)
 
 			gwfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_gw WHERE router = %s
@@ -319,7 +323,7 @@ def router_info(dbid):
 			router = router,
 			mac = mac,
 			tileurls = tileurls,
-			neighstats = neighfetch,
+			neighstats = neighdata,
 			gwstats = gwfetch,
 			authuser = is_authorized(router["user"], session),
 			authadmin = session.get('admin')

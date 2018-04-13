@@ -102,30 +102,13 @@ function network_graph(netif) {
 function neighbour_graph(neighbours) {
 	var meshstat = $("#meshstat");
 	var pdata = [];
-	var data = {};
 	var len, i;
 	var mac;
 	
-	for (len=neigh_stats.length, i=0; i<len; i++) {
-		mac = neigh_stats[i].mac;
-		if(!(mac in data)) {
-			data[mac] = [];
-		}
-		try {
-			var quality = neigh_stats[i].quality;
-			var date_value = neigh_stats[i].time.$date;
-			if(quality == null) {
-				quality = 0;
-			}
-			data[mac].push([date_value, Math.abs(quality)]);
-		}
-		catch(TypeError) {
-			// pass
-		}
-	}
-	
-	for (var j in data) {
+	for (var j in neigh_stats) {
+		var dataset = neigh_stats[j];
 		var label = j;
+		var data = [];
 		for(n=0; n<neighbours.length; n++) {
 			if (neighbours[n].mac != j) { continue; }
 			label = neighbours[n].name;
@@ -137,7 +120,20 @@ function neighbour_graph(neighbours) {
 				}
 			}
 		}
-		pdata.push({"label": label, "data": data[j]});
+		for (len=dataset.length, i=0; i<len; i++) {
+			try {
+				var quality = dataset[i].quality;
+				var date_value = dataset[i].time.$date;
+				if(quality == null) {
+					quality = 0;
+				}
+				data.push([date_value, Math.abs(quality)]);
+			}
+			catch(TypeError) {
+				// pass
+			}
+		}
+		pdata.push({"label": label, "data": data});
 	}
 	if(pdata.length == 0) { pdata.push({"label": "empty", "data": []}); }
 	var plot = $.plot(meshstat, pdata, {

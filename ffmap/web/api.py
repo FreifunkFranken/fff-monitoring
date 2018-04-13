@@ -48,10 +48,15 @@ def load_neighbor_stats(dbid):
 	""",(dbid,))
 	mysql.close()
 
+	neighdata = {}
+
 	for ns in neighfetch:
 		ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
+		if not ns["mac"] in neighdata:
+			neighdata[ns["mac"]] = []
+		neighdata[ns["mac"]].append(ns)
 
-	r = make_response(json.dumps(neighfetch))
+	r = make_response(json.dumps(neighdata))
 	r.mimetype = 'application/json'
 	return r
 
