@@ -420,6 +420,7 @@
 		var router_stats = {{ router.stats|statbson2json|safe }};
 		var netif_stats = null;
 		var neigh_stats = {{ neighstats|safe }};
+		var neigh_label = {{ neighlabel|bson2json|safe }};
 		var gw_stats = {{ gwstats|statbson2json|safe }};
 		var neighbours = [
 		{%- for neighbour in router.neighbours %}
@@ -433,7 +434,7 @@
 		];
 		$(document).ready(function() {
 			{%- if router.neighbours|length > 0 %}
-			neighbour_graph(neighbours);
+			neighbour_graph(neigh_label);
 			{%- endif %}
 			{%- if router.gws|length > 0 %}
 			gw_graph(gws);
@@ -459,7 +460,7 @@
 			var starttimeneigh = performance.now();
 			ajax_get_request(url_load_neigh_stats, function(neighstats) {
 				neigh_stats = neighstats;
-				neighbour_graph(neighbours) && $("#loadneighstats").hide();
+				neighbour_graph(neigh_label) && $("#loadneighstats").hide();
 				console.debug("Loaded full neighbor stats in "+((performance.now() - starttimeneigh)/1000).toFixed(3)+" seconds.");
 				});
 		}
