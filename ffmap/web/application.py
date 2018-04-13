@@ -260,7 +260,11 @@ def router_info(dbid):
 					if label == ni2["hostname"] and ni["mac"] != ni2["mac"]:
 						# This shows the NEIGHBOR'S interface name
 						label += "@" + ni["netif"]
-				neighlabel[ni["mac"]] = label
+				append = " (old)"
+				for nnn in router["neighbours"]:
+					if nnn["mac"] == ni["mac"]:
+						append = ""
+				neighlabel[ni["mac"]] = label + append
 
 			gwfetch = mysql.fetchall("""
 				SELECT quality, mac, time FROM router_stats_gw WHERE router = %s
