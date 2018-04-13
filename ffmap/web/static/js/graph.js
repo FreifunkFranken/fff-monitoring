@@ -132,7 +132,7 @@ function neighbour_graph(neigh_label) {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, autoscaleMargin: 0.5},
-		legend: {noColumns: 2, hideable: true},
+		legend: {noColumns: 3, hideable: true},
 		series: {downsample: {threshold: Math.floor(meshstat.width() * points_per_px)}}
 	});
 	setup_plot_zoom(plot, pdata, len);
