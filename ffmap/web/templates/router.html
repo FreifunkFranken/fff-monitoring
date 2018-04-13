@@ -460,10 +460,9 @@
 			var starttimeneigh = performance.now();
 			ajax_get_request(url_load_neigh_stats, function(neighstats) {
 				neigh_stats = neighstats;
-				neighbour_graph(neigh_label);
+				neighbour_graph(neigh_label) && $("#loadneighstats").hide();
 				console.debug("Loaded full neighbor stats in "+((performance.now() - starttimeneigh)/1000).toFixed(3)+" seconds.");
 				});
-				$("#loadneighstats").hide();
 		}
 		{%- endif %}
 		function load_netif_stats(netif) {
