@@ -66,12 +66,11 @@ function setup_plot_zoom(plot, pdata, num_data_points) {
 
 // Per router statistics
 
-function network_graph(netif) {
+function network_graph(netif_stats, tx_label, rx_label) {
 	var netstat = $("#netstat");
 	var tx = [], rx = [];
 	var len, i;
 	for (len=netif_stats.length, i=0; i<len; i++) {
-		//if (netif_stats[i].netif != netif) { continue; }
 		try {
 			var tx_value = netif_stats[i].tx;
 			var rx_value = netif_stats[i].rx;
@@ -86,8 +85,8 @@ function network_graph(netif) {
 		}
 	}
 	var pdata = [
-		{"label": "tx", "data": tx, "color": "#CB4B4B"},
-		{"label": "rx", "data": rx, "color": "#8CACC6"}
+		{"label": tx_label, "data": tx, "color": "#CB4B4B"},
+		{"label": rx_label, "data": rx, "color": "#8CACC6"}
 	]
 	var plot = $.plot(netstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},

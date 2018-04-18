@@ -113,6 +113,14 @@
 					<div id="globclientstat" class="graph"></div>
 				</div>
 			</div>
+			{%- if not selectgw %}
+			<div class="panel panel-default">
+				<div class="panel-heading">Traffic{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-body">
+					<div id="netstat" class="graph"></div>
+				</div>
+			</div>
+			{%- endif -%}
 			<div class="panel panel-default">
 				<div class="panel-heading">Newest Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body" style="padding-bottom:34px">
@@ -233,6 +241,9 @@
 			global_router_firmwares_graph();
 			global_router_models_graph("globroutermodelsstat","count");
 			global_router_models_graph("globroutermodelsperclient","clients");
+			{%- if not selectgw %}
+			network_graph(global_stats,"sent to clients","received from clients");
+			{%- endif -%}
 			
 			$("#hoodlist").DataTable({
 				"order": [],

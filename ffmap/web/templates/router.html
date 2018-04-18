@@ -468,8 +468,7 @@
 		function load_netif_stats(netif) {
 			var starttimenetif = performance.now();
 			ajax_get_request(url_load_netif_stats + "?netif=" + netif, function(netifstats) {
-				netif_stats = netifstats;
-				network_graph(netif);
+				network_graph(netifstats,"tx","rx");
 				console.debug("Loaded netif stats for "+netif+" in "+((performance.now() - starttimenetif)/1000).toFixed(3)+" seconds.");
 				});
 		}

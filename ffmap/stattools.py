@@ -41,6 +41,36 @@ def router_status(mysql,selecthood=None):
 	tmp["sum"] = sum(tmp.values())
 	return tmp
 
+def router_traffic(mysql,selecthood=None):
+	# rx and tx are exchanged for bat0, since we want to get client traffic, which is the mirror of bat0 traffic
+	if selecthood:
+		tmp = mysql.findone("""
+			SELECT SUM(rx) AS tx, SUM(tx) AS rx FROM router_netif
+			INNER JOIN router ON router_netif.router = router.id
+			WHERE hood = %s AND gateway = FALSE AND netif = 'bat0'
+		""",(selecthood,))
+		gw = mysql.findone("""
+			SELECT SUM(rx) AS rx, SUM(tx) AS tx FROM router_netif
+			INNER JOIN router ON router_netif.router = router.id
+			WHERE hood = %s AND gateway = TRUE AND netif IN ('eth0.1','eth1.1','w2ap','w5ap')
+		""",(selecthood,))
+	else:
+		tmp = mysql.findone("""
+			SELECT SUM(rx) AS tx, SUM(tx) AS rx FROM router_netif
+			INNER JOIN router ON router_netif.router = router.id
+			WHERE gateway = FALSE AND netif = 'bat0'
+		""",())
+		gw = mysql.findone("""
+			SELECT SUM(rx) AS rx, SUM(tx) AS tx FROM router_netif
+			INNER JOIN router ON router_netif.router = router.id
+			WHERE gateway = TRUE AND netif IN ('eth0.1','eth1.1','w2ap','w5ap')
+		""",())
+	if "rx" in gw and gw["rx"]:
+		tmp["rx"] += gw["rx"]
+	if "tx" in gw and gw["tx"]:
+		tmp["tx"] += gw["tx"]
+	return tmp
+
 def total_clients_hood(mysql):
 	return mysql.fetchdict("""
 		SELECT hood, SUM(clients) AS clients
@@ -59,6 +89,36 @@ def router_status_hood(mysql):
 		if not d["hood"] in dict:
 			dict[d["hood"]] = {}
 		dict[d["hood"]][d["status"]] = d["count"]
+	return dict
+
+def router_traffic_hood(mysql):
+	# rx and tx are exchanged for bat0, since we want to get client traffic, which is the mirror of bat0 traffic
+	dict = mysql.fetchdict("""
+		SELECT hood, SUM(rx) AS tx, SUM(tx) AS rx FROM router_netif
+		INNER JOIN router ON router_netif.router = router.id
+		WHERE gateway = FALSE AND netif = 'bat0'
+		GROUP BY hood
+	""",(),"hood")
+	gw = mysql.fetchall("""
+		SELECT hood, SUM(rx) AS rx, SUM(tx) AS tx FROM router_netif
+		INNER JOIN router ON router_netif.router = router.id
+		WHERE gateway = TRUE AND netif IN ('eth0.1','eth1.1','w2ap','w5ap')
+		GROUP BY hood
+	""")
+	allhoods = mysql.fetchall("""
+		SELECT hood
+		FROM router
+		GROUP BY hood
+	""")
+	for d in gw:
+		if not d["hood"] in dict:
+			dict[d["hood"]] = d
+		else:
+			dict[d["hood"]]["rx"] += d["rx"]
+			dict[d["hood"]]["tx"] += d["tx"]
+	for h in allhoods:
+		if not h["hood"] in dict:
+			dict[h["hood"]] =  {"hood": h["hood"], "rx": 0, "tx": 0}
 	return dict
 
 def total_clients_gw(mysql):
@@ -289,18 +349,21 @@ def record_global_stats(mysql):
 	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
 	time = mysql.utctimestamp()
 	status = router_status(mysql)
-	
+	traffic = router_traffic(mysql)
+
 	mysql.execute("""
-		INSERT INTO stats_global (time, clients, online, offline, unknown, orphaned)
-		VALUES (%s, %s, %s, %s, %s, %s)
+		INSERT INTO stats_global (time, clients, online, offline, unknown, orphaned, rx, tx)
+		VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 		ON DUPLICATE KEY UPDATE
 			clients=VALUES(clients),
 			online=VALUES(online),
 			offline=VALUES(offline),
 			unknown=VALUES(unknown),
-			orphaned=VALUES(orphaned)
-	""",(time,total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),))
-	
+			orphaned=VALUES(orphaned),
+			rx=VALUES(rx),
+			tx=VALUES(tx)
+	""",(time,total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),traffic["rx"],traffic["tx"],))
+
 	mysql.execute("""
 		DELETE FROM stats_global
 		WHERE time < %s
@@ -313,24 +376,27 @@ def record_hood_stats(mysql):
 	time = mysql.utctimestamp()
 	status = router_status_hood(mysql)
 	clients = total_clients_hood(mysql)
-	
+	traffic = router_traffic_hood(mysql)
+
 	hdata = []
 	for hood in clients.keys():
 		if not hood:
 			hood = "Default"
-		hdata.append((time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),))
+		hdata.append((time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),traffic[hood]["rx"],traffic[hood]["tx"],))
 
 	mysql.executemany("""
-		INSERT INTO stats_hood (time, hood, clients, online, offline, unknown, orphaned)
-		VALUES (%s, %s, %s, %s, %s, %s, %s)
+		INSERT INTO stats_hood (time, hood, clients, online, offline, unknown, orphaned, rx, tx)
+		VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 		ON DUPLICATE KEY UPDATE
 			clients=VALUES(clients),
 			online=VALUES(online),
 			offline=VALUES(offline),
 			unknown=VALUES(unknown),
-			orphaned=VALUES(orphaned)
+			orphaned=VALUES(orphaned),
+			rx=VALUES(rx),
+			tx=VALUES(tx)
 	""",hdata)
-	
+
 	mysql.execute("""
 		DELETE FROM stats_hood
 		WHERE time < %s
