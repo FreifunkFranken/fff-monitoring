@@ -15,7 +15,9 @@ mysql.execute("""
 		`online` smallint(6) NOT NULL,
 		`offline` smallint(6) NOT NULL,
 		`unknown` smallint(6) NOT NULL,
-		`orphaned` smallint(6) NOT NULL
+		`orphaned` smallint(6) NOT NULL,
+		`rx` int(10) UNSIGNED DEFAULT NULL,
+		`tx` int(10) UNSIGNED DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
@@ -50,7 +52,9 @@ mysql.execute("""
 		`online` smallint(6) NOT NULL,
 		`offline` smallint(6) NOT NULL,
 		`unknown` smallint(6) NOT NULL,
-		`orphaned` smallint(6) NOT NULL
+		`orphaned` smallint(6) NOT NULL,
+		`rx` int(10) UNSIGNED DEFAULT NULL,
+		`tx` int(10) UNSIGNED DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
