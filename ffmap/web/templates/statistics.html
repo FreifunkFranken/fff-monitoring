@@ -115,7 +115,7 @@
 			</div>
 			{%- if not selectgw %}
 			<div class="panel panel-default">
-				<div class="panel-heading">Traffic{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Traffic{%- if selecthood %} @ {{ selecthood }}{%- endif -%} (tx: to clients; rx: from clients)</div>
 				<div class="panel-body">
 					<div id="netstat" class="graph"></div>
 				</div>
