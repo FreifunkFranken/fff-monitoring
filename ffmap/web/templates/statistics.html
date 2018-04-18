@@ -115,7 +115,7 @@
 			</div>
 			{%- if not selectgw %}
 			<div class="panel panel-default">
-				<div class="panel-heading">Traffic{%- if selecthood %} @ {{ selecthood }}{%- endif -%} (tx: to clients; rx: from clients)</div>
+				<div class="panel-heading">Traffic{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="netstat" class="graph"></div>
 				</div>
@@ -242,7 +242,7 @@
 			global_router_models_graph("globroutermodelsstat","count");
 			global_router_models_graph("globroutermodelsperclient","clients");
 			{%- if not selectgw %}
-			network_graph(global_stats);
+			network_graph(global_stats,"sent to clients","received from clients");
 			{%- endif -%}
 			
 			$("#hoodlist").DataTable({
