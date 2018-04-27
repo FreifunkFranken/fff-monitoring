@@ -49,7 +49,7 @@
 {% block content %}
 	<div class="row" style="margin-top: 5px; margin-bottom: 5px;">
 		<div class="col-xs-12 col-sm-10">
-		<h2 style="margin-top: 10px;">Router: {{ router.hostname }}</h2>
+		<h2 style="margin-top: 10px;">{%- if router.gateway %}Gateway{%- else %}Router{%- endif %}: {{ router.hostname }}</h2>
 		{%- if mac %}
 		<h4 style="margin-top: 10px;margin-bottom: 20px">Perma-Link: <a href="{{ url_for('router_mac', mac=mac, _external=True) }}">{{ url_for('router_mac', mac=mac, _external=True) }}</a></h4>
 		{%- endif %}
