@@ -161,7 +161,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 				sys_loadavg = %s, sys_procrun = %s, sys_proctot = %s, clients = %s, clients_eth = %s, clients_w2 = %s, clients_w5 = %s,
 				w2_active = %s, w2_busy = %s, w5_active = %s, w5_busy = %s, w2_airtime = %s, w5_airtime = %s, wan_uplink = %s, tc_enabled = %s, tc_in = %s, tc_out = %s,
 				cpu = %s, chipset = %s, hardware = %s, os = %s,
-				batman = %s, routing_protocol = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s, v2 = %s,
+				batman = %s, routing_protocol = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s, v2 = %s, gateway = %s,
 				status_text = %s, contact = %s, lng = %s, lat = %s, neighbors = %s, reset = %s
 				WHERE id = %s
 			""",(
@@ -169,7 +169,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				ru["w2_active"],ru["w2_busy"],ru["w5_active"],ru["w5_busy"],ru["w2_airtime"],ru["w5_airtime"],ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["gateway"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
 			# Previously, I just deleted all entries and recreated them again with INSERT.
@@ -234,15 +234,15 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 				sys_loadavg, sys_procrun, sys_proctot, clients, clients_eth, clients_w2, clients_w5,
 				w2_active, w2_busy, w5_active, w5_busy, w2_airtime, w5_airtime, wan_uplink, tc_enabled, tc_in, tc_out,
 				cpu, chipset, hardware, os,
-				batman, routing_protocol, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood, v2,
+				batman, routing_protocol, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood, v2, gateway,
 				status_text, contact, lng, lat, neighbors)
-				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
 				ru["status"],ru["hostname"],created,ru["last_contact"],ru["sys_time"].strftime('%Y-%m-%d %H:%M:%S'),ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				None,None,None,None,None,None,ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["gateway"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],))
 			router_id = mysql.cursor().lastrowid
 			
@@ -836,6 +836,7 @@ def parse_nodewatcher_xml(xml,statstime):
 		router_update["visible_neighbours"] = visible_neighbours
 		router_update["neighbours"] += l3_neighbours
 		
+		router_update["gateway"] = False # Default: false
 		for gw in tree.xpath("/data/batman_adv_gateway_list/*"):
 			gw_mac = evalxpath(gw,"gateway/text()")
 			if (gw_mac and len(gw_mac)>12): # Throw away headline
@@ -847,6 +848,8 @@ def parse_nodewatcher_xml(xml,statstime):
 					"gw_class": evalxpath(gw,"gw_class/text()",None),
 					"selected": evalxpathbool(gw,"selected/text()")
 				}
+				if gw["netif"]=="internal":
+					router_update["gateway"] = True # If "internal" exists, device must be a gateway
 				if gw["quality"].startswith("false"):
 					gw["quality"] = gw["quality"][5:]
 				if gw["quality"]:
@@ -858,6 +861,10 @@ def parse_nodewatcher_xml(xml,statstime):
 					gw["netif"] = tmp[0]
 					gw["gw_class"] = tmp[1]
 				router_update["gws"].append(gw)
+
+		if not router_update["gws"]:
+			# Only change if list is empty (this will keep previously set value in all other cases)
+			router_update["gateway"] = True
 
 		return router_update
 	except (AssertionError, lxml.etree.XMLSyntaxError, IndexError) as e:
