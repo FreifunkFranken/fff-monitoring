@@ -95,7 +95,7 @@ def update_mapnik_csv(mysql):
 		csv.write(rv2)
 
 	dblinks = mysql.fetchall("""
-		SELECT r1.id AS rid, r2.id AS nid, r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.type AS type, MAX(quality) AS quality, hoods.name AS hood
+		SELECT r1.id AS rid, r2.id AS nid, r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.netif AS netif, n.type AS type, MAX(quality) AS quality, hoods.name AS hood
 		FROM router AS r1
 		LEFT JOIN hoods ON r1.hood = hoods.name
 		INNER JOIN router_neighbor AS n ON r1.id = n.router
@@ -105,7 +105,7 @@ def update_mapnik_csv(mysql):
 		INNER JOIN router AS r2 ON net.router = r2.id
 		WHERE r1.lat IS NOT NULL AND r1.lng IS NOT NULL AND r2.lat IS NOT NULL AND r2.lng IS NOT NULL
 		AND r1.status = 'online'
-		GROUP BY r1.id, r1.lat, r1.lng, r2.id, r2.lat, r2.lng, n.type, hoods.name
+		GROUP BY r1.id, r1.lat, r1.lng, r2.id, r2.lat, r2.lng, n.netif, n.type, hoods.name
 	""")
 	links = []
 	linksl3 = []
@@ -139,6 +139,9 @@ def update_mapnik_csv(mysql):
 			if row["nid"] in dictl2.keys() and row["rid"] in dictl2[row["nid"]].keys():
 				row["quality"] = int(0.5 * (dictl2[row["nid"]][row["rid"]]["data"][4] + row["quality"]))
 				del dictl2[row["nid"]][row["rid"]] # Delete old entry, as we create a new one with averaged quality
+			if row["rid"] in dictl2.keys() and row["nid"] in dictl2[row["rid"]].keys():
+				row["quality"] = int(0.5 * (dictl2[row["rid"]][row["nid"]]["data"][4] + row["quality"]))
+				# No need to delete, since we overwrite later
 			# Write current set to dict
 			if not row["rid"] in dictl2.keys():
 				dictl2[row["rid"]] = {}
