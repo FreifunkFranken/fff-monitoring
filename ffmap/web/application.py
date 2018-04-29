@@ -503,7 +503,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		
 		stats = mysql.utcawaretupleint(stats,"time")
 		
-		numnew = len(hoods)-18
+		numnew = len(hoods)-27
 		if numnew < 1:
 			numnew = 1
 		
