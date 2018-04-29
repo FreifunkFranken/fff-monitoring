@@ -226,7 +226,7 @@ def router_info(dbid):
 
 			## Set color for neighbors AFTER json if clause
 			for n in router["neighbours"]:
-				n["color"] = neighbor_color(n["quality"],router["routing_protocol"])
+				n["color"] = neighbor_color(n["quality"],n["netif"],router["routing_protocol"])
 
 			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
 			for s in router["stats"]:

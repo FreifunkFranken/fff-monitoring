@@ -24,6 +24,10 @@
   </Style>
   <Style name="color" filter-mode="first">
 	<Rule>
+	  <Filter>([quality] &lt; 1)</Filter>
+	  <LineSymbolizer stroke-width="3" stroke="#111111" stroke-linecap="butt" clip="false" />
+	</Rule>
+	<Rule>
 	  <Filter>([quality] &lt; 105)</Filter>
 	  <LineSymbolizer stroke-width="3" stroke="#ff1e1e" stroke-linecap="butt" clip="false" />
 	</Rule>
