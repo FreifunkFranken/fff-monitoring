@@ -105,7 +105,7 @@ def get_nearest_router():
 		WHERE nb.router = %s""",(router["id"],))
 	mysql.close()
 	for n in router["neighbours"]:
-		n["color"] = neighbor_color(n["quality"],router["routing_protocol"])
+		n["color"] = neighbor_color(n["quality"],n["netif"],router["routing_protocol"])
 	
 	r = make_response(bson2json(router))
 	r.mimetype = 'application/json'

@@ -16,12 +16,10 @@ def writefulllog(content):
 	with open(CONFIG["debug_dir"] + "/fulllog.log", "a") as csv:
 		csv.write(time.strftime('{%Y-%m-%d %H:%M:%S}') + " - " + content + "\n")
 
-def neighbor_color(quality,rt_protocol):
+def neighbor_color(quality,netif,rt_protocol):
+	color = "#04ff0a"
 	if rt_protocol=="BATMAN_V":
-		color = "#04ff0a"
-		if quality < 0:
-			color = "#06a4f4"
-		elif quality < 10:
+		if quality < 10:
 			color = "#ff1e1e"
 		elif quality < 20:
 			color = "#ff4949"
@@ -32,10 +30,7 @@ def neighbor_color(quality,rt_protocol):
 		elif quality < 1000:
 			color = "#ffeb79"
 	else:
-		color = "#04ff0a"
-		if quality < 0:
-			color = "#06a4f4"
-		elif quality < 105:
+		if quality < 105:
 			color = "#ff1e1e"
 		elif quality < 130:
 			color = "#ff4949"
@@ -47,6 +42,11 @@ def neighbor_color(quality,rt_protocol):
 			color = "#ffeb79"
 		elif quality < 230:
 			color = "#79ff7c"
+	if netif.startswith("eth"):
+		#color = "#999999"
+		color = "#008c00"
+	if quality < 0:
+		color = "#06a4f4"
 	return color
 
 def defrag_table(mysql,table,sleep):
