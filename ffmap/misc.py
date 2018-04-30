@@ -17,11 +17,9 @@ def writefulllog(content):
 		csv.write(time.strftime('{%Y-%m-%d %H:%M:%S}') + " - " + content + "\n")
 
 def neighbor_color(quality,netif,rt_protocol):
+	color = "#04ff0a"
 	if rt_protocol=="BATMAN_V":
-		color = "#04ff0a"
-		if quality < 0:
-			color = "#06a4f4"
-		elif quality < 10:
+		if quality < 10:
 			color = "#ff1e1e"
 		elif quality < 20:
 			color = "#ff4949"
@@ -32,10 +30,7 @@ def neighbor_color(quality,netif,rt_protocol):
 		elif quality < 1000:
 			color = "#ffeb79"
 	else:
-		color = "#04ff0a"
-		if quality < 0:
-			color = "#06a4f4"
-		elif quality < 105:
+		if quality < 105:
 			color = "#ff1e1e"
 		elif quality < 130:
 			color = "#ff4949"
@@ -49,6 +44,8 @@ def neighbor_color(quality,netif,rt_protocol):
 			color = "#79ff7c"
 	if netif.startswith("eth"):
 		color = "#999999"
+	if quality < 0:
+		color = "#06a4f4"
 	return color
 
 def defrag_table(mysql,table,sleep):
