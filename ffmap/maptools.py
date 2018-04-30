@@ -137,16 +137,19 @@ def update_mapnik_csv(mysql):
 		else:
 			# Check for duplicate
 			if row["nid"] in dictl2.keys() and row["rid"] in dictl2[row["nid"]].keys():
-				# Check for ethernet (ethernet always wins)
-				if dictl2[row["nid"]][row["rid"]]["data"][4] == 0:
+				oldqual = dictl2[row["nid"]][row["rid"]]["data"][4]
+				# - Check for ethernet (ethernet always wins)
+				# - Take maximum quality (thus continue if current is lower)
+				if oldqual == 0 or oldqual > row["quality"]:
 					continue
-				row["quality"] = int(0.5 * (dictl2[row["nid"]][row["rid"]]["data"][4] + row["quality"]))
-				del dictl2[row["nid"]][row["rid"]] # Delete old entry, as we create a new one with averaged quality
+				# Delete old entry, as we create a new one with averaged quality
+				del dictl2[row["nid"]][row["rid"]]
 			if row["rid"] in dictl2.keys() and row["nid"] in dictl2[row["rid"]].keys():
-				# Check for ethernet (ethernet always wins)
-				if dictl2[row["rid"]][row["nid"]]["data"][4] == 0:
+				oldqual = dictl2[row["rid"]][row["nid"]]["data"][4]
+				# - Check for ethernet (ethernet always wins)
+				# - Take maximum quality (thus continue if current is lower)
+				if oldqual == 0 or oldqual > row["quality"]:
 					continue
-				row["quality"] = int(0.5 * (dictl2[row["rid"]][row["nid"]]["data"][4] + row["quality"]))
 				# No need to delete, since we overwrite later
 			# Write current set to dict
 			if not row["rid"] in dictl2.keys():
