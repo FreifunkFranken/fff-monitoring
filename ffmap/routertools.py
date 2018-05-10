@@ -13,6 +13,7 @@ import lxml.etree
 import datetime
 import requests
 import time
+import ipaddress
 from bson import SON
 from contextlib import suppress
 
@@ -884,16 +885,7 @@ def get_l3_neighbours(tree):
 
 
 def get_mac_from_v6_link_local(v6_fe80):
-	v6_fe80_parts = v6_fe80[6:].split(':')
-	mac = list()
-	for v6_fe80_part in v6_fe80_parts:
-		while len(v6_fe80_part) < 4:
-			v6_fe80_part = '0' + v6_fe80_part
-		mac.append(v6_fe80_part[:2])
-		mac.append(v6_fe80_part[-2:])
-
-	mac[0] = '%02x' % (int(mac[0], 16) ^ 2)
-	del mac[3]
-	del mac[3]
-
+	fullip = ipaddress.ip_address(v6_fe80).exploded
+	first = '%02x' % (int(fullip[20:22], 16) ^ 2)
+	mac = (first,fullip[22:24],fullip[25:27],fullip[32:34],fullip[35:37],fullip[37:39],)
 	return ':'.join(mac)
