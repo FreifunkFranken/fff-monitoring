@@ -43,7 +43,8 @@ def neighbor_color(quality,netif,rt_protocol):
 		elif quality < 230:
 			color = "#79ff7c"
 	if netif.startswith("eth"):
-		color = "#999999"
+		#color = "#999999"
+		color = "#008c00"
 	if quality < 0:
 		color = "#06a4f4"
 	return color
