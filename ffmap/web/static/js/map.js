@@ -147,7 +147,7 @@ map.on('click', function(pos) {
 					// skip unknown neighbours
 					if ('id' in neighbour) {
 						popup_html += "<tr style=\"background-color: "+neighbour.color+";\">";
-						popup_html += '<td><a href="'+url_router_info+neighbour.id+'" title="'+escapeHTML(neighbour.mac)+'">'+escapeHTML(neighbour.hostname)+'</a></td>';
+						popup_html += '<td><a href="'+url_router_info+neighbour.id+'" title="'+escapeHTML(neighbour.mac)+'" style="color:#000000">'+escapeHTML(neighbour.hostname)+'</a></td>';
 						popup_html += "<td>"+neighbour.quality+"</td>";
 						popup_html += "<td>"+escapeHTML(neighbour.netif)+"</td>";
 						popup_html += "</tr>";
