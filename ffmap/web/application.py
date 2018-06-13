@@ -157,7 +157,7 @@ def router_info(dbid):
 			
 			cwan = "blue"
 			cclient = "orange"
-			cbatman = "green"
+			cbatman = "#29c329"
 			cvpn = "red"
 			chidden = "gray"
 			
