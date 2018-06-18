@@ -720,7 +720,6 @@ def parse_nodewatcher_xml(xml,statstime):
 			# system
 			"sys_time": datetime.datetime.fromtimestamp(evalxpathint(tree,"/data/system_data/local_time/text()")),
 			"sys_uptime": int(evalxpathfloat(tree,"/data/system_data/uptime/text()")),
-			"sys_loadavg": evalxpathfloat(tree,"/data/system_data/loadavg/text()"),
 			"memory": {
 				"free": evalxpathint(tree,"/data/system_data/memory_free/text()"),
 				"buffering": evalxpathint(tree,"/data/system_data/memory_buffering/text()"),
@@ -760,6 +759,13 @@ def parse_nodewatcher_xml(xml,statstime):
 		}
 
 		router_update["v2"] = bool(router_update["hood"])
+
+		loadavg = evalxpathfloat(tree,"/data/system_data/loadavg/text()",None)
+		if not loadavg == None:
+			router_update["sys_loadavg"] = loadavg
+		else:
+			router_update["sys_loadavg"] = evalxpathfloat(tree,"/data/system_data/loadavg5/text()")
+
 
 		try:
 			lng = evalxpathfloat(tree,"/data/system_data/geo/lng/text()")
