@@ -880,8 +880,11 @@ def parse_nodewatcher_xml(xml,statstime):
 def get_l3_neighbours(tree):
 	l3_neighbours = list()
 	for neighbour in tree.xpath("/data/babel_neighbours/*"):
+		iptmp = evalxpath(neighbour,"ip/text()",None)
+		if not iptmp:
+			iptmp = neighbour.text
 		neighbour = {
-			"mac": get_mac_from_v6_link_local(neighbour.text).lower(),
+			"mac": get_mac_from_v6_link_local(iptmp).lower(),
 			"netif": neighbour.xpath("outgoing_interface/text()")[0],
 			"quality": -1.0*evalxpathfloat(neighbour,"link_cost/text()",1),
 			"type": "l3"
