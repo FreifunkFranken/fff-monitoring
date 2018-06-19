@@ -105,12 +105,20 @@ def router_traffic_hood(mysql):
 		WHERE gateway = TRUE AND netif IN ('eth0.1','eth1.1','w2ap','w5ap')
 		GROUP BY hood
 	""")
+	allhoods = mysql.fetchall("""
+		SELECT hood
+		FROM router
+		GROUP BY hood
+	""")
 	for d in gw:
 		if not d["hood"] in dict:
 			dict[d["hood"]] = d
 		else:
 			dict[d["hood"]]["rx"] += d["rx"]
 			dict[d["hood"]]["tx"] += d["tx"]
+	for h in allhoods:
+		if not h["hood"] in dict:
+			dict[h["hood"]] =  {"hood": h["hood"], "rx": 0, "tx": 0}
 	return dict
 
 def total_clients_gw(mysql):
