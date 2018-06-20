@@ -80,13 +80,15 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 			olddata = mysql.findone("SELECT sys_uptime, sys_time, firmware, hostname, hood, status, lat, lng, contact, description, position_comment, w2_active, w2_busy, w5_active, w5_busy FROM router WHERE id = %s LIMIT 1",(router_id,))
 			if olddata:
 				uptime = olddata["sys_uptime"]
-			
-			# Filter old data (Alfred keeps data for 10 min.; old and new can mix if gateways do not sync)
-			# We only use data where system time is bigger than before (last entry) or more than 1 hour smaller (to catch cases without timeserver)
-			newtime = router_update["sys_time"].timestamp()
-			oldtime = olddata["sys_time"].timestamp()
-			if not (newtime > oldtime or newtime < (oldtime - 3600)):
-				return
+				
+				# Filter old data (Alfred keeps data for 10 min.; old and new can mix if gateways do not sync)
+				# We only use data where system time is bigger than before (last entry) or more than 1 hour smaller (to catch cases without timeserver)
+				newtime = router_update["sys_time"].timestamp()
+				oldtime = olddata["sys_time"].timestamp()
+				if not (newtime > oldtime or newtime < (oldtime - 3600)):
+					return
+			else:
+				delete_router(mysql,router_id)
 
 		# keep hood up to date
 		if not router_update["hood"]:
@@ -152,7 +154,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 				else:
 					router_update["w5_airtime"] = 0
 		
-		if router_id:
+		if olddata:
 			# statistics
 			calculate_network_io(mysql, router_id, uptime, router_update)
 			ru = router_update
