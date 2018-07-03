@@ -10,7 +10,7 @@ CONFIG = {
 	"gw_netif_threshold_hours": 48,		# Hours which outdated netif from gwinfo is preserved for statistics
 	"router_stat_days": 30,				# Router stats are collected for X days
 	"router_stat_netif": 14,			# Router stats for netifs are collected for X days
-	"router_stat_gw": 7,				# Router stats for gw are collected for X days
+	"router_stat_gw": 1,				# Router stats for gw are collected for X days
 	"router_stat_mindiff_secs": 10,		# Time difference (uptime) in seconds required for a new entry in router stats
 	"router_stat_mindiff_default": 270,	# Time difference (router stats tables) in seconds required for a new entry in router stats
 	"router_stat_mindiff_netif": 270,	# Time difference (router netif stats) in seconds required for a new entry in router stats
