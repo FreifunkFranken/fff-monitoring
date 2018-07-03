@@ -21,6 +21,22 @@
 	  <Filter>([status] = 'orphaned')</Filter>
 	  <PointSymbolizer file="static/img/router_grey.svg" allow-overlap="true" />
 	</Rule>
+	<Rule>
+	  <Filter>([status] = 'online_wan')</Filter>
+	  <PointSymbolizer file="static/img/router_green_white.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'offline_wan')</Filter>
+	  <PointSymbolizer file="static/img/router_red_white.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'unknown_wan')</Filter>
+	  <PointSymbolizer file="static/img/router_yellow_white.svg" allow-overlap="true" />
+	</Rule>
+	<Rule>
+	  <Filter>([status] = 'orphaned_wan')</Filter>
+	  <PointSymbolizer file="static/img/router_grey_white.svg" allow-overlap="true" />
+	</Rule>
   </Style>
   <Style name="color" filter-mode="first">
 	<Rule>

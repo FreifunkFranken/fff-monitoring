@@ -70,7 +70,7 @@ def draw_voronoi_lines(csv, hoods):
 
 def update_mapnik_csv(mysql):
 	routers = mysql.fetchall("""
-		SELECT router.status, router.lat, router.lng, hoods.name AS hood FROM router
+		SELECT router.status, router.lat, router.lng, hoods.name AS hood, router.wan_uplink FROM router
 		LEFT JOIN hoods ON router.hood = hoods.name
 		WHERE router.lat IS NOT NULL AND router.lng IS NOT NULL
 	""")
@@ -79,10 +79,13 @@ def update_mapnik_csv(mysql):
 	rv2 = "lng,lat,status\n"
 	
 	for router in routers:
+		tmpstatus = router["status"]
+		if router["wan_uplink"]:
+			tmpstatus += "_wan";
 		tmp = "%f,%f,%s\n" % (
 			router["lng"],
 			router["lat"],
-			router["status"]
+			tmpstatus
 		)
 		if router["hood"]:
 			rv1 += tmp
