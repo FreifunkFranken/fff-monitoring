@@ -95,7 +95,7 @@
 						map.setView(router_pos, 18);
 						var marker = L.marker(router_pos, {
 							icon: L.icon({
-								iconUrl: "{{ url_for('static', filename='img/router_blue.svg') }}",
+								iconUrl: "{{ url_for('static', filename='img/router_blue_white.svg') if router.wan_uplink else url_for('static', filename='img/router_blue.svg') }}",
 								iconSize: [14, 14]
 							}),
 							clickable: false
