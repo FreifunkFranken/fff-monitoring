@@ -147,12 +147,6 @@ hoods = [
 	"position": {"lng": 11.580566, "lat": 49.94814}
 },
 {
-	"keyxchange_id": 23,
-	"name": "Fichtelberg",
-	"net": "10.50.172.0/22",
-	"position": {"lng": 11.852292, "lat": 49.998920}
-},
-{
 	"keyxchange_id": 24,
 	"name": "Rehau",
 	"net": "10.50.176.0/22",
