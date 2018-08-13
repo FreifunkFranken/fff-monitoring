@@ -66,8 +66,8 @@ function setup_plot_zoom(plot, pdata, num_data_points) {
 
 // Per router statistics
 
-function network_graph(netif_stats, tx_label, rx_label) {
-	var netstat = $("#netstat");
+function network_graph(netif_stats, field, tx_label, rx_label) {
+	var netstat = $("#"+field);
 	var tx = [], rx = [];
 	var len, i;
 	for (len=netif_stats.length, i=0; i<len; i++) {
@@ -377,14 +377,14 @@ function airtime_graph() {
 
 // Global statistics
 
-function global_client_graph() {
-	var clientstat = $("#globclientstat");
+function global_client_graph(indata,field) {
+	var clientstat = $("#"+field);
 	var clients = [];
 	var len, i;
-	for (len=global_stats.length, i=0; i<len; i++) {
+	for (len=indata.length, i=0; i<len; i++) {
 		try {
-			var client_value = global_stats[i].clients;
-			var date_value = global_stats[i].time.$date;
+			var client_value = indata[i].clients;
+			var date_value = indata[i].time.$date;
 			if(client_value != null) {
 				clients.push([date_value, client_value]);
 			}
@@ -407,17 +407,17 @@ function global_client_graph() {
 	setup_plot_zoom(plot, pdata, len);
 }
 
-function global_router_graph() {
-	var memstat = $("#globrouterstat");
+function global_router_graph(indata,field) {
+	var memstat = $("#"+field);
 	var offline = [], online = [], unknown = [], orphaned = [], total = [];
 	var len, i;
-	for (len=global_stats.length, i=0; i<len; i++) {
+	for (len=indata.length, i=0; i<len; i++) {
 		try {
-			var offline_value = global_stats[i].offline;
-			var online_value = global_stats[i].online;
-			var unknown_value = global_stats[i].unknown;
-			var orphaned_value = global_stats[i].orphaned;
-			var date_value = global_stats[i].time.$date;
+			var offline_value = indata[i].offline;
+			var online_value = indata[i].online;
+			var unknown_value = indata[i].unknown;
+			var orphaned_value = indata[i].orphaned;
+			var date_value = indata[i].time.$date;
 			if (offline_value == null) offline_value = 0;
 			if (online_value == null) online_value = 0;
 			if (unknown_value == null) unknown_value = 0;

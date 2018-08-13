@@ -236,13 +236,13 @@
 		var hoodstr = "";
 		{%- endif -%}
 		$(document).ready(function() {
-			global_client_graph();
-			global_router_graph();
+			global_client_graph(global_stats,"globclientstat");
+			global_router_graph(global_stats,"globrouterstat");
 			global_router_firmwares_graph();
 			global_router_models_graph("globroutermodelsstat","count");
 			global_router_models_graph("globroutermodelsperclient","clients");
 			{%- if not selectgw %}
-			network_graph(global_stats,"sent to clients","received from clients");
+			network_graph(global_stats,"netstat","sent to clients","received from clients");
 			{%- endif -%}
 			
 			$("#hoodlist").DataTable({
