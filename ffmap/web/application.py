@@ -69,6 +69,30 @@ def router_list():
 	
 	return render_template("router_list.html", query_str=query_str, routers=routers, numrouters=len(routers))
 
+# test
+@app.route('/v2routers')
+def v2_routers():
+	try:
+		mysql = FreifunkMySQL()
+		statsv2 = mysql.fetchall("""
+			SELECT time, CAST(SUM(clients) AS SIGNED) clients, CAST(SUM(online) AS SIGNED) online, CAST(SUM(offline) AS SIGNED) offline, CAST(SUM(unknown) AS SIGNED) unknown, CAST(SUM(orphaned) AS SIGNED) orphaned, CAST(SUM(rx) AS SIGNED) rx, CAST(SUM(tx) AS SIGNED) tx
+			FROM stats_hood WHERE (hood REGEXP '[vV]2' OR hood REGEXP 'Fichtelgebirge') AND time > 1531612800 GROUP BY time
+		""")
+		statsv1 = mysql.fetchall("""
+			SELECT time, CAST(SUM(clients) AS SIGNED) clients, CAST(SUM(online) AS SIGNED) online, CAST(SUM(offline) AS SIGNED) offline, CAST(SUM(unknown) AS SIGNED) unknown, CAST(SUM(orphaned) AS SIGNED) orphaned, CAST(SUM(rx) AS SIGNED) rx, CAST(SUM(tx) AS SIGNED) tx
+			FROM stats_hood WHERE hood NOT REGEXP '[vV]2' AND hood NOT REGEXP 'Fichtelgebirge' AND time > 1531612800 GROUP BY time
+                """)
+		mysql.close()
+		statsv2 = mysql.utcawaretupleint(statsv2,"time")
+		statsv1 = mysql.utcawaretupleint(statsv1,"time")
+
+		return render_template("v2routers.html",statsv2 = statsv2,statsv1 = statsv1)
+	except Exception as e:
+		writelog(CONFIG["debug_dir"] + "/fail_v2.txt", str(e))
+		import traceback
+		writefulllog("Warning: Failed to display v2 page: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
+
+
 # router by mac (short link version)
 @app.route('/mac/<mac>', methods=['GET'])
 def router_mac(mac):

@@ -1,0 +1,112 @@
+{% extends "bootstrap.html" %}
+{% block title %}{{super()}} :: Statistics{% endblock %}
+{% block head %}{{super()}}
+	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.time.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.byte.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.selection.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.downsample.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.resize.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.hiddengraphs.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.pie.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.tooltip.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap.min.js') }}"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables/dataTables.bootstrap.min.css') }}">
+	<style type="text/css">
+		.table-condensed {
+			margin-bottom: 0;
+		}
+		.table-condensed tr:last-child td, th {
+			border-bottom: 1px solid #ddd;
+		}
+		@media(max-width:500px) {
+			th {
+				padding-left: 2px !important;
+				padding-right: 2px !important;
+			}
+			td {
+				padding-left: 2px !important;
+				padding-right: 2px !important;
+			}
+			.panel-body {
+				padding-left: 3px !important;
+				padding-right: 3px !important;
+			}
+		}
+		.table-hoods th {
+			text-align: center;
+		}  
+		.table-hoods td {
+			text-align: center;
+		}
+		.table-hoods .firstrow {
+			text-align: left;
+		}
+		.hoodv2 a {
+			color: #2db200;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-xs-12 col-md-6">
+                        <div class="panel panel-default">
+                                <div class="panel-heading">Routers V1</div>
+                                <div class="panel-body">
+                                        <div id="globrouterstat1" class="graph"></div>
+                                </div>
+                        </div>
+                        <div class="panel panel-default">
+                                <div class="panel-heading">Clients V1</div>
+                                <div class="panel-body">
+                                        <div id="globclientstat1" class="graph"></div>
+                                </div>
+                        </div>
+                        <div class="panel panel-default">
+                                <div class="panel-heading">Traffic V1</div>
+                                <div class="panel-body">
+                                        <div id="netstat1" class="graph"></div>
+                                </div>
+                        </div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Routers V2</div>
+				<div class="panel-body">
+					<div id="globrouterstat" class="graph"></div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">Clients V2</div>
+				<div class="panel-body">
+					<div id="globclientstat" class="graph"></div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">Traffic V2</div>
+				<div class="panel-body">
+					<div id="netstat" class="graph"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var global_stats_v2 = {{ statsv2|statbson2json|safe }};
+		var global_stats_v1 = {{ statsv1|statbson2json|safe }};
+		var routers_page_url = "{{ url_for('router_list') }}";
+		var hoodstr = "";
+		$(document).ready(function() {
+			global_client_graph(global_stats_v2,"globclientstat");
+			global_router_graph(global_stats_v2,"globrouterstat");
+			network_graph(global_stats_v2,"netstat","sent to clients","received from clients");
+                        global_client_graph(global_stats_v1,"globclientstat1");
+                        global_router_graph(global_stats_v1,"globrouterstat1");
+                        network_graph(global_stats_v1,"netstat1","sent to clients","received from clients");
+		});
+	</script>
+{% endblock %}
+
