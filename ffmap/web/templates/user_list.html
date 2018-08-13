@@ -41,8 +41,8 @@
 						<span class="glyphicon glyphicon-remove" title="Automatically imported stub from netmon"></span>
 					{%- endif -%}
 				</td>
-				<td>{{ user_routers.get(user.email, {}).get('routers', 0) }}</td>
-				<td>{{ user_routers.get(user.email, {}).get('clients', 0) }}</td>
+				<td>{{ user_routers.get(user.email.lower(), {}).get('routers', 0) }}</td>
+				<td>{{ user_routers.get(user.email.lower(), {}).get('clients', 0) }}</td>
 			</tr>
 			{%- endfor %}
 		</tbody>

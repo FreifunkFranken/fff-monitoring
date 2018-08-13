@@ -441,5 +441,5 @@ def router_user_sum(mysql):
 	result = {}
 	for rs in data:
 		if rs["contact"]:
-			result[rs["contact"]] = {"routers": rs["count"], "clients": rs["clients"]}
+			result[rs["contact"].lower()] = {"routers": rs["count"], "clients": rs["clients"]}
 	return result
