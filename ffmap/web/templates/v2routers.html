@@ -38,7 +38,7 @@
 		}
 		.table-hoods th {
 			text-align: center;
-		}  
+		}
 		.table-hoods td {
 			text-align: center;
 		}
@@ -54,24 +54,24 @@
 {% block content %}
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
-                        <div class="panel panel-default">
-                                <div class="panel-heading">Routers V1: {{ statsv1[-1]["online"] }} on, {{ statsv1[-1]["offline"] }} off, {{ statsv1[-1]["unknown"] }} unknown, {{ statsv1[-1]["orphaned"] }} orphaned; {{ statsv1[-1]["online"]+statsv1[-1]["offline"]+statsv1[-1]["unknown"]+statsv1[-1]["orphaned"] }} total</div>
-                                <div class="panel-body">
-                                        <div id="globrouterstat1" class="graph"></div>
-                                </div>
-                        </div>
-                        <div class="panel panel-default">
-                                <div class="panel-heading">Clients V1: {{ statsv1[-1]["clients"] }}</div>
-                                <div class="panel-body">
-                                        <div id="globclientstat1" class="graph"></div>
-                                </div>
-                        </div>
-                        <div class="panel panel-default">
-                                <div class="panel-heading">Traffic V1</div>
-                                <div class="panel-body">
-                                        <div id="netstat1" class="graph"></div>
-                                </div>
-                        </div>
+		<div class="panel panel-default">
+			<div class="panel-heading">Routers V1: {{ statsv1[-1]["online"] }} on, {{ statsv1[-1]["offline"] }} off, {{ statsv1[-1]["unknown"] }} unknown, {{ statsv1[-1]["orphaned"] }} orphaned; {{ statsv1[-1]["online"]+statsv1[-1]["offline"]+statsv1[-1]["unknown"]+statsv1[-1]["orphaned"] }} total</div>
+			<div class="panel-body">
+				<div id="globrouterstat1" class="graph"></div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">Clients V1: {{ statsv1[-1]["clients"] }}</div>
+			<div class="panel-body">
+				<div id="globclientstat1" class="graph"></div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">Traffic V1</div>
+			<div class="panel-body">
+				<div id="netstat1" class="graph"></div>
+			</div>
+		</div>
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
@@ -103,9 +103,9 @@
 			global_client_graph(global_stats_v2,"globclientstat");
 			global_router_graph(global_stats_v2,"globrouterstat");
 			network_graph(global_stats_v2,"netstat","sent to clients","received from clients");
-                        global_client_graph(global_stats_v1,"globclientstat1");
-                        global_router_graph(global_stats_v1,"globrouterstat1");
-                        network_graph(global_stats_v1,"netstat1","sent to clients","received from clients");
+			global_client_graph(global_stats_v1,"globclientstat1");
+			global_router_graph(global_stats_v1,"globrouterstat1");
+			network_graph(global_stats_v1,"netstat1","sent to clients","received from clients");
 		});
 	</script>
 {% endblock %}
