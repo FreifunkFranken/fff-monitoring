@@ -3,12 +3,12 @@
 <Map background-color="transparent" srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
   <Style name="hoodpoint">
 	<Rule>
-	  <TextSymbolizer face-name="DejaVu Sans Book" size="12" fill="#1e42ff" halo-radius="2">[name]</TextSymbolizer>
+	  <TextSymbolizer face-name="DejaVu Sans Book" size="12" fill="#73b9ff" halo-radius="2">[name]</TextSymbolizer>
 	</Rule>
   </Style>
   <Style name="hoodborder">
 	<Rule>
-	  <LineSymbolizer stroke-width="3" stroke="#1e42ff" stroke-linecap="butt" stroke-dasharray="6, 2" clip="false" />
+	  <LineSymbolizer stroke-width="3" stroke="#73b9ff" stroke-linecap="butt" stroke-dasharray="6, 2" clip="false" />
 	</Rule>
   </Style>
   <Layer name="borders" srs="+proj=latlong +ellps=WGS84 +datum=WGS84 +no_defs">
