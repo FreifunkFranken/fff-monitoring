@@ -4,6 +4,10 @@
 # Copyright Adrian Schmutzler, 2018.
 # License GPLv3
 #
+# v1.4 - 2018-08-23
+# - Transmit internal IPv4/IPv6
+# - Transmit DHCP range for dnsmasq
+#
 # v1.3 - 2018-08-23
 # - Support multiple Monitoring URLs
 # - Use https by default
@@ -27,6 +31,7 @@ admin1="Admin"
 admin2=
 admin3=
 statslink="" # Provide link to stats page (MRTG or similar)
+dhcp=1 # 0=disabled, 1=dnsmasq, 2=isc-dhcp-server
 
 # Code
 tmp=$(/bin/mktemp)
@@ -39,7 +44,19 @@ for netif in $(ls /sys/class/net); do
 	fi
 	mac="$(cat "/sys/class/net/$netif/address")"
 	batctl="$("$batctlpath" -m "$netif" if | grep "fff" | sed -n 's/:.*//p')"
-	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\",\"vpnif\":\"$batctl\"}" >> $tmp
+
+	ipv4="$(ip -4 addr show dev "$netif" | grep "10\." | sed 's/.*\(10\.[^ ]*\) .*/\1/')"
+	ipv6="$(ip -6 addr show dev "$netif" | grep "fd43" | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
+
+	if [ "$dhcp" = "1" ]; then
+			dhcpdata="$(ps ax | grep "dnsmasq" | grep "$netif" | sed 's/.*dhcp-range=\([^ ]*\) .*/\1/')"
+			dhcpstart="$(echo "$dhcpdata" | cut -d',' -f1)"
+			dhcpend="$(echo "$dhcpdata" | cut -d',' -f2)"
+	#elif [ "$dhcp" = "2" ]; then
+			# not implemented
+	fi
+
+	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\",\"vpnif\":\"$batctl\",\"ipv4\":\"$ipv4\",\"ipv6\":\"$ipv6\",\"dhcpstart\":\"$dhcpstart\",\"dhcpend\":\"$dhcpend\"}" >> $tmp
 	comma=","
 done
 

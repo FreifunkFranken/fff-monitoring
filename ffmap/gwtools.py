@@ -47,16 +47,28 @@ def import_gw_data(mysql, gw_data):
 				n["vpnmac"] = nmacs.get(n["vpnif"],None)
 			else:
 				n["vpnmac"] = None
+			if not "ipv4" in n or not n["ipv4"]:
+				n["ipv4"] = None
+			if not "ipv6" in n or not n["ipv6"]:
+				n["ipv6"] = None
+			if not "dhcpstart" in n or not n["dhcpstart"]:
+				n["dhcpstart"] = None
+			if not "dhcpend" in n or not n["dhcpend"]:
+				n["dhcpend"] = None
 			
-			ndata.append((newid,n["mac"],n["netif"],n["vpnmac"],time,))
+			ndata.append((newid,n["mac"],n["netif"],n["vpnmac"],n["ipv4"],n["ipv6"],n["dhcpstart"],n["dhcpend"],time,))
 		
 		mysql.executemany("""
-			INSERT INTO gw_netif (gw, mac, netif, vpnmac, last_contact)
-			VALUES (%s, %s, %s, %s, %s)
+			INSERT INTO gw_netif (gw, mac, netif, vpnmac, ipv4, ipv6, dhcpstart, dhcpend, last_contact)
+			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
 				gw=VALUES(gw),
 				netif=VALUES(netif),
 				vpnmac=VALUES(vpnmac),
+				ipv4=VALUES(ipv4),
+				ipv6=VALUES(ipv6),
+				dhcpstart=VALUES(dhcpstart),
+				dhcpend=VALUES(dhcpend),
 				last_contact=VALUES(last_contact)
 		""",ndata)
 

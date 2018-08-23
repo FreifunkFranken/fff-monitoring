@@ -316,7 +316,7 @@ def gws_info(mysql,selecthood=None):
 		tup = ()
 	
 	data = mysql.fetchdict("""
-		SELECT router_gw.mac AS mac, gw.name AS gw, stats_page, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac
+		SELECT router_gw.mac AS mac, gw.name AS gw, stats_page, n1.netif AS gwif, n2.netif AS batif, n2.mac AS batmac, n2.ipv4 AS ipv4, n2.ipv6 AS ipv6, n2.dhcpstart AS dhcpstart, n2.dhcpend AS dhcpend
 		FROM router
 		INNER JOIN router_gw ON router.id = router_gw.router
 		LEFT JOIN (
