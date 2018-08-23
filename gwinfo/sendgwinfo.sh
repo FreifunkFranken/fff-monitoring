@@ -4,6 +4,11 @@
 # Copyright Adrian Schmutzler, 2018.
 # License GPLv3
 #
+# v1.3 - 2018-08-23
+# - Support multiple Monitoring URLs
+# - Use https by default
+# - Changed batctl default path
+#
 # v1.2.1 - 2018-01-12
 # - Added "grep fff" to support L2TP
 #
@@ -15,9 +20,8 @@
 #
 
 # Config
-#api_url="http://192.168.1.84/api/gwinfo"
-api_url="http://monitoring.freifunk-franken.de/api/gwinfo"
-batctlpath=/usr/local/sbin/batctl # Adjust to YOUR path!
+api_urls="https://monitoring.freifunk-franken.de/api/gwinfo" # space-separated list of addresses (api_urls="url1 url2")
+batctlpath=/usr/sbin/batctl # Adjust to YOUR path!
 hostname="MyHost"
 admin1="Admin"
 admin2=
@@ -48,5 +52,7 @@ comma=""
 
 echo "]}" >> $tmp
 
-/usr/bin/curl -k -v -H "Content-type: application/json; charset=UTF-8" -X POST --data-binary @$tmp $api_url
+for api_url in $api_urls; do
+	/usr/bin/curl -k -v -H "Content-type: application/json; charset=UTF-8" -X POST --data-binary @$tmp $api_url
+done
 /bin/rm "$tmp"
