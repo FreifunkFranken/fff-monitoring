@@ -47,6 +47,10 @@ mysql.execute("""
 		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`vpnmac` char(17) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ipv4` char(18) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ipv6` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`dhcpstart` char(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`dhcpend` char(15) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`last_contact` datetime NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)

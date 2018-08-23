@@ -194,6 +194,15 @@
 						<tr><th>Interface</th><td>{{ gws_info[selectgw]["gwif"] }}</td></tr>
 						<tr><th>MAC address</th><td>{{ selectgw }}</td></tr>
 						<tr><th>BatX interface</th><td>{{ gws_info[selectgw]["batX"] }}</td></tr>
+						{%- if gws_info[selectgw]["ipv4"] %}
+						<tr><th>Internal IPv4</th><td>{{ gws_info[selectgw]["ipv4"] }}</td></tr>
+						{%- endif %}
+						{%- if gws_info[selectgw]["ipv6"] %}
+						<tr><th>Internal IPv6</th><td>{{ gws_info[selectgw]["ipv6"] }}</td></tr>
+						{%- endif %}
+						{%- if gws_info[selectgw]["dhcpstart"] %}
+						<tr><th>DHCP range</th><td>{{ gws_info[selectgw]["dhcpstart"] }} - {{ gws_info[selectgw]["dhcpend"] }}</td></tr>
+						{%- endif %}
 						{%- if gws_info[selectgw]["stats_page"] %}
 						<tr><th>Stats page</th><td>{{ gws_info[selectgw]["stats_page"] }}</td></tr>
 						{%- endif %}
