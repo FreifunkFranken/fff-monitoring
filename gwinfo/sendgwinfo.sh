@@ -4,6 +4,9 @@
 # Copyright Adrian Schmutzler, 2018.
 # License GPLv3
 #
+# v1.4.1 - 2018-08-25
+# - Fixed greps for IPv4/IPv6/dnsmasq
+#
 # v1.4 - 2018-08-23
 # - Transmit internal IPv4/IPv6
 # - Transmit DHCP range for dnsmasq
@@ -45,11 +48,11 @@ for netif in $(ls /sys/class/net); do
 	mac="$(cat "/sys/class/net/$netif/address")"
 	batctl="$("$batctlpath" -m "$netif" if | grep "fff" | sed -n 's/:.*//p')"
 
-	ipv4="$(ip -4 addr show dev "$netif" | grep "10\." | sed 's/.*\(10\.[^ ]*\) .*/\1/')"
-	ipv6="$(ip -6 addr show dev "$netif" | grep "fd43" | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
+	ipv4="$(ip -4 addr show dev "$netif" | grep " 10\." | sed 's/.*\(10\.[^ ]*\) .*/\1/')"
+	ipv6="$(ip -6 addr show dev "$netif" | grep " fd43" | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
 
 	if [ "$dhcp" = "1" ]; then
-			dhcpdata="$(ps ax | grep "dnsmasq" | grep "$netif" | sed 's/.*dhcp-range=\([^ ]*\) .*/\1/')"
+			dhcpdata="$(ps ax | grep "dnsmasq" | grep "$netif " | sed 's/.*dhcp-range=\([^ ]*\) .*/\1/')"
 			dhcpstart="$(echo "$dhcpdata" | cut -d',' -f1)"
 			dhcpend="$(echo "$dhcpdata" | cut -d',' -f2)"
 	#elif [ "$dhcp" = "2" ]; then
