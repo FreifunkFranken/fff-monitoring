@@ -1,0 +1,226 @@
+{% extends "bootstrap.html" %}
+{% block title %}{{super()}} :: Gateways{% endblock %}
+{% block head %}{{super()}}
+	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.time.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.byte.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.selection.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.downsample.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.resize.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.hiddengraphs.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.pie.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph/jquery.flot.tooltip.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap.min.js') }}"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables/dataTables.bootstrap.min.css') }}">
+	<style type="text/css">
+		.table-condensed {
+			margin-bottom: 0;
+		}
+		.table-condensed tr:last-child td, th {
+			border-bottom: 1px solid #ddd;
+		}
+		@media(max-width:500px) {
+			th {
+				padding-left: 2px !important;
+				padding-right: 2px !important;
+			}
+			td {
+				padding-left: 2px !important;
+				padding-right: 2px !important;
+			}
+			.panel-body {
+				padding-left: 3px !important;
+				padding-right: 3px !important;
+			}
+		}
+		.table-hoods th {
+			text-align: center;
+		}
+		.table-hoods td {
+			text-align: center;
+		}
+		.table-hoods .firstrow {
+			text-align: left;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Gateways (selected / others)</div>
+				<div class="panel-body">
+					<table id="gwlist" class="table table-condensed table-hoods">
+					<thead>
+						<tr>
+							<th class="firstrow">Gateway</th>
+							<th class="success" title="Online Routers">On</th>
+							<th class="danger" title="Offline Routers">Off</th>
+							<th class="warning" title="Unknown Routers">Unk.</th>
+							<th class="active" title="Total Routers">Sum</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%- for gw, value in gws.items() %}
+						<tr>
+							<td class="firstrow"><p style="margin:0">{{ value["name"] }}</p></td>
+							<td class="success" data-order="{{ (value["selected"]["online"] or 0) + (value["others"]["online"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
+							<td class="danger" data-order="{{ (value["selected"]["offline"] or 0) + (value["others"]["offline"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
+							<td class="warning" data-order="{{ (value["selected"]["unknown"] or 0) + (value["others"]["unknown"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>
+							<td class="active" data-order="{{ (value["selected"]|sumdict if value["selected"] else 0) + (value["others"]|sumdict if value["others"] else 0) }}"><span style="font-weight:bold">{{ value["selected"]|sumdict if value["selected"] else 0 }}</span> / {{ value["others"]|sumdict if value["others"] else 0 }}</td>
+						</tr>
+						{%- endfor %}
+					</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">DHCP ranges</div>
+				<div class="panel-body">
+					<table id="dhcplist" class="table table-condensed table-hoods">
+					<thead>
+						<tr>
+							<th class="firstrow">Gateway</th>
+							<th class="warning" title="Interface1">VPN</th>
+							<th title="Interface2">batX</th>
+							<th class="success" title="IPv4">Range</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%- for ip in dhcp %}
+						<tr>
+							<td class="firstrow">{{ ip["name"] }}</td>
+							<td class="warning" data-order="{{ ip["name"] }}_{{ ip["vpnif"] }}">{{ ip["vpnif"] }}</td>
+							<td data-order="{{ ip["name"] }}_{{ ip["batif"] }}">{{ ip["batif"] }}</td>
+							<td class="success" data-order="{{ ip["dhcpstart"]|ip2int }}">{{ ip["dhcpstart"] }} - {{ ip["dhcpend"] }}</td>
+						</tr>
+						{%- endfor %}
+					</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">IPv4 List</div>
+				<div class="panel-body">
+					<table id="ipv4list" class="table table-condensed table-hoods">
+					<thead>
+						<tr>
+							<th class="firstrow">Gateway</th>
+							<th class="warning" title="Interface1">VPN</th>
+							<th title="Interface2">batX</th>
+							<th class="success" title="IPv4">IPv4</th>
+							<th class="stats">Stat</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%- for ip in ipv4 %}
+						<tr>
+							<td class="firstrow">{{ ip["name"] }}</td>
+							<td class="warning" data-order="{{ ip["name"] }}_{{ ip["vpnif"] }}">{{ ip["vpnif"] }}</td>
+							<td data-order="{{ ip["name"] }}_{{ ip["batif"] }}">{{ ip["batif"] }}</td>
+							<td class="success" data-order="{{ ip["ipv4"]|ipnet2int }}">{{ ip["ipv4"] }}</td>
+							{%- if ip["mac"] %}
+							<td class="stats"><a href="{{ url_for('global_gwstatistics', selectgw='%s' % ip["mac"]|int2shortmac) }}">Stats</a></td>
+							{%- else %}
+							<td class="stats">&nbsp;</td>
+							{%- endif %}
+						</tr>
+						{%- endfor %}
+					</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">IPv6 List</div>
+				<div class="panel-body">
+					<table id="ipv6list" class="table table-condensed table-hoods">
+					<thead>
+						<tr>
+							<th class="firstrow">Gateway</th>
+							<th class="warning" title="Interface1">VPN</th>
+							<th title="Interface2">batX</th>
+							<th class="success" title="IPv4">IPv6</th>
+							<th class="stats">Stat</th>
+						</tr>
+					</thead>
+					<tbody>
+						{%- for ip in ipv6 %}
+						<tr>
+							<td class="firstrow">{{ ip["name"] }}</td>
+							<td class="warning" data-order="{{ ip["name"] }}_{{ ip["vpnif"] }}">{{ ip["vpnif"] }}</td>
+							<td data-order="{{ ip["name"] }}_{{ ip["batif"] }}">{{ ip["batif"] }}</td>
+							<td class="success" data-order="{{ ip["ipv6"]|ipnet2int }}">{{ ip["ipv6"]|longip }}</td>
+							{%- if ip["mac"] %}
+							<td class="stats"><a href="{{ url_for('global_gwstatistics', selectgw='%s' % ip["mac"]|int2shortmac) }}">Stats</a></td>
+							{%- else %}
+							<td class="stats">&nbsp;</td>
+							{%- endif %}
+						</tr>
+						{%- endfor %}
+					</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#gwlist").DataTable({
+				"order": [],
+				"paging": false,
+				"info": false,
+				"searching": false
+				/*"responsive": {
+					"details": false
+				},*/
+			});
+			
+			$("#ipv4list").DataTable({
+				"order": [[3,'asc']],
+				"paging": false,
+				"info": false,
+				"searching": false,
+				/*"responsive": {
+					"details": false
+				},*/
+				"columnDefs": [
+					{"orderable": false, "targets": 0},
+					{"orderable": false, "targets": -1}
+				]
+			});
+			
+			$("#ipv6list").DataTable({
+				"order": [[3,'asc']],
+				"paging": false,
+				"info": false,
+				"searching": false,
+				/*"responsive": {
+					"details": false
+				},*/
+				"columnDefs": [
+					{"orderable": false, "targets": 0},
+					{"orderable": false, "targets": -1}
+				]
+			});
+			
+			$("#dhcplist").DataTable({
+				"order": [[3,'asc']],
+				"paging": false,
+				"info": false,
+				"searching": false,
+				/*"responsive": {
+					"details": false
+				},*/
+				"columnDefs": [
+					{"orderable": false, "targets": 0}
+				]
+			});
+		});
+	</script>
+{% endblock %}

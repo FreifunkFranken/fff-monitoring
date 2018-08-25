@@ -248,7 +248,82 @@ def hoods_gws(mysql):
 		result[rs["hood"]] = rs["count"]
 	return result
 
-def gws(mysql,selecthood=None):
+def gateways(mysql):
+	macs = mysql.fetchall("""
+		SELECT router_gw.mac, gw.name, gw.id AS gw, gw_netif.netif
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		LEFT JOIN (gw_netif INNER JOIN gw ON gw_netif.gw = gw.id)
+		ON router_gw.mac = gw_netif.mac
+		WHERE router.status <> 'orphaned' AND NOT ISNULL(gw.name)
+		GROUP BY router_gw.mac
+		ORDER BY gw.name ASC, gw_netif.netif ASC, router_gw.mac ASC
+	""")
+	selected = mysql.fetchall("""
+		SELECT gw_netif.gw, router.status, COUNT(router_gw.router) AS count
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		INNER JOIN gw_netif ON gw_netif.mac = router_gw.mac
+		WHERE router_gw.selected = TRUE AND router.status <> 'orphaned'
+		GROUP BY gw_netif.gw, router.status
+	""")
+	others = mysql.fetchall("""
+		SELECT gw_netif.gw, router.status, COUNT(router_gw.router) AS count
+		FROM router
+		INNER JOIN router_gw ON router.id = router_gw.router
+		INNER JOIN gw_netif ON gw_netif.mac = router_gw.mac
+		WHERE router_gw.selected = FALSE AND router.status <> 'orphaned'
+		GROUP BY gw_netif.gw, router.status
+	""")
+	
+	result = OrderedDict()
+	for m in macs:
+		if not m["gw"] in result:
+			result[m["gw"]] = {"name":m["name"],"macs":[],"selected":{},"others":{}}
+		result[m["gw"]]["macs"].append(m["mac"])
+	for rs in selected:
+		result[rs["gw"]]["selected"][rs["status"]] = rs["count"]
+	for rs in others:
+		result[rs["gw"]]["others"][rs["status"]] = rs["count"]
+	return result
+
+def gws_ipv4(mysql):
+	data = mysql.fetchall("""
+		SELECT name, n1.ipv4, n1.netif AS batif, n2.netif AS vpnif, n2.mac FROM gw
+		INNER JOIN gw_netif AS n1 ON gw.id = n1.gw
+		LEFT JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
+		WHERE n1.ipv4 IS NOT NULL
+		GROUP BY name, n1.ipv4, n1.netif, n2.netif, n2.mac
+		ORDER BY n1.ipv4
+	""")
+	
+	return data
+
+def gws_ipv6(mysql):
+	data = mysql.fetchall("""
+		SELECT name, n1.ipv6, n1.netif AS batif, n2.netif AS vpnif, n2.mac FROM gw
+		INNER JOIN gw_netif AS n1 ON gw.id = n1.gw
+		LEFT JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
+		WHERE n1.ipv6 IS NOT NULL
+		GROUP BY name, n1.ipv6, n1.netif, n2.netif, n2.mac
+		ORDER BY n1.ipv6
+	""")
+	
+	return data
+
+def gws_dhcp(mysql):
+	data = mysql.fetchall("""
+		SELECT name, n1.dhcpstart, n1.dhcpend, n1.netif AS batif, n2.netif AS vpnif, n2.mac FROM gw
+		INNER JOIN gw_netif AS n1 ON gw.id = n1.gw
+		LEFT JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
+		WHERE n1.dhcpstart IS NOT NULL
+		GROUP BY name, n1.dhcpstart, n1.dhcpend, n1.netif, n2.netif, n2.mac
+		ORDER BY n1.dhcpstart
+	""")
+	
+	return data
+
+def gws_ifs(mysql,selecthood=None):
 	if selecthood:
 		where = " AND hood=%s"
 		tup = (selecthood,)

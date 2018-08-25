@@ -501,7 +501,7 @@ def global_gwstatistics(selectgw):
 def helper_statistics(mysql,stats,selecthood,selectgw):
 	try:
 		hoods = stattools.hoods(mysql,selectgw)
-		gws = stattools.gws(mysql,selecthood)
+		gws = stattools.gws_ifs(mysql,selecthood)
 		
 		if selecthood:
 			selecthoodname = mysql.findone("SELECT name FROM hoods WHERE id = %s",(selecthood,),'name')
@@ -587,6 +587,27 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		writelog(CONFIG["debug_dir"] + "/fail_stats.txt", str(e))
 		import traceback
 		writefulllog("Warning: Failed to display stats page: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
+
+@app.route('/gateways')
+def gateways():
+	try:
+		mysql = FreifunkMySQL()
+		gws = stattools.gateways(mysql)
+		ipv4 = stattools.gws_ipv4(mysql)
+		ipv6 = stattools.gws_ipv6(mysql)
+		dhcp = stattools.gws_dhcp(mysql)
+		mysql.close()
+		
+		return render_template("gws.html",
+			gws = gws,
+			ipv4 = ipv4,
+			ipv6 = ipv6,
+			dhcp = dhcp
+		)
+	except Exception as e:
+		writelog(CONFIG["debug_dir"] + "/fail_gateways.txt", str(e))
+		import traceback
+		writefulllog("Warning: Failed to display gateways page: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

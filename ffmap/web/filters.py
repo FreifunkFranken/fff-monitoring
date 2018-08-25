@@ -10,6 +10,7 @@ import datetime
 import re
 import hashlib
 from ffmap.misc import int2mac, int2shortmac, inttoipv4, bintoipv6
+from ipaddress import ip_address
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from ffmap.misc import *
@@ -19,6 +20,13 @@ filters = Blueprint("filters", __name__)
 @filters.app_template_filter('sumdict')
 def sumdict(d):
 	return sum(d.values())
+
+@filters.app_template_filter('longip')
+def longip(d):
+	if len(d) > 32:
+		return d.replace('::','::... ...::')
+	else:
+		return d
 
 @filters.app_template_filter('int2mac')
 def int2macfilter(d):
@@ -35,6 +43,14 @@ def int2ipv4filter(d):
 @filters.app_template_filter('bin2ipv6')
 def bin2ipv6filter(d):
 	return bintoipv6(d)
+
+@filters.app_template_filter('ip2int')
+def ip2intfilter(d):
+	return int(ip_address(d))
+
+@filters.app_template_filter('ipnet2int')
+def ipnet2intfilter(d):
+	return int(ip_address(d.split("/")[0]))
 
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
