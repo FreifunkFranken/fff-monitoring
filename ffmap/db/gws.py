@@ -44,9 +44,9 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE gw_netif (
 		`gw` smallint(5) UNSIGNED NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-		`vpnmac` char(17) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`vpnmac` bigint(20) UNSIGNED DEFAULT NULL,
 		`ipv4` char(18) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`ipv6` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`dhcpstart` char(15) COLLATE utf8_unicode_ci DEFAULT NULL,

@@ -8,6 +8,48 @@ from ffmap.config import CONFIG
 def utcnow():
 	return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
+def int2mac(data,keys=None):
+	if keys:
+		for k in keys:
+			data[k] = int2mac(data[k])
+		return data
+	if data:
+		return ':'.join(format(s, '02x') for s in data.to_bytes(6,byteorder='big'))
+		#return ':'.join(format(s, '02x') for s in bytes.fromhex('{0:x}'.format(data)))
+	else:
+		return ''
+
+def int2shortmac(data,keys=None):
+	if keys:
+		for k in keys:
+			data[k] = int2shortmac(data[k])
+		return data
+	if data:
+		return '{:012x}'.format(data)
+	else:
+		return ''
+
+def shortmac2mac(data):
+	if data:
+		return ':'.join(format(s, '02x') for s in bytes.fromhex(data.replace(':','')))
+	else:
+		return ''
+
+def mac2int(data):
+	if data:
+		return int(data.replace(":",""),16)
+	else:
+		return None
+
+def int2mactuple(data,index=None):
+	if index:
+		for r in data:
+			r[index] = int2mac(r[index])
+	else:
+		for r in data:
+			r = int2mac(r)
+	return data
+
 def writelog(path, content):
 	with open(path, "a") as csv:
 		csv.write(time.strftime('{%Y-%m-%d %H:%M:%S}') + " - " + content + "\n")

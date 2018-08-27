@@ -39,7 +39,7 @@ def import_gw_data(mysql, gw_data):
 		
 		ndata = []
 		for n in gw_data["netifs"]:
-			if len(n["mac"])<17:
+			if len(n["mac"])<17 or len(n["mac"])>17:
 				continue
 			if n["netif"].startswith("l2tp"): # Filter l2tp interfaces
 				continue
@@ -56,7 +56,7 @@ def import_gw_data(mysql, gw_data):
 			if not "dhcpend" in n or not n["dhcpend"]:
 				n["dhcpend"] = None
 			
-			ndata.append((newid,n["mac"],n["netif"],n["vpnmac"],n["ipv4"],n["ipv6"],n["dhcpstart"],n["dhcpend"],time,))
+			ndata.append((newid,mac2int(n["mac"]),n["netif"],mac2int(n["vpnmac"]),n["ipv4"],n["ipv6"],n["dhcpstart"],n["dhcpend"],time,))
 		
 		mysql.executemany("""
 			INSERT INTO gw_netif (gw, mac, netif, vpnmac, ipv4, ipv6, dhcpstart, dhcpend, last_contact)
@@ -92,12 +92,12 @@ def gw_name(gw):
 	if gw["gw"] and gw["gwif"]:
 		s = gw["gw"] + " (" + gw["gwif"] + ")"
 	else:
-		s = gw["mac"]
+		s = int2mac(gw["mac"])
 	return s
 
 def gw_bat(gw):
 	if gw["batif"] and gw["batmac"]:
-		s = gw["batmac"] + " (" + gw["batif"] + ")"
+		s = int2mac(gw["batmac"]) + " (" + gw["batif"] + ")"
 	else:
 		s = "---"
 	return s

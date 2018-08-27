@@ -162,7 +162,7 @@ def router_models(mysql,selecthood=None,selectgw=None):
 			WHERE mac = %s
 			GROUP BY hardware
 			ORDER BY hardware
-		""",(selectgw,),"hardware")
+		""",(mac2int(selectgw),),"hardware")
 	else:
 		return mysql.fetchdict("""
 			SELECT hardware, COUNT(id) AS count, SUM(clients) AS clients
@@ -188,7 +188,7 @@ def router_firmwares(mysql,selecthood=None,selectgw=None):
 			WHERE mac = %s
 			GROUP BY firmware
 			ORDER BY firmware
-		""",(selectgw,),"firmware","count")
+		""",(mac2int(selectgw),),"firmware","count")
 	else:
 		return mysql.fetchdict("""
 			SELECT firmware, COUNT(id) AS count
@@ -342,7 +342,7 @@ def gws_admin(mysql,selectgw):
 		INNER JOIN gw_admin ON gw_netif.gw = gw_admin.gw
 		WHERE mac = %s
 		ORDER BY prio ASC
-	""",(selectgw,),"name")
+	""",(mac2int(selectgw),),"name")
 	return data
 
 def record_global_stats(mysql):
