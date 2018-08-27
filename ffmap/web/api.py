@@ -16,6 +16,7 @@ from operator import itemgetter
 
 import datetime
 import time
+import traceback
 
 api = Blueprint("api", __name__)
 
@@ -145,7 +146,12 @@ def alfred():
 		statstime = utcnow()
 		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
 		if request.method == 'POST':
-			alfred_data = request.get_json()
+			try:
+				alfred_data = request.get_json()
+			except Exception as e:
+				writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
+				writefulllog("Warning: Error converting ALFRED data to JSON:\n__%s" % (request.get_data(True,True).replace("\n", "\n__")))
+				return
 			
 			if alfred_data:
 				# load router status xml data
@@ -171,7 +177,6 @@ def alfred():
 		return r
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
-		import traceback
 		writefulllog("Warning: Error while processing ALFRED data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
 
 @api.route('/gwinfo', methods=['GET', 'POST'])
@@ -183,7 +188,12 @@ def gwinfo():
 		set_data = {}
 		r = make_response(json.dumps(set_data))
 		if request.method == 'POST':
-			gw_data = request.get_json()
+			try:
+				gw_data = request.get_json()
+			except Exception as e:
+				writelog(CONFIG["debug_dir"] + "/fail_gwinfo.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
+				writefulllog("Warning: Error converting GWINFO data to JSON:\n__%s" % (request.get_data(True,True).replace("\n", "\n__")))
+				return
 			
 			if gw_data:
 				import_gw_data(mysql,gw_data)
@@ -197,7 +207,6 @@ def gwinfo():
 		return r
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_gwinfo.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
-		import traceback
 		writefulllog("Warning: Error while processing GWINFO data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
 
 
