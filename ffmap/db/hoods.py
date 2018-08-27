@@ -31,6 +31,11 @@ mysql.execute("""
 """)
 
 mysql.execute("""
+	INSERT INTO hoods (id, name, net, lat, lng, cos_lat, sin_lat)
+	VALUES (%s, %s, %s, %s, %s, %s, %s)
+""",(0,NoCoordinates,"",None,None,None,None,))
+
+mysql.execute("""
 	CREATE TABLE hoodsv2 (
 		`id` int(11) NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
