@@ -254,7 +254,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 		ndata = []
 		adata = []
 		for n in router_update["netifs"]:
-			ndata.append((router_id,n["name"],n["mtu"],n["traffic"]["rx_bytes"],n["traffic"]["tx_bytes"],n["traffic"]["rx"],n["traffic"]["tx"],n["ipv6_fe80_addr"],n["ipv4_addr"],n["mac"],n["wlan_channel"],n["wlan_type"],n["wlan_width"],n["wlan_ssid"],n["wlan_txpower"],))
+			ndata.append((router_id,n["name"],n["mtu"],n["traffic"]["rx_bytes"],n["traffic"]["tx_bytes"],n["traffic"]["rx"],n["traffic"]["tx"],n["fe80_addr"],n["ipv4_addr"],n["mac"],n["wlan_channel"],n["wlan_type"],n["wlan_width"],n["wlan_ssid"],n["wlan_txpower"],))
 			for a in n["ipv6_addrs"]:
 				adata.append((router_id,n["name"],a,))
 		
@@ -797,7 +797,7 @@ def parse_nodewatcher_xml(xml,statstime):
 					"rx": 0,
 					"tx": 0,
 				},
-				"ipv4_addr": evalxpath(netif,"ipv4_addr/text()"),
+				"ipv4_addr": ipv4toint(evalxpath(netif,"ipv4_addr/text()")),
 				"mac": mac2int(evalxpath(netif,"mac_addr/text()")),
 				"wlan_channel": evalxpathint(netif,"wlan_channel/text()",None),
 				"wlan_type": evalxpath(netif,"wlan_type/text()",None),
@@ -806,12 +806,12 @@ def parse_nodewatcher_xml(xml,statstime):
 				"wlan_txpower": evalxpath(netif,"wlan_tx_power/text()",None),
 			}
 			with suppress(IndexError):
-				interface["ipv6_fe80_addr"] = ""
-				interface["ipv6_fe80_addr"] = netif.xpath("ipv6_link_local_addr/text()")[0].lower().split("/")[0]
+				interface["fe80_addr"] = None
+				interface["fe80_addr"] = ipv6tobin(netif.xpath("ipv6_link_local_addr/text()")[0].split("/")[0])
 			interface["ipv6_addrs"] = []
 			if len(netif.xpath("ipv6_addr/text()")) > 0:
 				for ipv6_addr in netif.xpath("ipv6_addr/text()"):
-					interface["ipv6_addrs"].append(ipv6_addr.lower().split("/")[0])
+					interface["ipv6_addrs"].append(ipv6tobin(ipv6_addr.split("/")[0]))
 
 			router_update["netifs"].append(interface)
 

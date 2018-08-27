@@ -157,7 +157,7 @@ mysql.execute("""
 	CREATE TABLE router_ipv6 (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-		`ipv6` varchar(60) COLLATE utf8_unicode_ci NOT NULL
+		`ipv6` binary(16) NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
@@ -190,8 +190,8 @@ mysql.execute("""
 		`tx_bytes` bigint(20) UNSIGNED NOT NULL,
 		`rx` int(10) UNSIGNED NOT NULL,
 		`tx` int(10) UNSIGNED NOT NULL,
-		`fe80_addr` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
-		`ipv4_addr` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+		`fe80_addr` binary(16) DEFAULT NULL,
+		`ipv4_addr` int(10) UNSIGNED DEFAULT NULL,
 		`mac` bigint(20) UNSIGNED DEFAULT NULL,
 		`wlan_channel` tinyint(3) UNSIGNED DEFAULT NULL,
 		`wlan_type` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,

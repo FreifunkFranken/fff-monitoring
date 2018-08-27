@@ -4,6 +4,8 @@ import time
 import datetime
 
 from ffmap.config import CONFIG
+#from socket import inet_pton, inet_ntop, AF_INET6
+from ipaddress import IPv4Address, IPv6Address
 
 def utcnow():
 	return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
@@ -49,6 +51,32 @@ def int2mactuple(data,index=None):
 		for r in data:
 			r = int2mac(r)
 	return data
+
+def ipv6tobin(data):
+	if data:
+		return IPv6Address(data).packed
+		#return inet_pton(AF_INET6,data)
+	else:
+		return None
+def bintoipv6(data):
+	if data:
+		return IPv6Address(data).compressed
+		#return inet_ntop(AF_INET6,data)
+	else:
+		return ''
+
+def ipv4toint(data):
+	if data:
+		return int(IPv4Address(data))
+		#return inet_pton(AF_INET,data)
+	else:
+		return None
+def inttoipv4(data):
+	if data:
+		return str(IPv4Address(data))
+		#return inet_ntop(AF_INET,data)
+	else:
+		return ''
 
 def writelog(path, content):
 	with open(path, "a") as csv:

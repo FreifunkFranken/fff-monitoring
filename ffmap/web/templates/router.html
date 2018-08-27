@@ -276,16 +276,16 @@
 						</div>
 						<div class="row">
 							<div class="col-xs-5 col-sm-5">
-								{%- if netif.ipv6_fe80_addr -%}
-								{{ netif.ipv6_fe80_addr }}
+								{%- if netif.fe80_addr -%}
+								{{ netif.fe80_addr|bin2ipv6 }}
 								{%- else -%}
 								<em title="Calculated from MAC Address">{{ netif.mac|macint2fe80 }}</em>
 								{%- endif -%}
 								{%- if netif.ipv4_addr -%}
-								<br />{{ netif.ipv4_addr }}
+								<br />{{ netif.ipv4_addr|int2ipv4 }}
 								{%- endif -%}
 								{%- for ipv6_addr in netif.ipv6_addrs -%}
-								<br />{{ ipv6_addr }}
+								<br />{{ ipv6_addr|bin2ipv6 }}
 								{%- endfor -%}
 							</div>
 							{%- if netif.rx is defined %}
@@ -321,16 +321,16 @@
 						</div>
 						<div class="row">
 							<div class="col-xs-5 col-sm-5">
-								{%- if netif.ipv6_fe80_addr -%}
-								{{ netif.ipv6_fe80_addr }}
+								{%- if netif.fe80_addr -%}
+								{{ netif.fe80_addr|bin2ipv6 }}
 								{%- else -%}
 								<em title="Calculated from MAC Address">{{ netif.mac|macint2fe80 }}</em>
 								{%- endif -%}
 								{%- if netif.ipv4_addr -%}
-								<br />{{ netif.ipv4_addr }}
+								<br />{{ netif.ipv4_addr|int2ipv4 }}
 								{%- endif -%}
 								{%- for ipv6_addr in netif.ipv6_addrs -%}
-								<br />{{ ipv6_addr }}
+								<br />{{ ipv6_addr|bin2ipv6 }}
 								{%- endfor -%}
 							</div>
 							{%- if netif.rx is defined %}
