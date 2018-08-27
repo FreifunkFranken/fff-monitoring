@@ -849,6 +849,8 @@ def parse_nodewatcher_xml(xml,statstime):
 		for gw in tree.xpath("/data/batman_adv_gateway_list/*"):
 			gw_mac = evalxpath(gw,"gateway/text()")
 			if (gw_mac and len(gw_mac)>12): # Throw away headline
+				if len(gw_mac) > 17:
+					gw_mac = gw_mac[0:17]
 				gw = {
 					"mac": mac2int(gw_mac),
 					"quality": evalxpath(gw,"link_quality/text()"),

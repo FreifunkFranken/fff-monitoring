@@ -367,6 +367,9 @@ def routers():
 				#elif netif['netif'] == 'br-mesh' and 'mac' in netif:
 				#	mac = netif["mac"]
 		
+		if not router['mac']:
+			continue
+		
 		nodelist_data['nodes'].append(
 			{
 				'id': str(router['id']),

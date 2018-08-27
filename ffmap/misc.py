@@ -17,7 +17,7 @@ def int2mac(data,keys=None):
 		return ':'.join(format(s, '02x') for s in data.to_bytes(6,byteorder='big'))
 		#return ':'.join(format(s, '02x') for s in bytes.fromhex('{0:x}'.format(data)))
 	else:
-		return None
+		return ''
 
 def int2shortmac(data,keys=None):
 	if keys:
@@ -25,18 +25,21 @@ def int2shortmac(data,keys=None):
 			data[k] = int2shortmac(data[k])
 		return data
 	if data:
-		return format(data, 'x')
+		return '{:012x}'.format(data)
 	else:
-		return None
+		return ''
 
 def shortmac2mac(data):
 	if data:
 		return ':'.join(format(s, '02x') for s in bytes.fromhex(data.replace(':','')))
 	else:
-		return None
+		return ''
 
 def mac2int(data):
-	return int(data.replace(":",""),16)
+	if data:
+		return int(data.replace(":",""),16)
+	else:
+		return None
 
 def int2mactuple(data,index=None):
 	if index:
