@@ -140,7 +140,7 @@
 						<tr><th>Position</th><td>{{ router.position_comment }}</td></tr>
 						{%- endif %}
 						{%- if router.hood %}
-						<tr><th>Hood</th><td><a href="{{ url_for('router_list', q='hood:^%s$' % router.hood) }}">{{ router.hood }}</a>
+						<tr><th>Hood</th><td{%- if router.local %} class="hoodlocal"{%- elif router.v2 %} class="hoodv2"{%- endif %}><a href="{{ url_for('router_list', q='hood:^%s$' % router.hood) }}">{{ router.hood }}</a>
 							{%- if router.community %}
 							({{ router.community }})
 							{%- endif -%}

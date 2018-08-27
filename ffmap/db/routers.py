@@ -94,6 +94,7 @@ mysql.execute("""
 		`community` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`hood` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
 		`v2` tinyint(1) NOT NULL,
+		`local` tinyint(1) NOT NULL,
 		`gateway` tinyint(1) NOT NULL,
 		`status_text` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`contact` varchar(200) COLLATE utf8_unicode_ci NOT NULL,

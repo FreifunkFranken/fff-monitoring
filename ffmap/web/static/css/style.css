@@ -45,3 +45,18 @@ table.neighbours {
 	padding-left: 5px;
 	padding-right: 7px;
 }
+
+.hoodv2 {
+	color: #2db200;
+}
+.hoodlocal {
+	color: #ffbf00;
+}
+
+.hoodv2 a {
+	color: #2db200;
+}
+.hoodlocal a {
+	color: #ffbf00;
+}
+

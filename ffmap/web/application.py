@@ -29,6 +29,7 @@ app.register_blueprint(filters)
 tileurls = {
 	"routers": "/tiles/routers",
 	"routers_v2": "/tiles/routers_v2",
+	"routers_local": "/tiles/routers_local",
 	"hoods": "/tiles/hoods",
 	"hoods_v2": "/tiles/hoods_v2",
 }
@@ -51,7 +52,7 @@ def router_list():
 	mysql = FreifunkMySQL()
 	
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, last_contact, clients, reset, blocked, v2
+		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, last_contact, clients, reset, blocked, v2, local
 		FROM router
 		LEFT JOIN users ON router.contact = users.email
 		LEFT JOIN (
@@ -450,7 +451,7 @@ def user_info(nickname):
 			else:
 				flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers = mysql.fetchall("""
-		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients, reset, blocked, v2
+		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients, reset, blocked, v2, local
 		FROM router
 		LEFT JOIN (
 			SELECT router, blocked.mac AS blocked FROM router_netif
