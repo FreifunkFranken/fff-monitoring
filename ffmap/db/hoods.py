@@ -30,6 +30,24 @@ mysql.execute("""
 		ADD KEY `sin_lat` (`sin_lat`)
 """)
 
+mysql.execute("""
+	CREATE TABLE hoodsv2 (
+		`id` int(11) NOT NULL,
+		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+		`lat` double DEFAULT NULL,
+		`lng` double DEFAULT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE hoodsv2
+		ADD PRIMARY KEY (`id`),
+		ADD UNIQUE KEY `name` (`name`),
+		ADD KEY `lat` (`lat`),
+		ADD KEY `lng` (`lng`)
+""")
+
 mysql.commit()
 
 mysql.close()

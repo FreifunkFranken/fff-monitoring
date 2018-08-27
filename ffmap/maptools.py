@@ -219,17 +219,15 @@ def update_mapnik_csv(mysql):
 			hoods.append([x, y])
 		draw_voronoi_lines(csv, hoods)
 
-	with urllib.request.urlopen("http://keyserver.freifunk-franken.de/v2/hoods.php") as url:
-		dbhoodsv2 = json.loads(url.read().decode())
-	
+	dbhoodsv2 = mysql.fetchall("""
+		SELECT name, lat, lng FROM hoodsv2
+		WHERE lat IS NOT NULL AND lng IS NOT NULL
+	""")
 	with open(os.path.join(CONFIG["csv_dir"], "hood-points-v2.csv"), "w", encoding="UTF-8") as csv:
 		csv.write("lng,lat,name\n")
-		
 		for hood in dbhoodsv2:
-			if not ( 'lon' in hood and 'lat' in hood ):
-				continue
 			csv.write("%f,%f,\"%s\"\n" % (
-				hood["lon"],
+				hood["lng"],
 				hood["lat"],
 				hood["name"]
 			))
@@ -239,10 +237,8 @@ def update_mapnik_csv(mysql):
 		hoods = []
 		
 		for hood in dbhoodsv2:
-			if not ( 'lon' in hood and 'lat' in hood ):
-				continue
 			# convert coordinates info marcator sphere as voronoi doesn't work with lng/lat
-			x, y = merc_sphere(hood["lon"], hood["lat"])
+			x, y = merc_sphere(hood["lng"], hood["lat"])
 			hoods.append([x, y])
 		draw_voronoi_lines(csv, hoods)
 
