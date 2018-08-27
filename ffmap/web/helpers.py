@@ -68,16 +68,16 @@ def parse_router_list_search_query(args):
 			k = key + ' = "" OR ' + key + " IS NULL"
 		elif key == 'mac':
 			j += " INNER JOIN ( SELECT router, mac FROM router_netif GROUP BY router, mac) AS j ON router.id = j.router "
-			k = "mac {} REGEXP %s".format(no)
-			t.append(value.lower())
+			k = "HEX(mac) {} REGEXP %s".format(no)
+			t.append(value.replace(':',''))
 		elif (key == 'gw'):
 			j += " INNER JOIN router_gw ON router.id = router_gw.router "
-			k = "router_gw.mac {} REGEXP %s".format(no)
-			t.append(value.lower())
+			k = "HEX(router_gw.mac) {} REGEXP %s".format(no)
+			t.append(value.replace(':',''))
 		elif (key == 'selected'):
 			j += " INNER JOIN router_gw ON router.id = router_gw.router "
-			k = "router_gw.mac {} REGEXP %s AND router_gw.selected = TRUE".format(no)
-			t.append(value.lower())
+			k = "HEX(router_gw.mac) {} REGEXP %s AND router_gw.selected = TRUE".format(no)
+			t.append(value.replace(':',''))
 		elif (key == 'bat'):
 			j += """ INNER JOIN router_gw ON router.id = router_gw.router
 				INNER JOIN (
@@ -85,8 +85,8 @@ def parse_router_list_search_query(args):
 					INNER JOIN gw_netif AS n2 ON n1.mac = n2.vpnmac AND n1.gw = n2.gw
 				) ON router_gw.mac = n1.mac
 			"""
-			k = "n2.mac {} REGEXP %s".format(no)
-			t.append(value.lower())
+			k = "HEX(n2.mac) {} REGEXP %s".format(no)
+			t.append(value.replace(':',''))
 		elif (key == 'batselected'):
 			j += """ INNER JOIN router_gw ON router.id = router_gw.router
 				INNER JOIN (
@@ -94,12 +94,12 @@ def parse_router_list_search_query(args):
 					INNER JOIN gw_netif AS n2 ON n1.mac = n2.vpnmac AND n1.gw = n2.gw
 				) ON router_gw.mac = n1.mac
 			"""
-			k = "n2.mac {} REGEXP %s AND router_gw.selected = TRUE".format(no)
-			t.append(value.lower())
+			k = "HEX(n2.mac) {} REGEXP %s AND router_gw.selected = TRUE".format(no)
+			t.append(value.replace(':',''))
 		elif (key == 'neighbor') or (key == 'neighbour'):
 			j += " INNER JOIN ( SELECT router, mac FROM router_neighbor GROUP BY router, mac) AS j ON router.id = j.router "
-			k = "mac {} REGEXP %s".format(no)
-			t.append(value.lower())
+			k = "HEX(mac) {} REGEXP %s".format(no)
+			t.append(value.replace(':',''))
 		elif (key == 'hardware') or (key == 'hood') or (key == 'nickname'):
 			k = key + " {} REGEXP %s".format(no)
 			t.append(value.replace("_","."))

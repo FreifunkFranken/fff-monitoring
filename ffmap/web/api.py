@@ -6,7 +6,7 @@ from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats
 from ffmap.config import CONFIG
-from ffmap.misc import writelog, writefulllog, neighbor_color
+from ffmap.misc import *
 
 from flask import Blueprint, request, make_response, redirect, url_for, jsonify, Response
 from bson.json_util import dumps as bson2json
@@ -121,7 +121,7 @@ def get_router_by_mac(mac):
 		INNER JOIN router_netif ON router.id = router_netif.router
 		WHERE mac = %s
 		GROUP BY mac, id
-	""",(mac.lower(),))
+	""",(mac2int(mac),))
 	mysql.close()
 	if len(res_routers) != 1:
 		return redirect(url_for("router_list", q="mac:%s" % mac))
@@ -279,13 +279,13 @@ def wifianalhelper(router_data, headline):
 		if not router['mac']:
 			continue
 		if router["netif"] == 'br-mesh':
-			s += router["mac"] + "|Mesh_" + router['hostname'] + "\n"
+			s += int2mac(router["mac"]) + "|Mesh_" + router['hostname'] + "\n"
 		elif router["netif"] == 'w2ap':
-			s += router["mac"] + "|" + router['hostname'] + "\n"
+			s += int2mac(router["mac"]) + "|" + router['hostname'] + "\n"
 		elif router["netif"] == 'w5ap':
-			s += router["mac"] + "|W5_" + router['hostname'] + "\n"
+			s += int2mac(router["mac"]) + "|W5_" + router['hostname'] + "\n"
 		elif router["netif"] == 'w5mesh':
-			s += router["mac"] + "|W5Mesh_" + router['hostname'] + "\n"
+			s += int2mac(router["mac"]) + "|W5Mesh_" + router['hostname'] + "\n"
 	
 	return Response(s,mimetype='text/plain')
 
@@ -304,7 +304,7 @@ def dnslist():
 
 	s = ""
 	for router in router_data:
-		s += router["mac"].replace(":","") + "\t" + router["fd43"] + "\n"
+		s += int2shortmac(router["mac"]) + "\t" + router["fd43"] + "\n"
 
 	return Response(s,mimetype='text/plain')
 
@@ -323,7 +323,7 @@ def dnsentries():
 
 	s = ""
 	for router in router_data:
-		s += router["mac"].replace(":","") + ".fff.community.  300  IN  AAAA  " + router["fd43"] + "    ; " + router["hostname"] + "\n"
+		s += int2shortmac(router["mac"]) + ".fff.community.  300  IN  AAAA  " + router["fd43"] + "    ; " + router["hostname"] + "\n"
 
 	return Response(s,mimetype='text/plain')
 
@@ -371,14 +371,14 @@ def routers():
 			{
 				'id': str(router['id']),
 				'name': router['hostname'],
-				'mac': router['mac'],
+				'mac': int2mac(router['mac']),
 				'hood': router['hood'],
 				'status': router['status'],
 				'user': router['nickname'],
 				'hardware': router['hardware'],
 				'firmware': router['firmware'],
 				'loadavg': router['sys_loadavg'],
-				'href': 'https://monitoring.freifunk-franken.de/mac/' + router['mac'],
+				'href': 'https://monitoring.freifunk-franken.de/mac/' + int2shortmac(router['mac']),
 				'clients': router['clients'],
 				'lastcontact': router['last_contact'].isoformat(),
 				'uplink': {
@@ -454,7 +454,7 @@ def get_routers_by_nickname(nickname):
 		{
 				'name': router['hostname'],
 				'oid': str(router['id']),
-				'mac': router['mac'],
+				'mac': int2mac(router['mac']),
 				'ipv6_fe80_addr': router['fe80_addr']
 			}
 		)

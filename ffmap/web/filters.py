@@ -9,6 +9,7 @@ import json
 import datetime
 import re
 import hashlib
+from ffmap.misc import int2mac, int2shortmac
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from ffmap.misc import *
@@ -18,6 +19,14 @@ filters = Blueprint("filters", __name__)
 @filters.app_template_filter('sumdict')
 def sumdict(d):
 	return sum(d.values())
+
+@filters.app_template_filter('int2mac')
+def int2macfilter(d):
+	return int2mac(d)
+
+@filters.app_template_filter('int2shortmac')
+def int2shortmacfilter(d):
+	return int2shortmac(d)
 
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
@@ -115,7 +124,12 @@ def mac_to_ipv6_linklocal(mac):
 
 	# Remove the most common delimiters; dots, dashes, etc.
 	mac_bare = re.sub('[%s]+' % re.escape(' .:-'), '', mac)
-	mac_value = int(mac_bare, 16)
+	return macint_to_ipv6_linklocal(int(mac_bare, 16))
+
+@filters.app_template_filter('macint2fe80')
+def macint_to_ipv6_linklocal(mac_value):
+	if not mac_value:
+		return ''
 
 	# Split out the bytes that slot into the IPv6 address
 	# XOR the most significant byte with 0x02, inverting the

@@ -62,7 +62,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 	reset = False
 	
 	try:
-		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac.lower(),))
+		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac2int(mac),))
 		router_update = parse_nodewatcher_xml(xml,statstime)
 		
 		# cancel if banned mac found
@@ -798,7 +798,7 @@ def parse_nodewatcher_xml(xml,statstime):
 					"tx": 0,
 				},
 				"ipv4_addr": evalxpath(netif,"ipv4_addr/text()"),
-				"mac": evalxpath(netif,"mac_addr/text()").lower(),
+				"mac": mac2int(evalxpath(netif,"mac_addr/text()")),
 				"wlan_channel": evalxpathint(netif,"wlan_channel/text()",None),
 				"wlan_type": evalxpath(netif,"wlan_type/text()",None),
 				"wlan_width": evalxpathint(netif,"wlan_width/text()",None),
@@ -819,12 +819,12 @@ def parse_nodewatcher_xml(xml,statstime):
 
 		for originator in tree.xpath("/data/batman_adv_originators/*"):
 			visible_neighbours += 1
-			o_mac = evalxpath(originator,"originator/text()")
-			o_nexthop = evalxpath(originator,"nexthop/text()")
+			o_mac = mac2int(evalxpath(originator,"originator/text()"))
+			o_nexthop = mac2int(evalxpath(originator,"nexthop/text()"))
 			# mac is the mac of the neighbour w2/5mesh if
 			# (which might also be called wlan0-1)
 			o_out_if = evalxpath(originator,"outgoing_interface/text()")
-			if o_mac.upper() == o_nexthop.upper():
+			if o_mac == o_nexthop:
 				# skip vpn server
 				if o_out_if == CONFIG["vpn_netif"]:
 					continue
@@ -833,7 +833,7 @@ def parse_nodewatcher_xml(xml,statstime):
 				elif o_out_if == CONFIG["vpn_netif_aux"]:
 					continue
 				neighbour = {
-					"mac": o_mac.lower(),
+					"mac": o_mac,
 					"netif": o_out_if,
 					"quality": evalxpathfloat(originator,"link_quality/text()"),
 					"type": "l2"
@@ -850,9 +850,9 @@ def parse_nodewatcher_xml(xml,statstime):
 			gw_mac = evalxpath(gw,"gateway/text()")
 			if (gw_mac and len(gw_mac)>12): # Throw away headline
 				gw = {
-					"mac": gw_mac.lower(),
+					"mac": mac2int(gw_mac),
 					"quality": evalxpath(gw,"link_quality/text()"),
-					"nexthop": evalxpath(gw,"nexthop/text()",None),
+					"nexthop": mac2int(evalxpath(gw,"nexthop/text()",None)),
 					"netif": evalxpath(gw,"outgoing_interface/text()",None),
 					"gw_class": evalxpath(gw,"gw_class/text()",None),
 					"selected": evalxpathbool(gw,"selected/text()")
@@ -886,14 +886,13 @@ def get_l3_neighbours(tree):
 		if not iptmp:
 			iptmp = neighbour.text
 		neighbour = {
-			"mac": get_mac_from_v6_link_local(iptmp).lower(),
+			"mac": mac2int(get_mac_from_v6_link_local(iptmp)),
 			"netif": neighbour.xpath("outgoing_interface/text()")[0],
 			"quality": -1.0*evalxpathfloat(neighbour,"link_cost/text()",1),
 			"type": "l3"
 		}
 		l3_neighbours.append(neighbour)
 	return l3_neighbours
-
 
 def get_mac_from_v6_link_local(v6_fe80):
 	fullip = ipaddress.ip_address(v6_fe80).exploded

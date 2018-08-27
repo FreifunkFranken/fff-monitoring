@@ -13,7 +13,7 @@ from ffmap.routertools import delete_router, ban_router
 from ffmap.gwtools import gw_name, gw_bat
 from ffmap.web.helpers import *
 from ffmap.config import CONFIG
-from ffmap.misc import writelog, writefulllog, neighbor_color
+from ffmap.misc import *
 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash, session
 import bson
@@ -103,7 +103,7 @@ def router_mac(mac):
 		INNER JOIN router_netif ON router.id = router_netif.router
 		WHERE mac = %s
 		GROUP BY mac, id
-	""",(mac.lower(),))
+	""",(mac2int(mac),))
 	mysql.close()
 	if len(res_routers) != 1:
 		return redirect(url_for("router_list", q="mac:%s" % mac))
@@ -323,14 +323,14 @@ def router_info(dbid):
 					if session.get('admin'):
 						if request.form.get("blocked") == "true":
 							added = mysql.utcnow()
-							mysql.execute("INSERT INTO blocked (mac, added) VALUES (%s, %s)",(mac,added,))
+							mysql.execute("INSERT INTO blocked (mac, added) VALUES (%s, %s)",(mac2int(mac),added,))
 							mysql.execute("""
 								INSERT INTO router_events (router, time, type, comment)
 								VALUES (%s, %s, %s, %s)
 							""",(dbid,mysql.utcnow(),"admin","Marked as blocked",))
 							mysql.commit()
 						else:
-							mysql.execute("DELETE FROM blocked WHERE mac = %s",(mac,))
+							mysql.execute("DELETE FROM blocked WHERE mac = %s",(mac2int(mac),))
 							mysql.execute("""
 								INSERT INTO router_events (router, time, type, comment)
 								VALUES (%s, %s, %s, %s)
@@ -510,7 +510,8 @@ def global_hoodstatistics(selecthood):
 @app.route('/gwstatistics/<selectgw>')
 def global_gwstatistics(selectgw):
 	mysql = FreifunkMySQL()
-	stats = mysql.fetchall("SELECT * FROM stats_gw WHERE mac = %s",(selectgw,))
+	stats = mysql.fetchall("SELECT * FROM stats_gw WHERE mac = %s",(mac2int(selectgw),))
+	selectgw = shortmac2mac(selectgw)
 	return helper_statistics(mysql,stats,None,selectgw)
 
 def helper_statistics(mysql,stats,selecthood,selectgw):
@@ -518,10 +519,15 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		hoods = stattools.hoods(mysql,selectgw)
 		gws = stattools.gws_ifs(mysql,selecthood)
 		
+		if selectgw:
+			selectgwint = mac2int(selectgw)
+		else:
+			selectgwint = None
+		
 		if selecthood and not selecthood in hoods:
 			mysql.close()
 			return "Hood not found"
-		if selectgw and not selectgw in gws:
+		if selectgw and not selectgwint in gws:
 			mysql.close()
 			return "Gateway not found"
 		
@@ -539,7 +545,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 				WHERE hardware <> 'Legacy' AND mac = %s
 				ORDER BY created DESC
 				LIMIT %s
-			""",(selectgw,numnew,))
+			""",(mac2int(selectgw),numnew,))
 		else:
 			if selecthood:
 				where = " AND hood = %s"
@@ -570,6 +576,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		return render_template("statistics.html",
 			selecthood = selecthood,
 			selectgw = selectgw,
+			selectgwint = selectgwint,
 			stats = stats,
 			clients = clients,
 			router_status = router_status,

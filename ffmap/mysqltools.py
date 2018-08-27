@@ -125,5 +125,3 @@ class FreifunkMySQL:
 				#r = pytz.utc.localize(r)
 				r = r.replace(tzinfo=datetime.timezone.utc)
 		return data
-	
-	

@@ -102,7 +102,6 @@ function neighbour_graph(neigh_label) {
 	var meshstat = $("#meshstat");
 	var pdata = [];
 	var len, i;
-	var mac;
 	
 	for (var j in neigh_stats) {
 		var dataset = neigh_stats[j];
