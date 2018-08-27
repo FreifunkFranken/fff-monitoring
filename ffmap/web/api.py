@@ -297,14 +297,14 @@ def dnslist():
 		FROM router
 		INNER JOIN router_netif ON router.id = router_netif.router
 		INNER JOIN router_ipv6 ON router.id = router_ipv6.router AND router_netif.netif = router_ipv6.netif
-		WHERE LEFT(ipv6,4) = 'fd43'
+		WHERE LEFT(HEX(ipv6),4) = 'fd43'
 		GROUP BY hostname, mac
 	""",())
 	mysql.close()
 
 	s = ""
 	for router in router_data:
-		s += int2shortmac(router["mac"]) + "\t" + router["fd43"] + "\n"
+		s += int2shortmac(router["mac"]) + "\t" + bintoipv6(router["fd43"]) + "\n"
 
 	return Response(s,mimetype='text/plain')
 
@@ -316,14 +316,14 @@ def dnsentries():
 		FROM router
 		INNER JOIN router_netif ON router.id = router_netif.router
 		INNER JOIN router_ipv6 ON router.id = router_ipv6.router AND router_netif.netif = router_ipv6.netif
-		WHERE LEFT(ipv6,4) = 'fd43'
+		WHERE LEFT(HEX(ipv6),4) = 'fd43'
 		GROUP BY hostname, mac
 	""",())
 	mysql.close()
 
 	s = ""
 	for router in router_data:
-		s += int2shortmac(router["mac"]) + ".fff.community.  300  IN  AAAA  " + router["fd43"] + "    ; " + router["hostname"] + "\n"
+		s += int2shortmac(router["mac"]) + ".fff.community.  300  IN  AAAA  " + bintoipv6(router["fd43"]) + "    ; " + router["hostname"] + "\n"
 
 	return Response(s,mimetype='text/plain')
 
@@ -458,7 +458,7 @@ def get_routers_by_nickname(nickname):
 				'name': router['hostname'],
 				'oid': str(router['id']),
 				'mac': int2mac(router['mac']),
-				'ipv6_fe80_addr': router['fe80_addr']
+				'fe80_addr': bintoipv6(router['fe80_addr'])
 			}
 		)
 	return jsonify(nodelist_data)
@@ -490,7 +490,7 @@ def get_routers_by_keyxchange_id(keyxchange_id):
 		nodelist_data['nodes'].append(
 			{
 				'name': router['hostname'],
-				'ipv6_fe80_addr': router['fe80_addr'],
+				'ipv6_fe80_addr': bintoipv6(router['fe80_addr']),
 				'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['id']),
 				'firmware': router['firmware'],
 				'hardware': router['hardware'],

@@ -9,7 +9,7 @@ import json
 import datetime
 import re
 import hashlib
-from ffmap.misc import int2mac, int2shortmac
+from ffmap.misc import int2mac, int2shortmac, inttoipv4, bintoipv6
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from ffmap.misc import *
@@ -27,6 +27,14 @@ def int2macfilter(d):
 @filters.app_template_filter('int2shortmac')
 def int2shortmacfilter(d):
 	return int2shortmac(d)
+
+@filters.app_template_filter('int2ipv4')
+def int2ipv4filter(d):
+	return inttoipv4(d)
+
+@filters.app_template_filter('bin2ipv6')
+def bin2ipv6filter(d):
+	return bintoipv6(d)
 
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
