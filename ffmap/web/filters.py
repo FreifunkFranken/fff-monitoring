@@ -10,6 +10,7 @@ import datetime
 import re
 import hashlib
 from ffmap.misc import int2mac, int2shortmac, inttoipv4, bintoipv6
+from ipaddress import ip_address
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from ffmap.misc import *
@@ -35,6 +36,14 @@ def int2ipv4filter(d):
 @filters.app_template_filter('bin2ipv6')
 def bin2ipv6filter(d):
 	return bintoipv6(d)
+
+@filters.app_template_filter('ip2int')
+def ip2intfilter(d):
+	return int(ip_address(d))
+
+@filters.app_template_filter('ipnet2int')
+def ipnet2intfilter(d):
+	return int(ip_address(d.split("/")[0]))
 
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
