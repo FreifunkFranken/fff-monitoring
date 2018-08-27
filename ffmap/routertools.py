@@ -43,7 +43,7 @@ def ban_router(mysql,dbid):
 		mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added,))
 		mysql.commit()
 
-def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
+def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstime):
 	#global router_rate_limit_list
 
 	#if mac in router_rate_limit_list:
@@ -64,6 +64,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac2int(mac),))
 		router_update = parse_nodewatcher_xml(xml,statstime)
+		router_update["local"] = bool(router_update["hood"] and not router_update["hood"] in hoodsv2)
 		
 		# cancel if banned mac found
 		for n in router_update["netifs"]:
@@ -164,7 +165,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 				sys_loadavg = %s, sys_procrun = %s, sys_proctot = %s, clients = %s, clients_eth = %s, clients_w2 = %s, clients_w5 = %s,
 				w2_active = %s, w2_busy = %s, w5_active = %s, w5_busy = %s, w2_airtime = %s, w5_airtime = %s, wan_uplink = %s, tc_enabled = %s, tc_in = %s, tc_out = %s,
 				cpu = %s, chipset = %s, hardware = %s, os = %s,
-				batman = %s, routing_protocol = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s, v2 = %s, gateway = %s,
+				batman = %s, routing_protocol = %s, kernel = %s, nodewatcher = %s, firmware = %s, firmware_rev = %s, description = %s, position_comment = %s, community = %s, hood = %s, v2 = %s, local = %s, gateway = %s,
 				status_text = %s, contact = %s, lng = %s, lat = %s, neighbors = %s, reset = %s
 				WHERE id = %s
 			""",(
@@ -172,7 +173,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				ru["w2_active"],ru["w2_busy"],ru["w5_active"],ru["w5_busy"],ru["w2_airtime"],ru["w5_airtime"],ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["gateway"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["local"],ru["gateway"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
 			# Previously, I just deleted all entries and recreated them again with INSERT.
@@ -237,15 +238,15 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime):
 				sys_loadavg, sys_procrun, sys_proctot, clients, clients_eth, clients_w2, clients_w5,
 				w2_active, w2_busy, w5_active, w5_busy, w2_airtime, w5_airtime, wan_uplink, tc_enabled, tc_in, tc_out,
 				cpu, chipset, hardware, os,
-				batman, routing_protocol, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood, v2, gateway,
+				batman, routing_protocol, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood, v2, local, gateway,
 				status_text, contact, lng, lat, neighbors)
-				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
 				ru["status"],ru["hostname"],created,ru["last_contact"],ru["sys_time"].strftime('%Y-%m-%d %H:%M:%S'),ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				None,None,None,None,None,None,ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["gateway"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["local"],ru["gateway"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],))
 			router_id = mysql.cursor().lastrowid
 			

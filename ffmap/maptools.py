@@ -11,8 +11,6 @@ import math
 import numpy as np
 from scipy.spatial import Voronoi
 
-import urllib.request, json
-
 EARTH_RADIUS = 6378137.0
 
 def touch(fname, times=None):
@@ -70,13 +68,13 @@ def draw_voronoi_lines(csv, hoods):
 
 def update_mapnik_csv(mysql):
 	routers = mysql.fetchall("""
-		SELECT router.status, router.lat, router.lng, hoods.name AS hood, router.wan_uplink FROM router
-		LEFT JOIN hoods ON router.hood = hoods.name
+		SELECT router.status, router.lat, router.lng, router.wan_uplink, v2, local FROM router
 		WHERE router.lat IS NOT NULL AND router.lng IS NOT NULL
 	""")
 
 	rv1 = "lng,lat,status\n"
 	rv2 = "lng,lat,status\n"
+	rvlocal = "lng,lat,status\n"
 	
 	for router in routers:
 		tmpstatus = router["status"]
@@ -87,20 +85,23 @@ def update_mapnik_csv(mysql):
 			router["lat"],
 			tmpstatus
 		)
-		if router["hood"]:
-			rv1 += tmp
-		else:
+		if router["local"]:
+			rvlocal += tmp
+		elif router["v2"]:
 			rv2 += tmp
+		else:
+			rv1 += tmp
 
 	with open(os.path.join(CONFIG["csv_dir"], "routers.csv"), "w") as csv:
 		csv.write(rv1)
 	with open(os.path.join(CONFIG["csv_dir"], "routers_v2.csv"), "w") as csv:
 		csv.write(rv2)
+	with open(os.path.join(CONFIG["csv_dir"], "routers_local.csv"), "w") as csv:
+		csv.write(rvlocal)
 
 	dblinks = mysql.fetchall("""
-		SELECT r1.id AS rid, r2.id AS nid, r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.netif AS netif, n.type AS type, MAX(quality) AS quality, hoods.name AS hood
+		SELECT r1.id AS rid, r2.id AS nid, r1.lat AS rlat, r1.lng AS rlng, r2.lat AS nlat, r2.lng AS nlng, n.netif AS netif, n.type AS type, MAX(quality) AS quality, r1.v2, r1.local
 		FROM router AS r1
-		LEFT JOIN hoods ON r1.hood = hoods.name
 		INNER JOIN router_neighbor AS n ON r1.id = n.router
 		INNER JOIN (
 			SELECT router, mac FROM router_netif GROUP BY mac, router
@@ -108,12 +109,14 @@ def update_mapnik_csv(mysql):
 		INNER JOIN router AS r2 ON net.router = r2.id
 		WHERE r1.lat IS NOT NULL AND r1.lng IS NOT NULL AND r2.lat IS NOT NULL AND r2.lng IS NOT NULL
 		AND r1.status = 'online'
-		GROUP BY r1.id, r1.lat, r1.lng, r2.id, r2.lat, r2.lng, n.netif, n.type, hoods.name
+		GROUP BY r1.id, r1.lat, r1.lng, r2.id, r2.lat, r2.lng, n.netif, n.type, r1.v2, r1.local
 	""")
 	links = []
 	linksl3 = []
 	linksv2 = []
 	linksl3v2 = []
+	linkslocal = []
+	linksl3local = []
 	dictl3 = {}
 	dictl2 = {}
 	# The following code is very ugly, but works and is not too slow. Maybe make it nicer at some point ...
@@ -133,10 +136,12 @@ def update_mapnik_csv(mysql):
 				row["nlng"],
 				row["nlat"],
 			)
-			if row["hood"]:
-				linksl3.append(tmp)
-			else:
+			if row["local"]:
+				linksl3local.append(tmp)
+			elif row["v2"]:
 				linksl3v2.append(tmp)
+			else:
+				linksl3.append(tmp)
 		else:
 			# Check for duplicate
 			if row["nid"] in dictl2.keys() and row["rid"] in dictl2[row["nid"]].keys():
@@ -168,14 +173,16 @@ def update_mapnik_csv(mysql):
 				row["nlat"],
 				row["quality"],
 			)
-			dictl2[row["rid"]][row["nid"]] = {'hood':row["hood"],'data':tmp}
+			dictl2[row["rid"]][row["nid"]] = {'v2':row["v2"],'local':row["local"],'data':tmp}
 	
 	for d1 in dictl2.values():
 		for d2 in d1.values():
-			if d2["hood"]:
-				links.append(d2["data"])
-			else:
+			if d2["local"]:
+				linkslocal.append(d2["data"])
+			elif d2["v2"]:
 				linksv2.append(d2["data"])
+			else:
+				links.append(d2["data"])
 	
 	with open(os.path.join(CONFIG["csv_dir"], "links.csv"), "w") as csv:
 		csv.write("WKT,quality\n")
@@ -187,6 +194,11 @@ def update_mapnik_csv(mysql):
 		for link in sorted(linksv2, key=lambda l: l[4]):
 			csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % link)
 
+	with open(os.path.join(CONFIG["csv_dir"], "links_local.csv"), "w") as csv:
+		csv.write("WKT,quality\n")
+		for link in sorted(linkslocal, key=lambda l: l[4]):
+			csv.write("\"LINESTRING (%f %f,%f %f)\",%i\n" % link)
+
 	with open(os.path.join(CONFIG["csv_dir"], "l3_links.csv"), "w") as csv:
 		csv.write("WKT\n")
 		for link in linksl3:
@@ -195,6 +207,11 @@ def update_mapnik_csv(mysql):
 	with open(os.path.join(CONFIG["csv_dir"], "l3_links_v2.csv"), "w") as csv:
 		csv.write("WKT\n")
 		for link in linksl3v2:
+			csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % link)
+
+	with open(os.path.join(CONFIG["csv_dir"], "l3_links_local.csv"), "w") as csv:
+		csv.write("WKT\n")
+		for link in linksl3local:
 			csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % link)
 
 	dbhoods = mysql.fetchall("""
@@ -247,6 +264,7 @@ def update_mapnik_csv(mysql):
 	touch("/usr/share/ffmap/hoods_v2.xml")
 	touch("/usr/share/ffmap/routers.xml")
 	touch("/usr/share/ffmap/routers_v2.xml")
+	touch("/usr/share/ffmap/routers_local.xml")
 
 if __name__ == '__main__':
 	update_mapnik_csv()

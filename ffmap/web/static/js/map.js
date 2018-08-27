@@ -28,6 +28,7 @@ var overlay_config = {
 
 var routers = new L.TileLayer(tileurls.routers + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
 var routers_v2 = new L.TileLayer(tileurls.routers_v2 + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
+var routers_local = new L.TileLayer(tileurls.routers_local + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
 var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
 var hoods_v2 = new L.TileLayer(tileurls.hoods_v2 + '/{z}/{x}/{y}.png', overlay_config);
 var popuplayer = new L.TileLayer('');
@@ -36,10 +37,11 @@ layersControl = new L.Control.Layers({
 	"openstreetmap.de": tilesosmde,
 	"Thunderforest Outdoors": tilestfod
 }, {
-	"Routers": routers,
-	"Routers v2 und dezentral": routers_v2,
-	"Hoods": hoods,
-	"Hoods v2": hoods_v2,
+	"Routers V1": routers,
+	"Routers V2": routers_v2,
+	"Local Routers": routers_local,
+	"Hoods V1": hoods,
+	"Hoods V2": hoods_v2,
 	"Position-Popup": popuplayer
 });
 map.addControl(layersControl);
@@ -71,15 +73,17 @@ map.on('click', function(pos) {
 	var size_of_world_in_px = map.options.crs.scale(map.getZoom());
 	
 	layeropt = ""
-	if (map.hasLayer(routers) && !map.hasLayer(routers_v2)) {
+	if (map.hasLayer(routers)) {
 		console.debug("Looking for router in V1 ...");
-		layeropt = "&layer=v1"
-	} else if (!map.hasLayer(routers) && map.hasLayer(routers_v2)) {
+		layeropt += "&v1=on"
+	}
+	if (map.hasLayer(routers_v2)) {
 		console.debug("Looking for router in V2 ...");
-		layeropt = "&layer=v2"
-	} else if (!map.hasLayer(routers) && !map.hasLayer(routers_v2)) {
-		console.debug("No layer specified to look in.");
-		layeropt = "&layer=none"
+		layeropt += "&v2=on"
+	}
+	if (map.hasLayer(routers_local)) {
+		console.debug("Looking for router in local hoods ...");
+		layeropt += "&local=on"
 	}
 
 	var px_per_deg_lng = size_of_world_in_px / 360;

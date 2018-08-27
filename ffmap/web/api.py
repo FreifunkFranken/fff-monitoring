@@ -64,19 +64,22 @@ def load_neighbor_stats(dbid):
 # map ajax
 @api.route('/get_nearest_router')
 def get_nearest_router():
-	if request.args.get("layer") == "none":
-		r = make_response(bson2json(None))
-		r.mimetype = 'application/json'
-		return r
-	
 	lng = float(request.args.get("lng"))
 	lat = float(request.args.get("lat"))
 	
-	where = ""
-	if request.args.get("layer") == "v1":
-		where = " AND h.id IS NOT NULL "
-	elif request.args.get("layer") == "v2":
-		where = " AND h.id IS NULL "
+	wherelist = []
+	if request.args.get("v1") == "on":
+		wherelist.append("(v2 = FALSE AND local = FALSE)")
+	if request.args.get("v2") == "on":
+		wherelist.append("(v2 = TRUE AND local = FALSE)")
+	if request.args.get("local") == "on":
+		wherelist.append("local = TRUE")
+	if wherelist:
+		where = " AND ( " + ' OR '.join(wherelist) + " ) "
+	else:
+		r = make_response(bson2json(None))
+		r.mimetype = 'application/json'
+		return r
 	
 	mysql = FreifunkMySQL()
 	router = mysql.findone("""
@@ -95,6 +98,10 @@ def get_nearest_router():
 			distance ASC
 		LIMIT 1
 	""",(lat,lng,lat,))
+	if not router:
+		r = make_response(bson2json(None))
+		r.mimetype = 'application/json'
+		return r
 	
 	router["neighbours"] = mysql.fetchall("""
 		SELECT nb.mac, nb.netif, nb.quality, r.hostname, r.id
@@ -143,6 +150,9 @@ def alfred():
 		banned = mysql.fetchall("""
 			SELECT mac FROM banned
 		""",(),"mac")
+		hoodsv2 = mysql.fetchall("""
+			SELECT name FROM hoodsv2
+		""",(),"name")
 		statstime = utcnow()
 		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
 		if request.method == 'POST':
@@ -157,7 +167,7 @@ def alfred():
 				# load router status xml data
 				i = 1
 				for mac, xml in alfred_data.get("64", {}).items():
-					import_nodewatcher_xml(mysql, mac, xml, banned, netifdict, statstime)
+					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstime)
 					if (i%500 == 0):
 						mysql.commit()
 					i += 1

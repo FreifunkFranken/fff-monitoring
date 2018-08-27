@@ -47,7 +47,7 @@
 				{%- if router.reset %} - <span style="color:#d90000">Reset!</span>{%- endif %}{%- if router.blocked and not router.v2 %} - <span style="color:#d90000">Blocked!</span>{%- endif %}
 				</td>
 				<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
-				<td>{{ router.hood }}</td>
+				<td{%- if router.local %} class="hoodlocal"{%- elif router.v2 %} class="hoodv2"{%- endif %}>{{ router.hood }}</td>
 				<td>{{ router.nickname if router.nickname else "" }}</td>
 				<td class="text-nowrap">{{ router.hardware }}</td>
 				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
