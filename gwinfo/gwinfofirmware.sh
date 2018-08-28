@@ -4,12 +4,16 @@
 # Copyright Adrian Schmutzler, 2018.
 # License GPLv3
 #
-# designed for GATEWAY SERVER
+# designed for GATEWAY FIRMWARE
 #
 # v1.4.2 - 2018-08-28
 # - Fixed IPv4 sed to ignore subnet mask
 # - Check for multiple IPv6 addresses
-# - Provide experimental support for isc-dhpc-server
+# - GW-Firmware: Ignore wireless devices
+# - GW-Firmware: Use eth device from batctl if
+# - GW-Firmware: Use only br-mesh for batctl if
+# - GW-Firmware: Select fd43 address with ::
+# - GW-Firmware: Adjust DHCP to uci
 #
 # v1.4.1 - 2018-08-25
 # - Fixed greps for IPv4/IPv6/dnsmasq
@@ -35,13 +39,9 @@
 
 # Config
 api_urls="https://monitoring.freifunk-franken.de/api/gwinfo" # space-separated list of addresses (api_urls="url1 url2")
-batctlpath=/usr/sbin/batctl # Adjust to YOUR path!
-hostname="MyHost"
-admin1="Admin"
-admin2=
-admin3=
-statslink="" # Provide link to stats page (MRTG or similar)
-dhcp=1 # 0=disabled, 1=dnsmasq, 2=isc-dhcp-server
+batctlpath=/usr/sbin/batctl
+hostname="$(uci -q get system.@system[0].hostname)"
+statslink="$(uci -q get gateway.@gateway[0].statslink)"
 
 # Code
 tmp=$(/bin/mktemp)
@@ -49,28 +49,18 @@ echo "{\"hostname\":\"$hostname\",\"stats_page\":\"$statslink\",\"netifs\":[" > 
 
 comma=""
 for netif in $(ls /sys/class/net); do
-	if [ "$netif" = "lo" ] ; then
+	if [ "$netif" = "lo" ] || echo "$netif" | grep "w" ; then # remove wXap, wXmesh, etc.
 		continue
 	fi
 	mac="$(cat "/sys/class/net/$netif/address")"
-	batctl="$("$batctlpath" -m "$netif" if | grep "fff" | sed -n 's/:.*//p')"
+	batctl="$("$batctlpath" -m "$netif" if | grep "eth" | sed -n 's/:.*//p')"
 
-	ipv4="$(ip -4 addr show dev "$netif" | grep " 10\." | sed 's/.*\(10\.[^ ]*\/[^ ]*\) .*/\1/')"
-	ipv6="$(ip -6 addr show dev "$netif" | grep " fd43" | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
+	ipv4="$(ip -4 addr show dev br-mesh | grep " 10\." | sed 's/.*\(10\.[^ ]*\/[^ ]*\) .*/\1/')"
+	ipv6="$(ip -6 addr show dev br-mesh | grep " fd43" | grep '::' | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
 	[ "$(echo "$ipv6" | wc -l)" = "1" ] || ipv6=""
 
-	if [ "$dhcp" = "1" ]; then
-		dhcpdata="$(ps ax | grep "dnsmasq" | grep "$netif " | sed 's/.*dhcp-range=\([^ ]*\) .*/\1/')"
-		dhcpstart="$(echo "$dhcpdata" | cut -d',' -f1)"
-		dhcpend="$(echo "$dhcpdata" | cut -d',' -f2)"
-	elif [ "$dhcp" = "2" ]; then
-		ipv4cut="${ipv4%/*}"
-		if [ -n "$ipv4cut" ]; then
-			dhcpdata="$(sed -z 's/.*range \([^;]*\);[^}]*option routers '$ipv4cut'.*/\1/' /etc/dhcp/dhcpd.conf)"
-			dhcpstart="$(echo "$dhcpdata" | cut -d' ' -f1)"
-			dhcpend="$(echo "$dhcpdata" | cut -d' ' -f2)"
-		fi
-	fi
+	dhcpstart="$(uci -q get dhcp.mesh.start)"
+	dhcpend=""
 
 	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\",\"vpnif\":\"$batctl\",\"ipv4\":\"$ipv4\",\"ipv6\":\"$ipv6\",\"dhcpstart\":\"$dhcpstart\",\"dhcpend\":\"$dhcpend\"}" >> $tmp
 	comma=","
@@ -79,9 +69,9 @@ done
 echo "],\"admins\":[" >> $tmp
 
 comma=""
-[ -n "$admin1" ] && echo "\"$admin1\"" >> $tmp && comma=","
-[ -n "$admin2" ] && echo "$comma\"$admin2\"" >> $tmp && comma=","
-[ -n "$admin3" ] && echo "$comma\"$admin3\"" >> $tmp
+for admin in $(uci -q get gateway.@gateway[0].admin); do
+	echo "$comma\"$admin\"" >> $tmp && comma=","
+done
 
 echo "]}" >> $tmp
 
