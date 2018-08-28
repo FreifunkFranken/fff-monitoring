@@ -21,6 +21,13 @@ filters = Blueprint("filters", __name__)
 def sumdict(d):
 	return sum(d.values())
 
+@filters.app_template_filter('longip')
+def longip(d):
+	if len(d) > 32:
+		return d.replace('::','::... ...::')
+	else:
+		return d
+
 @filters.app_template_filter('int2mac')
 def int2macfilter(d):
 	return int2mac(d)

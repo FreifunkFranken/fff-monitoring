@@ -155,7 +155,7 @@
 							<td class="firstrow">{{ ip["name"] }}</td>
 							<td class="warning" data-order="{{ ip["name"] }}_{{ ip["vpnif"] }}">{{ ip["vpnif"] }}</td>
 							<td data-order="{{ ip["name"] }}_{{ ip["batif"] }}">{{ ip["batif"] }}</td>
-							<td class="success" data-order="{{ ip["ipv6"]|ipnet2int }}">{{ ip["ipv6"] }}</td>
+							<td class="success" data-order="{{ ip["ipv6"]|ipnet2int }}">{{ ip["ipv6"]|longip }}</td>
 							{%- if ip["mac"] %}
 							<td class="stats"><a href="{{ url_for('global_gwstatistics', selectgw='%s' % ip["mac"]|int2shortmac) }}">Stats</a></td>
 							{%- else %}
