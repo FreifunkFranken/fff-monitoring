@@ -1,5 +1,5 @@
 {% extends "bootstrap.html" %}
-{% block title %}{{super()}} :: Statistics{%- if selecthood %} for {{ selecthood }}{%- endif -%}{%- if selectgw %} for GW {{ selectgw }}{%- endif -%}{% endblock %}
+{% block title %}{{super()}} :: Statistics{%- if selecthood %} for {{ selecthoodname }}{%- endif -%}{%- if selectgw %} for GW {{ selectgw }}{%- endif -%}{% endblock %}
 {% block head %}{{super()}}
 	<script src="{{ url_for('static', filename='js/graph/date.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/graph/jquery.flot.js') }}"></script>
@@ -68,16 +68,16 @@
 						</tr>
 					</thead>
 					<tbody>
-						{%- for hood, value in hoods|dictsort %}
+						{%- for hoodid, value in hoods|dictsort %}
 						<tr>
-							<td class="firstrow{%- if hoods_sum[hood]["local"] %} hoodlocal{%- elif hoods_sum[hood]["v2"] %} hoodv2{%- endif %}"><a href="{{ url_for('router_list', q='hood:^%s$' % hood.replace(' ','_')) }}">{{ hood }}</a></td>
-							<td class="stats">{{ hoods_gws[hood] or "-" }}</td>
+							<td class="firstrow{%- if hoods_sum[hoodid]["local"] %} hoodlocal{%- elif hoods_sum[hoodid]["v2"] %} hoodv2{%- endif %}"><a href="{{ url_for('router_list', q='hood:^%s$' % value['name'].replace(' ','_')) }}">{{ value['name'] }}</a></td>
+							<td class="stats">{{ hoods_gws[hoodid] or "-" }}</td>
 							<td class="success">{{ value["online"] or 0 }}</td>
 							<td class="danger" data-order="{{ value["offline"] or 0 }}">{{ value["offline"] or 0 }}{%- if value["orphaned"] %} ({{ value["orphaned"] or 0 }}){%- endif %}</td>
 							<td class="warning">{{ value["unknown"] or 0 }}</td>
-							<td class="active">{{ hoods_sum[hood]["routers"] }}</td>
-							<td class="info">{{ hoods_sum[hood]["clients"] }}</td>
-							<td class="stats"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hood) }}">Stats</a></td> 
+							<td class="active">{{ hoods_sum[hoodid]["routers"] }}</td>
+							<td class="info">{{ hoods_sum[hoodid]["clients"] }}</td>
+							<td class="stats"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hoodid) }}">Stats</a></td>
 						</tr>
 						{%- endfor %}
 					</tbody>
@@ -90,7 +90,7 @@
 							<td class="warning">{{ router_status.unknown or 0 }}</td>
 							<td class="active">{{ router_status.sum or 0 }}</td>
 							<td class="info">{{ clients }}</td>
-							<td class="stats"><a href="{{ url_for('global_statistics') }}">Global</a></td> 
+							<td class="stats"><a href="{{ url_for('global_statistics') }}">Global</a></td>
 						</tr>
 					</tfoot>
 					</table>
@@ -99,27 +99,27 @@
 		</div>
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }} (selected only){%- endif -%}</div>
+				<div class="panel-heading">Routers{%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }} (selected only){%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globrouterstat" class="graph"></div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-				<div class="panel-heading">Clients{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }} (selected only){%- endif -%}</div>
+				<div class="panel-heading">Clients{%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }} (selected only){%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globclientstat" class="graph"></div>
 				</div>
 			</div>
 			{%- if not selectgw %}
 			<div class="panel panel-default">
-				<div class="panel-heading">Traffic{%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Traffic{%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="netstat" class="graph"></div>
 				</div>
 			</div>
 			{%- endif -%}
 			<div class="panel panel-default">
-				<div class="panel-heading">Newest Routers{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
+				<div class="panel-heading">Newest Routers{%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body" style="padding-bottom:34px">
 					<div class="table-responsive">
 						<table class="table table-condensed">
@@ -144,7 +144,7 @@
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Gateways (selected / others){%- if selecthood %} @ {{ selecthood }}{%- endif -%}</div>
+				<div class="panel-heading">Gateways (selected / others){%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}</div>
 				<div class="panel-body">
 					<table id="gwlist" class="table table-condensed table-hoods">
 					<thead>
@@ -211,19 +211,19 @@
 			</div>
 			{%- endif %}
 			<div class="panel panel-default">
-				<div class="panel-heading">Router Firmwares{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
+				<div class="panel-heading">Router Firmwares{%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globrouterfwstat" class="graph-pie"></div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-				<div class="panel-heading">Router Models{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
+				<div class="panel-heading">Router Models{%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globroutermodelsstat" class="graph-pie"></div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-				<div class="panel-heading">Router Models per Client{%- if selecthood %} @ {{ selecthood }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
+				<div class="panel-heading">Router Models per Client{%- if selecthood %} @ {{ selecthoodname }}{%- endif -%}{%- if selectgw %} @ {{ selectgw }}{%- endif -%}</div>
 				<div class="panel-body">
 					<div id="globroutermodelsperclient" class="graph-pie"></div>
 				</div>
@@ -236,7 +236,7 @@
 		var router_models = {{ router_models|tojson }};
 		var routers_page_url = "{{ url_for('router_list') }}";
 		{%- if selecthood %}
-		var hood = "{{selecthood}}";
+		var hood = "{{selecthoodname}}";
 		var hoodstr = "hood:^" + hood.replace(/ /g, '_') + "$";
 		{%- else %}
 		var hoodstr = "";

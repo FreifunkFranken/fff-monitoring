@@ -92,7 +92,6 @@ def get_nearest_router():
 			) AS distance
 		FROM
 			router AS r
-		LEFT JOIN hoods AS h ON r.hood = h.name
 		WHERE r.lat IS NOT NULL AND r.lng IS NOT NULL """ + where + """ 
 		ORDER BY
 			distance ASC
@@ -155,6 +154,7 @@ def alfred():
 		""",(),"name")
 		statstime = utcnow()
 		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
+		hoodsdict = mysql.fetchdict("SELECT id, name FROM hoods",(),"name","id")
 		if request.method == 'POST':
 			try:
 				alfred_data = request.get_json()
@@ -167,7 +167,7 @@ def alfred():
 				# load router status xml data
 				i = 1
 				for mac, xml in alfred_data.get("64", {}).items():
-					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstime)
+					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
 					if (i%500 == 0):
 						mysql.commit()
 					i += 1
@@ -260,8 +260,9 @@ def wifianal(selecthood):
 		SELECT hostname, mac, netif
 		FROM router
 		INNER JOIN router_netif ON router.id = router_netif.router
-		WHERE hood = %s
-		GROUP BY id, netif
+		INNER JOIN hoods ON router.hood = hoods.id
+		WHERE hoods.name = %s
+		GROUP BY router.id, netif
 	""",(selecthood,))
 	mysql.close()
 	
@@ -351,8 +352,9 @@ def routers():
 	# Suppresses routers without br-mesh
 	mysql = FreifunkMySQL()
 	router_data = mysql.fetchall("""
-		SELECT router.id, hostname, status, hood, contact, nickname, hardware, firmware, clients, lat, lng, last_contact, mac, sys_loadavg
+		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, contact, nickname, hardware, firmware, clients, lat, lng, last_contact, mac, sys_loadavg
 		FROM router
+		INNER JOIN hoods ON router.hood = hoods.id
 		INNER JOIN router_netif ON router.id = router_netif.router
 		LEFT JOIN users ON router.contact = users.email
 		WHERE netif = 'br-mesh'
@@ -394,6 +396,7 @@ def routers():
 				'id': str(router['id']),
 				'name': router['hostname'],
 				'mac': int2mac(router['mac']),
+				'hoodid': router['hoodid'],
 				'hood': router['hood'],
 				'status': router['status'],
 				'user': router['nickname'],
@@ -487,7 +490,7 @@ def get_routers_by_keyxchange_id(keyxchange_id):
 	mysql = FreifunkMySQL()
 	hood = mysql.findone("""
 		SELECT name
-		FROM hoods
+		FROM hoodsv1
 		WHERE id = %s
 		LIMIT 1
 	""",(int(keyxchange_id),))
@@ -501,7 +504,8 @@ def get_routers_by_keyxchange_id(keyxchange_id):
 		SELECT router.id, hostname, hardware, mac, fe80_addr, firmware, lat, lng, contact, position_comment, description
 		FROM router
 		INNER JOIN router_netif ON router.id = router_netif.router
-		WHERE hood = %s AND netif = 'br-mesh'
+		INNER JOIN hoods ON router.hood = hoods.id
+		WHERE hoods.name = %s AND netif = 'br-mesh'
 		ORDER BY hostname ASC
 	""",(hood["name"],))
 	mysql.close()

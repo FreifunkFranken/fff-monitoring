@@ -215,7 +215,7 @@ def update_mapnik_csv(mysql):
 			csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % link)
 
 	dbhoods = mysql.fetchall("""
-		SELECT name, lat, lng FROM hoods
+		SELECT name, lat, lng FROM hoodsv1
 		WHERE lat IS NOT NULL AND lng IS NOT NULL
 	""")
 	with open(os.path.join(CONFIG["csv_dir"], "hood-points.csv"), "w", encoding="UTF-8") as csv:

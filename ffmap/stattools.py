@@ -199,17 +199,19 @@ def router_firmwares(mysql,selecthood=None,selectgw=None):
 
 def hoods(mysql,selectgw=None):
 	data = mysql.fetchall("""
-		SELECT hood, status, COUNT(id) AS count
+		SELECT hoods.id AS hoodid, hoods.name AS hood, status, COUNT(router.id) AS count
 		FROM router
-		GROUP BY hood, status
+		LEFT JOIN hoods ON router.hood = hoods.id
+		GROUP BY hoods.id, hoods.name, status
 	""")
 	result = {}
 	for rs in data:
 		if not rs["hood"]:
-			rs["hood"] = "Default"
-		if not rs["hood"] in result:
-			result[rs["hood"]] = {}
-		result[rs["hood"]][rs["status"]] = rs["count"]
+			rs["hoodid"] = "1"
+			rs["hood"] = "NoHood"
+		if not rs["hoodid"] in result:
+			result[rs["hoodid"]] = {'name':rs["hood"]}
+		result[rs["hoodid"]][rs["status"]] = rs["count"]
 	return result
 
 def hoods_sum(mysql,selectgw=None):
