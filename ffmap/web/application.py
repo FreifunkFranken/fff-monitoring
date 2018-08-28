@@ -78,11 +78,19 @@ def v2_routers():
 		mysql = FreifunkMySQL()
 		statsv2 = mysql.fetchall("""
 			SELECT time, CAST(SUM(clients) AS SIGNED) clients, CAST(SUM(online) AS SIGNED) online, CAST(SUM(offline) AS SIGNED) offline, CAST(SUM(unknown) AS SIGNED) unknown, CAST(SUM(orphaned) AS SIGNED) orphaned, CAST(SUM(rx) AS SIGNED) rx, CAST(SUM(tx) AS SIGNED) tx
-			FROM stats_hood WHERE (hood REGEXP '[vV]2' OR hood REGEXP 'Fichtelgebirge' OR hood REGEXP 'Fraenkische' OR hood IN ('Adelsdorf','Forchheim')) AND time > 1531612800 GROUP BY time
+			FROM stats_hood
+			INNER JOIN hoods ON hoods.id = stats_hood.hood
+			INNER JOIN hoodsv2 ON hoodsv2.name = hoods.name
+			WHERE time > 1531612800
+			GROUP BY time
 		""")
 		statsv1 = mysql.fetchall("""
 			SELECT time, CAST(SUM(clients) AS SIGNED) clients, CAST(SUM(online) AS SIGNED) online, CAST(SUM(offline) AS SIGNED) offline, CAST(SUM(unknown) AS SIGNED) unknown, CAST(SUM(orphaned) AS SIGNED) orphaned, CAST(SUM(rx) AS SIGNED) rx, CAST(SUM(tx) AS SIGNED) tx
-			FROM stats_hood WHERE hood NOT REGEXP '[vV]2' AND hood NOT REGEXP 'Fichtelgebirge' AND hood NOT REGEXP 'Fraenkische' AND hood NOT IN ('Adelsdorf','Forchheim') AND time > 1531612800 GROUP BY time
+			FROM stats_hood
+			INNER JOIN hoods ON hoods.id = stats_hood.hood
+			INNER JOIN hoodsv1 ON hoodsv1.name = hoods.name
+			WHERE time > 1531612800
+			GROUP BY time
 		""")
 		mysql.close()
 		statsv2 = mysql.utcawaretupleint(statsv2,"time")
