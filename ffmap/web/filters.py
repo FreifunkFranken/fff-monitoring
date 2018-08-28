@@ -192,16 +192,18 @@ def gravatar_url(email):
 
 @filters.app_template_filter('webui_addr')
 def webui_addr(router_netifs):
-	try:
-		for br_mesh in filter(lambda n: n["netif"] == "br-mesh", router_netifs):
-			for ipv6 in br_mesh["ipv6_addrs"]:
-				if ipv6.startswith("fd") and len(ipv6) > 25:
-					# This selects the first ULA address, if present
-					return ipv6
-				if ipv6.startswith("fdff") and len(ipv6) > 15 and len(ipv6) <= 20:
-					return ipv6
-	except (KeyError, TypeError):
-		return None
+	for br_mesh in filter(lambda n: n["netif"] == "br-mesh", router_netifs):
+		for ipv6 in br_mesh["ipv6_addrs"]:
+			ipv6 = bintoipv6(ipv6)
+			if not ipv6:
+				return None
+			if ipv6.startswith("fd43"):
+				# This selects the first ULA address, if present
+				return ipv6
+			if ipv6.startswith("fdff") and len(ipv6) > 10:
+				# This selects the first fdff address, if present (and skips fdff::1)
+				return ipv6
+	return None
 
 @filters.app_template_filter('format_airtime')
 def format_airtime(airtime):
