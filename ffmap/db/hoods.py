@@ -10,6 +10,33 @@ mysql = FreifunkMySQL()
 
 mysql.execute("""
 	CREATE TABLE hoods (
+		id smallint(6) UNSIGNED NOT NULL,
+		name varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE hoods
+		ADD PRIMARY KEY (id),
+		ADD UNIQUE KEY name (name)
+""")
+
+mysql.execute("""
+	ALTER TABLE hoods
+		MODIFY id smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT
+""")
+
+mysql.execute("""
+	ALTER TABLE hoods AUTO_INCREMENT = 30001
+""")
+
+mysql.execute("""
+	INSERT INTO hoods (id, name)
+	VALUES (%s, %s)
+""",(10000,NoCoordinates,))
+
+mysql.execute("""
+	CREATE TABLE hoodsv1 (
 		`id` int(11) NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
@@ -21,7 +48,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE hoods
+	ALTER TABLE hoodsv1
 		ADD PRIMARY KEY (`id`),
 		ADD UNIQUE KEY `name` (`name`),
 		ADD KEY `lat` (`lat`),
@@ -29,11 +56,6 @@ mysql.execute("""
 		ADD KEY `cos_lat` (`cos_lat`),
 		ADD KEY `sin_lat` (`sin_lat`)
 """)
-
-mysql.execute("""
-	INSERT INTO hoods (id, name, net, lat, lng, cos_lat, sin_lat)
-	VALUES (%s, %s, %s, %s, %s, %s, %s)
-""",(0,NoCoordinates,"",None,None,None,None,))
 
 mysql.execute("""
 	CREATE TABLE hoodsv2 (

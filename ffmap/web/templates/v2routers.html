@@ -95,7 +95,6 @@
 		var global_stats_v2 = {{ statsv2|statbson2json|safe }};
 		var global_stats_v1 = {{ statsv1|statbson2json|safe }};
 		var routers_page_url = "{{ url_for('router_list') }}";
-		var hoodstr = "";
 		$(document).ready(function() {
 			global_client_graph(global_stats_v2,"globclientstat");
 			global_router_graph(global_stats_v2,"globrouterstat");

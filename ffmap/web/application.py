@@ -52,8 +52,9 @@ def router_list():
 	mysql = FreifunkMySQL()
 	
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, status, hood, contact, nickname, hardware, router.created, sys_uptime, last_contact, clients, reset, blocked, v2, local
+		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, contact, nickname, hardware, router.created, sys_uptime, last_contact, clients, reset, blocked, v2, local
 		FROM router
+		INNER JOIN hoods ON router.hood = hoods.id
 		LEFT JOIN users ON router.contact = users.email
 		LEFT JOIN (
 			SELECT router, blocked.mac AS blocked FROM router_netif
@@ -119,7 +120,11 @@ def router_mac(mac):
 def router_info(dbid):
 	try:
 		mysql = FreifunkMySQL()
-		router = mysql.findone("""SELECT * FROM router WHERE id = %s LIMIT 1""",(dbid,))
+		router = mysql.findone("""
+			SELECT router.*, hoods.id AS hoodid, hoods.name AS hoodname FROM router
+			INNER JOIN hoods ON router.hood = hoods.id
+			WHERE router.id = %s LIMIT 1
+		""",(dbid,))
 		mac = None
 		
 		if router:
@@ -475,8 +480,9 @@ def user_info(nickname):
 			else:
 				flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers = mysql.fetchall("""
-		SELECT id, hostname, status, hood, firmware, hardware, created, sys_uptime, clients, reset, blocked, v2, local
+		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, firmware, hardware, created, sys_uptime, clients, reset, blocked, v2, local
 		FROM router
+		INNER JOIN hoods ON router.hood = hoods.id
 		LEFT JOIN (
 			SELECT router, blocked.mac AS blocked FROM router_netif
 			INNER JOIN blocked ON router_netif.mac = blocked.mac
@@ -504,6 +510,7 @@ def global_statistics():
 
 @app.route('/hoodstatistics/<selecthood>')
 def global_hoodstatistics(selecthood):
+	selecthood = int(selecthood)
 	mysql = FreifunkMySQL()
 	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
 	return helper_statistics(mysql,stats,selecthood,None)
@@ -520,12 +527,17 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		hoods = stattools.hoods(mysql,selectgw)
 		gws = stattools.gws_ifs(mysql,selecthood)
 		
+		if selecthood:
+			selecthoodname = mysql.findone("SELECT name FROM hoods WHERE id = %s",(selecthood,),'name')
+		else:
+			selecthoodname = None
+		
 		if selectgw:
 			selectgwint = mac2int(selectgw)
 		else:
 			selectgwint = None
 		
-		if selecthood and not selecthood in hoods:
+		if selecthood and not selecthood in hoods.keys():
 			mysql.close()
 			return "Hood not found"
 		if selectgw and not selectgwint in gws:
@@ -540,8 +552,9 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		
 		if selectgw:
 			newest_routers = mysql.fetchall("""
-				SELECT id, hostname, hood, created
+				SELECT router.id, hostname, hoods.id AS hoodid, hoods.name AS hood, created
 				FROM router
+				INNER JOIN hoods ON router.hood = hoods.id
 				INNER JOIN router_gw ON router.id = router_gw.router
 				WHERE hardware <> 'Legacy' AND mac = %s
 				ORDER BY created DESC
@@ -549,14 +562,15 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 			""",(mac2int(selectgw),numnew,))
 		else:
 			if selecthood:
-				where = " AND hood = %s"
+				where = " AND hoods.id = %s"
 				tup = (selecthood,numnew,)
 			else:
 				where = ""
 				tup = (numnew,)
 			newest_routers = mysql.fetchall("""
-				SELECT id, hostname, hood, created
+				SELECT router.id, hostname, hoods.id AS hoodid, hoods.name AS hood, created
 				FROM router
+				INNER JOIN hoods ON router.hood = hoods.id
 				WHERE hardware <> 'Legacy' {}
 				ORDER BY created DESC
 				LIMIT %s
@@ -576,6 +590,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		
 		return render_template("statistics.html",
 			selecthood = selecthood,
+			selecthoodname = selecthoodname,
 			selectgw = selectgw,
 			selectgwint = selectgwint,
 			stats = stats,

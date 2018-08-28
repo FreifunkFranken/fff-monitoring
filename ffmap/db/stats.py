@@ -47,7 +47,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE stats_hood (
 		`time` int(11) NOT NULL,
-		`hood` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+		`hood` smallint(5) UNSIGNED NOT NULL,
 		`clients` mediumint(9) NOT NULL,
 		`online` smallint(6) NOT NULL,
 		`offline` smallint(6) NOT NULL,

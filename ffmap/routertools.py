@@ -43,7 +43,7 @@ def ban_router(mysql,dbid):
 		mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added,))
 		mysql.commit()
 
-def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstime):
+def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime):
 	#global router_rate_limit_list
 
 	#if mac in router_rate_limit_list:
@@ -78,7 +78,13 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstim
 		
 		if findrouter:
 			router_id = findrouter["router"]
-			olddata = mysql.findone("SELECT sys_uptime, sys_time, firmware, hostname, hood, status, lat, lng, contact, description, position_comment, w2_active, w2_busy, w5_active, w5_busy FROM router WHERE id = %s LIMIT 1",(router_id,))
+			olddata = mysql.findone("""
+				SELECT sys_uptime, sys_time, firmware, hostname, hoods.id AS hoodid, hoods.name AS hood, status, lat, lng, contact, description, position_comment, w2_active, w2_busy, w5_active, w5_busy
+				FROM router
+				LEFT JOIN hoods ON router.hood = hoods.id
+				WHERE router.id = %s
+				LIMIT 1
+			""",(router_id,))
 			if olddata:
 				uptime = olddata["sys_uptime"]
 				
@@ -110,20 +116,32 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstim
 									 )
 						) AS distance
 					FROM
-						hoods
+						hoodsv1
 					WHERE lat IS NOT NULL AND lng IS NOT NULL
 					ORDER BY
 						distance ASC
 					LIMIT 1
 				""",(lat,lng,lat,),"name")
 		if not router_update["hood"]:
-			router_update["hood"] = "Default"
+			router_update["hood"] = "DefaultV1"
 			if router_update["neighbours"] and not router_update["has_wan_uplink"]:
 				router_update["hood"] = "NoCoordinates"
 		if not router_update['lat'] and not router_update['lng'] and olddata and olddata['lat'] and olddata['lng']:
 			# Enable reset state; do before variable fallback
 			reset = True
-		
+
+		if not router_update["hood"] in hoodsdict.keys():
+			checkagain = mysql.findone("SELECT id FROM hoods WHERE name = %s",(router_update["hood"],),"id")
+			# Prevent adding the same hood for all routers (won't break, but each will raise the AUTO_INCREMENT)
+			if not checkagain:
+				mysql.execute("""
+					INSERT INTO hoods (name)
+					VALUES (%s)
+					ON DUPLICATE KEY UPDATE name=name
+				""",(router_update["hood"],))
+			hoodsdict = mysql.fetchdict("SELECT id, name FROM hoods",(),"name","id")
+		router_update["hoodid"] = hoodsdict[router_update["hood"]]
+
 		if not router_update['hostname']:
 			router_update['hostname'] = 'Give Me A Name'
 		
@@ -173,7 +191,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstim
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				ru["w2_active"],ru["w2_busy"],ru["w5_active"],ru["w5_busy"],ru["w2_airtime"],ru["w5_airtime"],ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["local"],ru["gateway"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hoodid"],ru["v2"],ru["local"],ru["gateway"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],reset,router_id,))
 			
 			# Previously, I just deleted all entries and recreated them again with INSERT.
@@ -246,7 +264,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, statstim
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
 				None,None,None,None,None,None,ru["has_wan_uplink"],ru["tc_enabled"],ru["tc_in"],ru["tc_out"],
 				ru["cpu"],ru["chipset"],ru["hardware"],ru["os"],
-				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hood"],ru["v2"],ru["local"],ru["gateway"],
+				ru["batman_adv"],ru["rt_protocol"],ru["kernel"],ru["nodewatcher"],ru["firmware"],ru["firmware_rev"],ru["description"],ru["position_comment"],ru["community"],ru["hoodid"],ru["v2"],ru["local"],ru["gateway"],
 				ru["status_text"],ru["contact"],ru["lng"],ru["lat"],ru["visible_neighbours"],))
 			router_id = mysql.cursor().lastrowid
 			
