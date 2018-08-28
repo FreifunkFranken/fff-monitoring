@@ -6,6 +6,9 @@
 #
 # designed for GATEWAY SERVER
 #
+# v1.4.3 - 2018-08-28
+# - Added version to json
+#
 # v1.4.2 - 2018-08-28
 # - Fixed IPv4 sed to ignore subnet mask
 # - Check for multiple IPv6 addresses
@@ -45,7 +48,7 @@ dhcp=1 # 0=disabled, 1=dnsmasq, 2=isc-dhcp-server
 
 # Code
 tmp=$(/bin/mktemp)
-echo "{\"hostname\":\"$hostname\",\"stats_page\":\"$statslink\",\"netifs\":[" > $tmp
+echo "{\"version\":\"1.4\",\"hostname\":\"$hostname\",\"stats_page\":\"$statslink\",\"netifs\":[" > $tmp
 
 comma=""
 for netif in $(ls /sys/class/net); do
