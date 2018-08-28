@@ -291,8 +291,7 @@ def gws_ipv4(mysql):
 	data = mysql.fetchall("""
 		SELECT name, n1.ipv4, n1.netif AS batif, n2.netif AS vpnif, n2.mac FROM gw
 		INNER JOIN gw_netif AS n1 ON gw.id = n1.gw
-		INNER JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
-		INNER JOIN router_gw ON n2.mac = router_gw.mac
+		LEFT JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
 		WHERE n1.ipv4 IS NOT NULL
 		GROUP BY name, n1.ipv4, n1.netif, n2.netif, n2.mac
 		ORDER BY n1.ipv4
@@ -304,8 +303,7 @@ def gws_ipv6(mysql):
 	data = mysql.fetchall("""
 		SELECT name, n1.ipv6, n1.netif AS batif, n2.netif AS vpnif, n2.mac FROM gw
 		INNER JOIN gw_netif AS n1 ON gw.id = n1.gw
-		INNER JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
-		INNER JOIN router_gw ON n2.mac = router_gw.mac
+		LEFT JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
 		WHERE n1.ipv6 IS NOT NULL
 		GROUP BY name, n1.ipv6, n1.netif, n2.netif, n2.mac
 		ORDER BY n1.ipv6
@@ -317,8 +315,7 @@ def gws_dhcp(mysql):
 	data = mysql.fetchall("""
 		SELECT name, n1.dhcpstart, n1.dhcpend, n1.netif AS batif, n2.netif AS vpnif, n2.mac FROM gw
 		INNER JOIN gw_netif AS n1 ON gw.id = n1.gw
-		INNER JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
-		INNER JOIN router_gw ON n2.mac = router_gw.mac
+		LEFT JOIN gw_netif AS n2 ON n2.mac = n1.vpnmac AND n1.gw = n2.gw
 		WHERE n1.dhcpstart IS NOT NULL
 		GROUP BY name, n1.dhcpstart, n1.dhcpend, n1.netif, n2.netif, n2.mac
 		ORDER BY n1.dhcpstart
