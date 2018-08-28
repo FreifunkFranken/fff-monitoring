@@ -6,6 +6,10 @@
 #
 # designed for GATEWAY FIRMWARE
 #
+# v1.4.3 - 2018-08-28
+# - Added version to json
+# - GW-Firmware: Only append IPv4/IPv6/DHCP to bat0
+#
 # v1.4.2 - 2018-08-28
 # - Fixed IPv4 sed to ignore subnet mask
 # - Check for multiple IPv6 addresses
@@ -45,7 +49,7 @@ statslink="$(uci -q get gateway.@gateway[0].statslink)"
 
 # Code
 tmp=$(/bin/mktemp)
-echo "{\"hostname\":\"$hostname\",\"stats_page\":\"$statslink\",\"netifs\":[" > $tmp
+echo "{\"version\":\"1.4\",\"hostname\":\"$hostname\",\"stats_page\":\"$statslink\",\"netifs\":[" > $tmp
 
 comma=""
 for netif in $(ls /sys/class/net); do
@@ -55,12 +59,16 @@ for netif in $(ls /sys/class/net); do
 	mac="$(cat "/sys/class/net/$netif/address")"
 	batctl="$("$batctlpath" -m "$netif" if | grep "eth" | sed -n 's/:.*//p')"
 
-	ipv4="$(ip -4 addr show dev br-mesh | grep " 10\." | sed 's/.*\(10\.[^ ]*\/[^ ]*\) .*/\1/')"
-	ipv6="$(ip -6 addr show dev br-mesh | grep " fd43" | grep '::' | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
-	[ "$(echo "$ipv6" | wc -l)" = "1" ] || ipv6=""
-
-	dhcpstart="$(uci -q get dhcp.mesh.start)"
+	ipv4=""
+	ipv6=""
+	dhcpstart=""
 	dhcpend=""
+	if [ "$netif" = "bat0" ]; then
+		ipv4="$(ip -4 addr show dev br-mesh | grep " 10\." | sed 's/.*\(10\.[^ ]*\/[^ ]*\) .*/\1/')"
+		ipv6="$(ip -6 addr show dev br-mesh | grep " fd43" | grep '::' | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
+		[ "$(echo "$ipv6" | wc -l)" = "1" ] || ipv6=""
+		dhcpstart="$(uci -q get dhcp.mesh.start)"
+	fi
 
 	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\",\"vpnif\":\"$batctl\",\"ipv4\":\"$ipv4\",\"ipv6\":\"$ipv6\",\"dhcpstart\":\"$dhcpstart\",\"dhcpend\":\"$dhcpend\"}" >> $tmp
 	comma=","
