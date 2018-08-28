@@ -209,8 +209,8 @@ def webui_addr(router_netifs):
 			if ipv6.startswith("fd43"):
 				# This selects the first ULA address, if present
 				return ipv6
-			if ipv6.startswith("fdff"):
-				# This selects the first fdff address, if present
+			if ipv6.startswith("fdff") and len(ipv6) > 10:
+				# This selects the first fdff address, if present (and skips fdff::1)
 				return ipv6
 	return None
 
