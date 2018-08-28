@@ -203,11 +203,12 @@ def hoods(mysql,selectgw=None):
 		FROM router
 		LEFT JOIN hoods ON router.hood = hoods.id
 		GROUP BY hoods.id, hoods.name, status
+		ORDER BY hoods.name
 	""")
 	result = {}
 	for rs in data:
 		if not rs["hood"]:
-			rs["hoodid"] = "1"
+			rs["hoodid"] = 1
 			rs["hood"] = "NoHood"
 		if not rs["hoodid"] in result:
 			result[rs["hoodid"]] = {'name':rs["hood"]}
