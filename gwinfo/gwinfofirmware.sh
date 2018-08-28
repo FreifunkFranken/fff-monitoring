@@ -53,7 +53,7 @@ echo "{\"version\":\"1.4\",\"hostname\":\"$hostname\",\"stats_page\":\"$statslin
 
 comma=""
 for netif in $(ls /sys/class/net); do
-	if [ "$netif" = "lo" ] || echo "$netif" | grep "w" ; then # remove wXap, wXmesh, etc.
+	if [ "$netif" = "lo" ] || echo "$netif" | grep -q "w" ; then # remove wXap, wXmesh, etc.
 		continue
 	fi
 	mac="$(cat "/sys/class/net/$netif/address")"
