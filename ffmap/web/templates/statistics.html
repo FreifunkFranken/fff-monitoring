@@ -52,7 +52,7 @@
 	<div class="row">
 		<div class="col-xs-12 col-md-6">
 			<div class="panel panel-default">
-				<div class="panel-heading">Hoods</div>
+				<div class="panel-heading">Hoods - V1: <a href="#" id="enablev1">On</a>, V2: <a href="#" id="enablev2">On</a>, Local: <a href="#" id="enablelocal">On</a></div>
 				<div class="panel-body">
 					<table id="hoodlist" class="table table-condensed table-hoods">
 					<thead>
@@ -69,7 +69,7 @@
 					</thead>
 					<tbody>
 						{%- for hoodid, value in hoods|dictsort %}
-						<tr>
+						<tr{%- if hoods_sum[hoodid]["local"] %} class="rowlocal"{%- elif hoods_sum[hoodid]["v2"] %} class="rowv2"{%- else %} class="rowv1"{%- endif %}>
 							<td class="firstrow{%- if hoods_sum[hoodid]["local"] %} hoodlocal{%- elif hoods_sum[hoodid]["v2"] %} hoodv2{%- endif %}"><a href="{{ url_for('router_list', q='hood:^%s$' % value['name'].replace(' ','_')) }}">{{ value['name'] }}</a></td>
 							<td class="stats">{{ hoods_gws[hoodid] or "-" }}</td>
 							<td class="success">{{ value["online"] or 0 }}</td>
@@ -276,6 +276,36 @@
 					{"orderable": false, "targets": -1},
 				]
 			});
+			
+			function enableHood(aid,classname) {
+				var avx = document.getElementById(aid)
+				var rows = document.getElementsByClassName(classname)
+				if(avx.text=="On") {
+					avx.text = "Off";
+					for (var i = 0; i < rows.length; i++) {
+						rows[i].style.display = 'none';
+					}
+				} else {
+					avx.text = "On";
+					for (var i = 0; i < rows.length; i++) {
+						rows[i].style.display = '';
+					}
+				}
+				return true
+			}
+			
+			document.getElementById("enablev1").onclick = function() {
+				enableHood("enablev1","rowv1")
+				return false;
+			}
+			document.getElementById("enablev2").onclick = function() {
+				enableHood("enablev2","rowv2")
+				return false;
+			}
+			document.getElementById("enablelocal").onclick = function() {
+				enableHood("enablelocal","rowlocal")
+				return false;
+			}
 		});
 	</script>
 {% endblock %}
