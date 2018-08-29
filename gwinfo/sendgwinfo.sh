@@ -6,6 +6,9 @@
 #
 # designed for GATEWAY SERVER
 #
+# v1.4.5 - 2018-08-29
+# - Fix one bug regarding DHCP range processing
+#
 # v1.4.4 - 2018-08-29
 # - Fix two bugs regarding DHCP range processing
 #
@@ -73,7 +76,7 @@ for netif in $(ls /sys/class/net); do
 		dhcpend="$(echo "$dhcpdata" | cut -d',' -f2)"
 	elif [ "$dhcp" = "2" ]; then
 		ipv4cut="${ipv4%/*}"
-		if [ -n "$ipv4cut" ] && grep -q "$ipv4cut" /etc/dhcp/dhcpd.conf; then
+		if [ -n "$ipv4cut" ] && grep -q "routers $ipv4cut" /etc/dhcp/dhcpd.conf; then
 			dhcpdata="$(sed -z 's/.*range \([^;]*\);[^}]*option routers '$ipv4cut'.*/\1/' /etc/dhcp/dhcpd.conf)"
 			dhcpstart="$(echo "$dhcpdata" | cut -d' ' -f1)"
 			dhcpend="$(echo "$dhcpdata" | cut -d' ' -f2)"
