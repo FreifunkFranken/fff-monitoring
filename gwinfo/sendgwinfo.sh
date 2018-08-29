@@ -6,6 +6,9 @@
 #
 # designed for GATEWAY SERVER
 #
+# v1.4.4 - 2018-08-29
+# - Fix two bugs regarding DHCP range processing
+#
 # v1.4.3 - 2018-08-28
 # - Added version to json
 #
@@ -62,13 +65,15 @@ for netif in $(ls /sys/class/net); do
 	ipv6="$(ip -6 addr show dev "$netif" | grep " fd43" | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
 	[ "$(echo "$ipv6" | wc -l)" = "1" ] || ipv6=""
 
+	dhcpstart=""
+	dhcpend=""
 	if [ "$dhcp" = "1" ]; then
 		dhcpdata="$(ps ax | grep "dnsmasq" | grep "$netif " | sed 's/.*dhcp-range=\([^ ]*\) .*/\1/')"
 		dhcpstart="$(echo "$dhcpdata" | cut -d',' -f1)"
 		dhcpend="$(echo "$dhcpdata" | cut -d',' -f2)"
 	elif [ "$dhcp" = "2" ]; then
 		ipv4cut="${ipv4%/*}"
-		if [ -n "$ipv4cut" ]; then
+		if [ -n "$ipv4cut" ] && grep -q "$ipv4cut" /etc/dhcp/dhcpd.conf; then
 			dhcpdata="$(sed -z 's/.*range \([^;]*\);[^}]*option routers '$ipv4cut'.*/\1/' /etc/dhcp/dhcpd.conf)"
 			dhcpstart="$(echo "$dhcpdata" | cut -d' ' -f1)"
 			dhcpend="$(echo "$dhcpdata" | cut -d' ' -f2)"
