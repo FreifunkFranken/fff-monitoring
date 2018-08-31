@@ -106,7 +106,7 @@
 				<td class="text-nowrap-responsive"><a href="{{ url_for("router_info", dbid=router.id) }}">{{ router.hostname }}</a>
 				{%- if router.reset %} - <span style="color:#d90000">Reset!</span>{%- endif %}{%- if router.blocked and not router.v2 %} - <span style="color:#d90000">Blocked!</span>{%- endif %}
 				</td>
-				<td class="text-center"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
+				<td class="text-center" data-order="{{ router.status }}"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
 				<td{%- if router.local %} class="hoodlocal"{%- elif router.v2 %} class="hoodv2"{%- endif %}>{{ router.hood }}</td>
 				<td>{{ router.firmware }}</td>
 				<td class="text-nowrap">{{ router.get("hardware", "") }}</td>
@@ -132,8 +132,7 @@
 				"details": false
 			},*/
 			"columnDefs": [
-				{"orderable": false, "targets": 1},
-				{"orderable": false, "targets": -2},
+				{"orderable": false, "targets": -2}
 			]
 		});
 	});
