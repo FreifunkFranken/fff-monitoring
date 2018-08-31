@@ -111,7 +111,7 @@
 				<td>{{ router.firmware }}</td>
 				<td class="text-nowrap">{{ router.get("hardware", "") }}</td>
 				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
-				<td class="text-nowrap">{{ router.sys_uptime|format_ts_diff }}</td>
+				<td class="text-nowrap" data-order="{{ router.sys_uptime if router.status == "online" else 0 }}">{{ router.sys_uptime|format_ts_diff }}</td>
 				<td>{{ router.clients }}</td>
 				{%- set total_clients = total_clients + router.clients %}
 			</tr>
@@ -127,13 +127,7 @@
 		$("#routerlist").DataTable({
 			"paging": false,
 			"info": false,
-			"searching": false,
-			/*"responsive": {
-				"details": false
-			},*/
-			"columnDefs": [
-				{"orderable": false, "targets": -2}
-			]
+			"searching": false
 		});
 	});
 </script>
