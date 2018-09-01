@@ -441,7 +441,7 @@ def get_routers_by_nickname(nickname):
 	nodelist_data = dict()
 	nodelist_data['nodes'] = list()
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, contact, nickname, firmware, mac, fe80_addr
+		SELECT router.id, hostname, contact, nickname, firmware, mac, fe80_addr, clients, status, hood, sys_loadavg, last_contact
 		FROM router
 		INNER JOIN users ON router.contact = users.email
 		INNER JOIN router_netif ON router.id = router_netif.router
@@ -454,8 +454,14 @@ def get_routers_by_nickname(nickname):
 		{
 				'name': router['hostname'],
 				'oid': str(router['id']),
-				'mac': router['mac'],
+				'mac': router['mac'],,
 				'ipv6_fe80_addr': router['fe80_addr']
+				'status': router['status'],
+				'firmware': router['firmware'],
+				'loadavg': router['sys_loadavg'],
+				'clients': router['clients'],
+				'hood': router['hood'],
+				'lastcontact': router['last_contact'].isoformat()
 			}
 		)
 	return jsonify(nodelist_data)
