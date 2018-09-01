@@ -454,8 +454,8 @@ def get_routers_by_nickname(nickname):
 		{
 				'name': router['hostname'],
 				'oid': str(router['id']),
-				'mac': router['mac'],,
-				'ipv6_fe80_addr': router['fe80_addr']
+				'mac': router['mac'],
+				'ipv6_fe80_addr': router['fe80_addr'],
 				'status': router['status'],
 				'firmware': router['firmware'],
 				'loadavg': router['sys_loadavg'],
