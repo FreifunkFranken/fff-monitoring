@@ -347,18 +347,18 @@ def dnsentries():
 
 	return Response(s,mimetype='text/plain')
 
-@api.route('/routers')
-def routers():
+def nodelist_helper(where = "",data=()):
 	# Suppresses routers without br-mesh
 	mysql = FreifunkMySQL()
 	router_data = mysql.fetchall("""
-		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, contact, nickname, hardware, firmware, clients, lat, lng, last_contact, mac, sys_loadavg
+		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, contact, nickname, hardware, firmware, clients, lat, lng, last_contact, mac, sys_loadavg, fe80_addr
 		FROM router
 		INNER JOIN hoods ON router.hood = hoods.id
 		INNER JOIN router_netif ON router.id = router_netif.router
 		LEFT JOIN users ON router.contact = users.email
-		WHERE netif = 'br-mesh'
-	""")
+		WHERE netif = 'br-mesh' {}
+		ORDER BY hostname ASC
+	""".format(where),data)
 	router_data = mysql.utcawaretuple(router_data,"last_contact")
 	router_net = mysql.fetchall("""
 		SELECT id, netif, COUNT(router) AS count
@@ -367,12 +367,13 @@ def routers():
 		GROUP BY id, netif
 	""")
 	mysql.close()
+
 	net_dict = {}
 	for rs in router_net:
 		if not rs["id"] in net_dict:
 			net_dict[rs["id"]] = []
 		net_dict[rs["id"]].append(rs["netif"])
-	nodelist_data = {'version': '1.0.0'}
+	nodelist_data = {'version': '1.1.0'}
 	nodelist_data['nodes'] = list()
 	
 	for router in router_data:
@@ -406,6 +407,7 @@ def routers():
 				'href': 'https://monitoring.freifunk-franken.de/mac/' + int2shortmac(router['mac']),
 				'clients': router['clients'],
 				'lastcontact': router['last_contact'].isoformat(),
+				'fe80_addr': bintoipv6(router['fe80_addr']),
 				'uplink': {
 					'fastd': fastd,
 					'l2tp': l2tp
@@ -416,7 +418,7 @@ def routers():
 			'lat': router['lat'],
 			'lng': router['lng']
 		}
-	return jsonify(nodelist_data)
+	return nodelist_data
 
 @api.route('/nopos')
 def no_position():
@@ -450,6 +452,11 @@ def no_position():
 
 	return jsonify(nodes)
 
+@api.route('/routers')
+def routers():
+	# Suppresses routers without br-mesh
+	return jsonify(nodelist_helper())
+
 @api.route('/routers_by_nickname/<nickname>')
 def get_routers_by_nickname(nickname):
 	mysql = FreifunkMySQL()
@@ -459,31 +466,11 @@ def get_routers_by_nickname(nickname):
 		WHERE nickname = %s
 		LIMIT 1
 	""",(nickname,))
+	mysql.close()
 	if len(users)==0:
-		mysql.close()
 		return "User not found"
 
-	nodelist_data = dict()
-	nodelist_data['nodes'] = list()
-	routers = mysql.fetchall("""
-		SELECT router.id, hostname, contact, nickname, firmware, mac, fe80_addr
-		FROM router
-		INNER JOIN users ON router.contact = users.email
-		INNER JOIN router_netif ON router.id = router_netif.router
-		WHERE nickname = %s AND netif = 'br-mesh'
-		ORDER BY hostname ASC
-	""",(nickname,))
-	mysql.close()
-	for router in routers:
-		nodelist_data['nodes'].append(
-		{
-				'name': router['hostname'],
-				'oid': str(router['id']),
-				'mac': int2mac(router['mac']),
-				'fe80_addr': bintoipv6(router['fe80_addr'])
-			}
-		)
-	return jsonify(nodelist_data)
+	return jsonify(nodelist_helper("AND nickname = %s",(nickname,)))
 
 @api.route('/routers_by_keyxchange_id/<keyxchange_id>')
 def get_routers_by_keyxchange_id(keyxchange_id):
@@ -493,38 +480,9 @@ def get_routers_by_keyxchange_id(keyxchange_id):
 		FROM hoodsv1
 		WHERE id = %s
 		LIMIT 1
-	""",(int(keyxchange_id),))
+	""",(int(keyxchange_id),),"name")
+	mysql.close()
 	if not hood:
-		mysql.close()
 		return "Hood not found"
 
-	nodelist_data = dict()
-	nodelist_data['nodes'] = list()
-	routers = mysql.fetchall("""
-		SELECT router.id, hostname, hardware, mac, fe80_addr, firmware, lat, lng, contact, position_comment, description
-		FROM router
-		INNER JOIN router_netif ON router.id = router_netif.router
-		INNER JOIN hoods ON router.hood = hoods.id
-		WHERE hoods.name = %s AND netif = 'br-mesh'
-		ORDER BY hostname ASC
-	""",(hood["name"],))
-	mysql.close()
-	for router in routers:
-		nodelist_data['nodes'].append(
-			{
-				'name': router['hostname'],
-				'ipv6_fe80_addr': bintoipv6(router['fe80_addr']),
-				'href': 'https://monitoring.freifunk-franken.de/routers/' + str(router['id']),
-				'firmware': router['firmware'],
-				'hardware': router['hardware'],
-				'contact': router['contact'],
-				'description': router['description']
-			}
-		)
-		nodelist_data['nodes'][-1]['position'] = {
-			'lat': router['lat'],
-			'long': router['lng']
-		}
-		if router['position_comment']:
-			nodelist_data['nodes'][-1]['position']['comment'] = router['position_comment']
-	return jsonify(nodelist_data)
+	return jsonify(nodelist_helper('AND hoods.name = %s',(hood,)))
