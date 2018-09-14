@@ -26,6 +26,11 @@ def import_gw_data(mysql, gw_data):
 				SET stats_page = %s, last_contact = %s
 				WHERE id = %s
 			""",(gw_data["stats_page"],time,newid,))
+			mysql.execute("""
+				UPDATE gw_netif
+				SET ipv4 = NULL, ipv6 = NULL, dhcpstart = NULL, dhcpend = NULL
+				WHERE gw = %s
+			""",(newid,))
 		else:
 			mysql.execute("""
 				INSERT INTO gw (name, stats_page, last_contact)
