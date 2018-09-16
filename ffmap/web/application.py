@@ -545,7 +545,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		else:
 			selectgwint = None
 		
-		if selecthood and not selecthood in hoods.keys():
+		if selecthood and not selecthoodname:
 			mysql.close()
 			return "Hood not found"
 		if selectgw and not selectgwint in gws:
