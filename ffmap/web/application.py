@@ -337,14 +337,14 @@ def router_info(dbid):
 					if session.get('admin'):
 						if request.form.get("blocked") == "true":
 							added = mysql.utcnow()
-							mysql.execute("INSERT INTO blocked (mac, added) VALUES (%s, %s)",(mac2int(mac),added,))
+							mysql.execute("INSERT INTO blocked (mac, added) VALUES (%s, %s)",(mac,added,))
 							mysql.execute("""
 								INSERT INTO router_events (router, time, type, comment)
 								VALUES (%s, %s, %s, %s)
 							""",(dbid,mysql.utcnow(),"admin","Marked as blocked",))
 							mysql.commit()
 						else:
-							mysql.execute("DELETE FROM blocked WHERE mac = %s",(mac2int(mac),))
+							mysql.execute("DELETE FROM blocked WHERE mac = %s",(mac,))
 							mysql.execute("""
 								INSERT INTO router_events (router, time, type, comment)
 								VALUES (%s, %s, %s, %s)
