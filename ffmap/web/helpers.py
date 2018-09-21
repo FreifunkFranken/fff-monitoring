@@ -31,6 +31,7 @@ allowed_filters = (
 	'selected',
 	'bat',
 	'batselected',
+	'network',
 )
 
 def parse_router_list_search_query(args):
@@ -112,6 +113,16 @@ def parse_router_list_search_query(args):
 		elif key == 'contact':
 			k = "contact {} REGEXP %s".format(no)
 			t.append(value)
+		elif key == 'network':
+			# local hood included for v2
+			if value.lower() == 'local':
+				k = no + " (router.v2 = TRUE AND local = TRUE)"
+			elif value.lower() == 'v2':
+				k = no + " (router.v2 = TRUE AND local = FALSE)"
+			elif value.lower() == 'v1':
+				k = no + " router.v2 = FALSE"
+			else:
+				continue
 		else:
 			k = no + key + " = %s"
 			t.append(value)
