@@ -21,6 +21,32 @@ filters = Blueprint("filters", __name__)
 def sumdict(d):
 	return sum(d.values())
 
+@filters.app_template_filter('v2userpercent')
+def v2formatpercent(d):
+	return "{:.0f}".format(v2numberpercent(d))
+
+def v2numberpercent(d):
+	if d.get("v1",0) > 0 or d.get("v2",0) > 0:
+		return d["v2"] * 100 / ( d["v1"] + d["v2"] )
+	else:
+		return 0.0
+
+@filters.app_template_filter('v2colorpercent')
+def v2colorpercent(d):
+	pc = v2numberpercent(d)
+	color = "000000"
+	if pc > 99:
+		color = "008800"
+	elif pc > 75:
+		color = "00d93d"
+	elif pc > 50:
+		color = "ffc926"
+	elif pc > 25:
+		color = "ff9326"
+	elif pc > 1:
+		color = "ff0000"
+	return "color:#" + color
+
 @filters.app_template_filter('longip')
 def longip(d):
 	if len(d) > 32:

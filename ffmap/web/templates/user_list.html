@@ -24,6 +24,7 @@
 				<th style="padding-right: 5px;">E-Mail</th>
 				<th style="padding-right: 5px;">Admin</th>
 				<th style="padding-right: 5px;">Created</th>
+				<th style="padding-right: 5px;">V2</th>
 				<th style="padding-right: 5px;">Routers</th>
 				<th style="padding-right: 5px;">Clients</th>
 			</tr>
@@ -41,6 +42,7 @@
 						<span class="glyphicon glyphicon-remove" title="Automatically imported stub from netmon"></span>
 					{%- endif -%}
 				</td>
+				<td style="{{users_v2.get(user.email.lower(), {})|v2colorpercent }}" data-order="{{ users_v2.get(user.email.lower(), {})|v2userpercent }}">{{ users_v2.get(user.email.lower(), {})|v2userpercent }} %</td>
 				<td>{{ user_routers.get(user.email.lower(), {}).get('routers', 0) }}</td>
 				<td>{{ user_routers.get(user.email.lower(), {}).get('clients', 0) }}</td>
 			</tr>

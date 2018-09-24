@@ -143,3 +143,23 @@ def set_user_abuse(mysql, nickname, abuse):
 		LIMIT 1
 	""",(abuse,nickname,))
 	mysql.commit()
+
+def users_v2(mysql):
+	data = mysql.fetchall("""
+		SELECT contact, COUNT(id) AS count, v2
+		FROM router
+		GROUP BY contact, v2
+	""")
+
+	datasort = {}
+	for d in data:
+		contact = d["contact"].lower()
+		if not contact in datasort:
+			datasort[contact] = {"v2":0, "v1":0}
+		if d["v2"]:
+			datasort[contact]["v2"] = d["count"]
+		else:
+			datasort[contact]["v1"] = d["count"]
+
+	return datasort
+

@@ -399,13 +399,15 @@ def user_list():
 	mysql = FreifunkMySQL()
 	users = mysql.fetchall("SELECT id, nickname, email, created, admin FROM users ORDER BY nickname COLLATE utf8_unicode_ci ASC")
 	user_routers = stattools.router_user_sum(mysql)
+	usersv2 = users_v2(mysql)
 	mysql.close()
 	users = mysql.utcawaretuple(users,"created")
-	
+
 	return render_template("user_list.html",
 		user_routers = user_routers,
 		users = users,
-		users_count = len(users)
+		users_count = len(users),
+		users_v2 = usersv2
 	)
 
 @app.route('/users/<nickname>', methods=['GET', 'POST'])
