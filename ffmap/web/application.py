@@ -89,7 +89,7 @@ def v2_routers():
 			FROM stats_hood
 			INNER JOIN hoods ON hoods.id = stats_hood.hood
 			LEFT JOIN hoodsv1 ON hoodsv1.name = hoods.name
-			WHERE time > 1531612800 AND ( hoodsv1.name IS NOT NULL OR hoods.name IN ('ArnsteinV1','MuenchbergV1','MarktredwitzV1','BayreuthV1','AnsbachV1','FichtelbergV1','BambergV1','ForchheimV1','ErlangenV1','ErlangenWestV1') )
+			WHERE time > 1531612800 AND ( hoodsv1.name IS NOT NULL OR hoods.name IN ('ArnsteinV1','MuenchbergV1','MarktredwitzV1','BayreuthV1','AnsbachV1','FichtelbergV1','BambergV1','ForchheimV1','ErlangenV1','ErlangenWestV1','EbernV1','CoburgV1') )
 			GROUP BY time
 		""")
 		mysql.close()
