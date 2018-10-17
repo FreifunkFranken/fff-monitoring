@@ -72,11 +72,17 @@ def bin2ipv6filter(d):
 
 @filters.app_template_filter('ip2int')
 def ip2intfilter(d):
-	return int(ip_address(d))
+	try:
+		return int(ip_address(d))
+	except ValueError as e:
+		return 0
 
 @filters.app_template_filter('ipnet2int')
 def ipnet2intfilter(d):
-	return int(ip_address(d.split("/")[0]))
+	try:
+		return int(ip_address(d.split("/")[0]))
+	except ValueError as e:
+		return 0
 
 @filters.app_template_filter('utc2local')
 def utc2local(dt):
