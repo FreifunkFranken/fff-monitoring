@@ -6,6 +6,9 @@
 #
 # designed for GATEWAY SERVER
 #
+# v1.4.6 - 2018-10-17
+# - Fix IPv4/IPv6 sed (leading space in match pattern)
+#
 # v1.4.5 - 2018-08-29
 # - Fix one bug regarding DHCP range processing
 #
@@ -54,7 +57,7 @@ dhcp=1 # 0=disabled, 1=dnsmasq, 2=isc-dhcp-server
 
 # Code
 tmp=$(/bin/mktemp)
-echo "{\"version\":\"1.4\",\"hostname\":\"$hostname\",\"stats_page\":\"$statslink\",\"netifs\":[" > $tmp
+echo "{\"version\":\"1.4.6\",\"hostname\":\"$hostname\",\"stats_page\":\"$statslink\",\"netifs\":[" > $tmp
 
 comma=""
 for netif in $(ls /sys/class/net); do
@@ -64,8 +67,8 @@ for netif in $(ls /sys/class/net); do
 	mac="$(cat "/sys/class/net/$netif/address")"
 	batctl="$("$batctlpath" -m "$netif" if | grep "fff" | sed -n 's/:.*//p')"
 
-	ipv4="$(ip -4 addr show dev "$netif" | grep " 10\." | sed 's/.*\(10\.[^ ]*\/[^ ]*\) .*/\1/')"
-	ipv6="$(ip -6 addr show dev "$netif" | grep " fd43" | sed 's/.*\(fd43[^ ]*\) .*/\1/')"
+	ipv4="$(ip -4 addr show dev "$netif" | grep " 10\." | sed 's/.* \(10\.[^ ]*\/[^ ]*\) .*/\1/')"
+	ipv6="$(ip -6 addr show dev "$netif" | grep " fd43" | sed 's/.* \(fd43[^ ]*\) .*/\1/')"
 	[ "$(echo "$ipv6" | wc -l)" = "1" ] || ipv6=""
 
 	dhcpstart=""
