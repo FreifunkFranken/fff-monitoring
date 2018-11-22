@@ -1,3 +1,11 @@
+## Git Repository Logic
+* Frequent updates are made to the **testing** branch, which is considered "dirty". Commits appearing here may be quickly written, untested, incomplete, etc. This is where the development happens.
+* In unspecified intervals, the piled-up changes in the testing branch are reviewed, ordered and squashed to a smaller set of tidy commits. Those are then pushed to the **master** branch.
+* The tidy-up is marked by an empty commit "Realign with master" in the testing branch. This is roughly equivalent to a *merge*, although for an actual merge the commits would remain unaltered.
+* Development happens in the testing branch. Thus, *testing* is more up-to-date, but *master* is better to understand.
+* The Monitoring web server uses the testing branch.
+
+
 ## Debian Dependencies
 ```bash
 apt-get install mysql-server python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx
