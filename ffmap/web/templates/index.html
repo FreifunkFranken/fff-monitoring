@@ -22,80 +22,92 @@
 				Der Quellcode f&uuml;r diese Webanwendung steht unter der GPL und kann <a href="https://github.com/FreifunkFranken/fff-monitoring">hier</a>
 				heruntergeladen werden.</p>
 				<h2 style="margin-top:30px">Changelog (nur Features)</h2>
+				<h3>&Auml;nderungen bis 21.11.2018</h3>
+				<ul style="font-size:18px">
+				<li>Uplink-Router werden durch wei&szlig;e Punktmitte in Karte erkennbar</li>
+				<li>Seite f&uuml;r V1/V2-Vergleich hinzugef&uuml;gt: <a href="{{ url_for('v2_routers') }}">V2-Statistik</a></li>
+				<li>Neue Rubrik "Gateways" mit IP-Adressen und DHCP-Ranges (sofern per gwinfo &uuml;bermittelt)</li>
+				<li>Hood-Grenzen in verschiedenen Farben</li>
+				<li>Hoods werden vom KeyXchange geladen (kein manuelles Eintragen mehr n&ouml;tig)</li>
+				<li>Erkennung von dezentralen Hoods und Kennzeichnung/farbliche Markierung f&uuml;r V1/V2/Dezentral</li>
+				<li>Filtern der Hood-Liste (Statistik-Seite) nach V1/V2/Dezentral m&ouml;glich</li>
+				<li>Filtern der Router-Liste nach V1/V2/Dezentral: "network:&lt;local|v1|v2&gt;"</li>
+				<li>V2-Router pro Nutzer werden als Prozentzahl in der User-Liste angezeigt (hier z&auml;hlt dezentral als V2)</li>
+				</ul>
 				<h3>&Auml;nderungen bis 03.07.2018</h3>
 				<ul style="font-size:18px">
 				<li>Globaler und Hood-spezifischer aggregierter Traffic</li>
 				<li>Gateways werden als solche auf der Detailseite erkannt</li>
-				<li>Ethernet-Nachbarn werden auf der Karte farblich erkennbar (dunkelgrüne Linien)</li>
-				<li>"Beste" Verbindung wird für Links auf Karte verwendet</li>
+				<li>Ethernet-Nachbarn werden auf der Karte farblich erkennbar (dunkelgr&uuml;ne Linien)</li>
+				<li>"Beste" Verbindung wird f&uuml;r Links auf Karte verwendet</li>
 				</ul>
 				<h3>&Auml;nderungen bis 16.04.2018</h3>
 				<ul style="font-size:18px">
 				<li>Server-Migration (vielen Dank an den Spender)</li>
-				<li>Mehrere Backend-Änderungen sollten dafür sorgen, dass die Routerdaten nun verlässlicher alle 5 Minuten aktualisiert werden</li>
-				<li>Drastische Erhöhung der angezeigten Router-Events: Es werden nun die letzten 250 Events angezeigt</li>
-				<li>Die Nachbar-Statistik wird nun nur für den letzten Tag geladen; die volle Statistik kann über eine Schaltfläche nachgeladen werden. Zusammen mit anderen Änderungen reduziert dies die Ladezeit der Routerdetailseite enorm</li>
-				<li>Die Nachbar-Statistik zeigt nun auch Daten für Knoten an, die gerade nicht verbunden sind, aber es in der Vergangenheit waren</li>
+				<li>Mehrere Backend-&Auml;nderungen sollten daf&uuml;r sorgen, dass die Routerdaten nun verl&auml;sslicher alle 5 Minuten aktualisiert werden</li>
+				<li>Drastische Erh&ouml;hung der angezeigten Router-Events: Es werden nun die letzten 250 Events angezeigt</li>
+				<li>Die Nachbar-Statistik wird nun nur f&uuml;r den letzten Tag geladen; die volle Statistik kann &uuml;ber eine Schaltfl&auml;che nachgeladen werden. Zusammen mit anderen &Auml;nderungen reduziert dies die Ladezeit der Routerdetailseite enorm</li>
+				<li>Die Nachbar-Statistik zeigt nun auch Daten f&uuml;r Knoten an, die gerade nicht verbunden sind, aber es in der Vergangenheit waren</li>
 				<li>Das Positions-Popup in der Karte muss nun als Layer aktiviert werden (Standard: aus)</li>
-				<li>Die Statisitik-Seite schlüsselt nun die Modelle pro Client auf</li>
+				<li>Die Statisitik-Seite schl&uuml;sselt nun die Modelle pro Client auf</li>
 				</ul>
 				<h3>&Auml;nderungen bis 22.02.2018</h3>
 				<ul style="font-size:18px">
 				<li>V2-Hoods werden auf der Statistik-Seite farblich hervorgehoben</li>
 				<li>Das Setzen des "Blocked"-Status wird als Router-Event geloggt</li>
 				<li>Babel-Verbindungskosten werden im Nachbarplot erfasst (erfordert Anpassung der Firmware)</li>
-				<li>Die Routerübersicht zeigt nun auch "last contact" an; nach der "uptime" kann sortiert werden</li>
-				<li>Netzinterfaces verfügen nun über eine Erklärung sowie Farbhervorhebung entsprechend der Funktion</li>
-				<li>Traffic-Control-Status für Router mit aktualisierter Firmware</li>
-				<li>Für alle Router ohne Kontaktadresse wird eine Warnung angezeigt</li>
-				<li>Das Restart-Event für V2-Hoods wird nun wieder korrekt geloggt</li>
+				<li>Die Router&uuml;bersicht zeigt nun auch "last contact" an; nach der "uptime" kann sortiert werden</li>
+				<li>Netzinterfaces verf&uuml;gen nun &uuml;ber eine Erkl&auml;rung sowie Farbhervorhebung entsprechend der Funktion</li>
+				<li>Traffic-Control-Status f&uuml;r Router mit aktualisierter Firmware</li>
+				<li>F&uuml;r alle Router ohne Kontaktadresse wird eine Warnung angezeigt</li>
+				<li>Das Restart-Event f&uuml;r V2-Hoods wird nun wieder korrekt geloggt</li>
 				</ul>
 				<h3>&Auml;nderungen bis 01.02.2018</h3>
 				<ul style="font-size:18px">
-				<li>Detaillierte Client-Statistiken (Ethernet, 2.4 GHz, 5 GHz) für Router mit aktualisierter Firmware</li>
-				<li>Airtime-Statistiken für Router mit aktualisierter Firmware</li>
+				<li>Detaillierte Client-Statistiken (Ethernet, 2.4 GHz, 5 GHz) f&uuml;r Router mit aktualisierter Firmware</li>
+				<li>Airtime-Statistiken f&uuml;r Router mit aktualisierter Firmware</li>
 				<li>Netzwerk-Interface-Statistiken werden jetzt in Bit pro Sekunde angezeigt</li>
 				</ul>
 				<h3>&Auml;nderungen bis 18.01.2018</h3>
 				<ul style="font-size:18px">
 				<li>Netif-Statistiken werden nur noch 21 Tage erfasst, um die Ladezeit der Routerseite zu reduzieren</li>
-				<li>In der Hood-Übersichtstabelle wird nun die Zahl der aktiven Gateways als Spalte angezeigt</li>
-				<li>Die Hood- und Gateway-Übersichtstabellen können sortiert werden</li>
+				<li>In der Hood-&Uuml;bersichtstabelle wird nun die Zahl der aktiven Gateways als Spalte angezeigt</li>
+				<li>Die Hood- und Gateway-&Uuml;bersichtstabellen k&ouml;nnen sortiert werden</li>
 				<li>Im KeyXchange gesperrte Router werden im Monitoring entsprechend markiert (diese Einstellung ist nicht live, sondern muss manuell von Admins vorgenommen werden)</li>
-				<li>Für Mesh-Router ohne Koordinaten wurde die virtuelle Hood "NoCoordinates" geschaffen; in der Default-Hood werden nur noch die Router angezeigt, die per VPN wirklich in der Default-Hood sind</li>
+				<li>F&uuml;r Mesh-Router ohne Koordinaten wurde die virtuelle Hood "NoCoordinates" geschaffen; in der Default-Hood werden nur noch die Router angezeigt, die per VPN wirklich in der Default-Hood sind</li>
 				</ul>
 				<h3>&Auml;nderungen bis 13.01.2018</h3>
 				<ul style="font-size:18px">
-				<li>Verbundene Gateways werden nun für jeden Router auf der Detailseite angezeigt</li>
-				<li>Alle Gateways werden nun ebenso wie die Hoods auf der Statistik-Seite angezeigt; wie für die Hoods sind selektive Statistiken möglich</li>
+				<li>Verbundene Gateways werden nun f&uuml;r jeden Router auf der Detailseite angezeigt</li>
+				<li>Alle Gateways werden nun ebenso wie die Hoods auf der Statistik-Seite angezeigt; wie f&uuml;r die Hoods sind selektive Statistiken m&ouml;glich</li>
 				<li>Wird die Statistik-Seite nach Hoods gefiltert werden die entsprechenden Gateways angezeigt</li>
-				<li>Wird die Statistik-Seite nach Gateways gefiltert erhält man (sofern vom GW-Betreiber bereitgestellt) Information zum Gateway (Admin, Stats-Seite, ...)</li>
-				<li>Router k&ouml;nnen anhand der MAC-Adresse ihrer Gateways gesucht werden:<br />Alle Router mit GW: <span class="consolefont">gw:&lt;mac_of_vpnif&gt;</span> oder <span class="consolefont">bat:&lt;mac_of_batX&gt;</span><br />Alle Router, die GW ausgewählt haben: <span class="consolefont">selected:&lt;mac_of_vpn&gt;</span> oder <span class="consolefont">batselected:&lt;mac_of_batX&gt;</span></li>
+				<li>Wird die Statistik-Seite nach Gateways gefiltert erh&auml;lt man (sofern vom GW-Betreiber bereitgestellt) Information zum Gateway (Admin, Stats-Seite, ...)</li>
+				<li>Router k&ouml;nnen anhand der MAC-Adresse ihrer Gateways gesucht werden:<br />Alle Router mit GW: <span class="consolefont">gw:&lt;mac_of_vpnif&gt;</span> oder <span class="consolefont">bat:&lt;mac_of_batX&gt;</span><br />Alle Router, die GW ausgew&auml;hlt haben: <span class="consolefont">selected:&lt;mac_of_vpn&gt;</span> oder <span class="consolefont">batselected:&lt;mac_of_batX&gt;</span></li>
 				</ul>
 				<h3>&Auml;nderungen bis 30.12.2017</h3>
 				<ul style="font-size:18px">
-				<li>Router-Popup in der Karte berücksichtigt aktivierte Layer</li>
-				<li>Verwaiste (orphaned) Router werden in der Statistik berücksichtigt</li>
-				<li>Für die WLAN-Interfaces werden zusätzliche Informationen (Kanal, SSID, Typ) angezeigt; diese Funktion benötigt ein Firmware-Update des Routers</li>
-				<li>Tx-Power für die WLAN-Interfaces wird angezeigt (Antennen werden so berücksichtigt wie dies in der Firmware eingestellt ist)</li>
+				<li>Router-Popup in der Karte ber&uuml;cksichtigt aktivierte Layer</li>
+				<li>Verwaiste (orphaned) Router werden in der Statistik ber&uuml;cksichtigt</li>
+				<li>F&uuml;r die WLAN-Interfaces werden zus&auml;tzliche Informationen (Kanal, SSID, Typ) angezeigt; diese Funktion ben&ouml;tigt ein Firmware-Update des Routers</li>
+				<li>Tx-Power f&uuml;r die WLAN-Interfaces wird angezeigt (Antennen werden so ber&uuml;cksichtigt wie dies in der Firmware eingestellt ist)</li>
 				<li>Bei Klick auf einen freien Bereich der Karte werden die Koordinaten angezeigt</li>
 				<li>Es werden nun 25 Events pro Router angezeigt, die Reihenfolge wurde invertiert</li>
 				</ul>
 				<h3>&Auml;nderungen bis 20.12.2017</h3>
 				<ul style="font-size:18px">
-				<li>Router-Statistiken werden für 30 Tage erfasst</li>
-				<li>Benutzer können ihren eigenen Account selbst löschen</li>
-				<li>Login mit E-Mail-Adresse statt Username ist ab sofort möglich</li>
-				<li>Router können per Schaltfläche an Administratoren gemeldet werden, falls rechtswidrige Texte hinterlegt sind</li>
-				<li>Router können permanent aus dem Monitoring verbannt werden</li>
+				<li>Router-Statistiken werden f&uuml;r 30 Tage erfasst</li>
+				<li>Benutzer k&ouml;nnen ihren eigenen Account selbst l&ouml;schen</li>
+				<li>Login mit E-Mail-Adresse statt Username ist ab sofort m&ouml;glich</li>
+				<li>Router k&ouml;nnen per Schaltfl&auml;che an Administratoren gemeldet werden, falls rechtswidrige Texte hinterlegt sind</li>
+				<li>Router k&ouml;nnen permanent aus dem Monitoring verbannt werden</li>
 				</ul>
 				<h3>&Auml;nderungen bis 10.12.2017</h3>
 				<ul style="font-size:18px">
 				<li>Perma-Link auf Router-Detailseite</li>
 				<li>Router k&ouml;nnen anhand der MAC-Adresse ihrer Nachbarn gesucht werden: <span class="consolefont">neighbor:&lt;mac_of_neighbor&gt;</span></li>
-				<li>Globale und Hood-Statistiken werden für 365 Tage erfasst</li>
-				<li>Die Suchfunktion auf der Router-&Uuml;bersichtsseite unterstützt jetzt größtenteils Regex</li>
-				<li>Bei Router-Reset wird ein Hinweis auf Detail- und Übersichtsseite angezeigt</li>
+				<li>Globale und Hood-Statistiken werden f&uuml;r 365 Tage erfasst</li>
+				<li>Die Suchfunktion auf der Router-&Uuml;bersichtsseite unterst&uuml;tzt jetzt gr&ouml;&szlig;tenteils Regex</li>
+				<li>Bei Router-Reset wird ein Hinweis auf Detail- und &Uuml;bersichtsseite angezeigt</li>
 				<li>Die Statistik-Seite wurde umgeordnet (Graphen jetzt rechts oben)</li>
 				</ul>
 				<h3>&Auml;nderungen bis 17.11.2017</h3>
@@ -106,15 +118,15 @@
 				</ul>
 				<h3>&Auml;nderungen bis 16.11.2017</h3>
 				<ul style="font-size:18px">
-				<li>Changelog wird eingeführt</li>
-				<li>MySQL-Unterstützung und reines Python3 (Mapnik, Tilestache)</li>
+				<li>Changelog wird eingef&uuml;hrt</li>
+				<li>MySQL-Unterst&uuml;tzung und reines Python3 (Mapnik, Tilestache)</li>
 				<li>Individuelle Statistik-Seite pro Hood</li>
 				<li><span class="consolefont">/routers/&lt;nr&gt;?fffconfig</span> gibt fffconfig Datei aus</li>
-				<li>Neuer Status "orphaned" wenn Router länger als 7 Tage offline sind (Icon wird grau)</li>
-				<li>Separate Layer und Farben für KeyXchange v1 und v2 Router</li>
-				<li>Leerzeichen in Hoodnamen werden unterstützt (aber nicht gewünscht)</li>
+				<li>Neuer Status "orphaned" wenn Router l&auml;nger als 7 Tage offline sind (Icon wird grau)</li>
+				<li>Separate Layer und Farben f&uuml;r KeyXchange v1 und v2 Router</li>
+				<li>Leerzeichen in Hoodnamen werden unterst&uuml;tzt (aber nicht gew&uuml;nscht)</li>
 				<li>Hoodname wird nicht mehr nach lower-case konvertiert</li>
-				<li><span class="consolefont">/api/wifianalall</span> gibt WifiAnalyzer-Datei für ALLE Router aus</li>
+				<li><span class="consolefont">/api/wifianalall</span> gibt WifiAnalyzer-Datei f&uuml;r ALLE Router aus</li>
 				<li>Statistiken werden in separatem Cronjob berechnet</li>
 				</ul>
 			</div>
