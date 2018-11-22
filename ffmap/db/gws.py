@@ -9,7 +9,7 @@ from ffmap.mysqltools import FreifunkMySQL
 mysql = FreifunkMySQL()
 
 mysql.execute("""
-	CREATE TABLE gw (
+	CREATE TABLE `gw` (
 		`id` smallint(5) UNSIGNED NOT NULL,
 		`name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
 		`stats_page` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -18,18 +18,18 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE gw
+	ALTER TABLE `gw`
 		ADD PRIMARY KEY (`id`),
 		ADD UNIQUE KEY `name` (`name`)
 """)
 
 mysql.execute("""
-	ALTER TABLE gw
+	ALTER TABLE `gw`
 		MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT
 """)
 
 mysql.execute("""
-	CREATE TABLE gw_admin (
+	CREATE TABLE `gw_admin` (
 		`gw` smallint(5) UNSIGNED NOT NULL,
 		`name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
 		`prio` tinyint(3) UNSIGNED NOT NULL
@@ -37,12 +37,12 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE gw_admin
+	ALTER TABLE `gw_admin`
 		ADD PRIMARY KEY (`gw`,`name`)
 """)
 
 mysql.execute("""
-	CREATE TABLE gw_netif (
+	CREATE TABLE `gw_netif` (
 		`gw` smallint(5) UNSIGNED NOT NULL,
 		`mac` bigint(20) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
@@ -56,7 +56,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE gw_netif
+	ALTER TABLE `gw_netif`
 		ADD PRIMARY KEY (`mac`),
 		ADD KEY `gw` (`gw`)
 """)

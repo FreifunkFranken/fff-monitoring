@@ -27,7 +27,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	CREATE TABLE stats_gw (
+	CREATE TABLE `stats_gw` (
 		`time` int(11) NOT NULL,
 		`mac` bigint(20) UNSIGNED NOT NULL,
 		`clients` mediumint(9) NOT NULL,
@@ -39,13 +39,13 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE stats_gw
+	ALTER TABLE `stats_gw`
 		ADD PRIMARY KEY (`time`,`mac`),
 		ADD KEY `mac` (`mac`)
 """)
 
 mysql.execute("""
-	CREATE TABLE stats_hood (
+	CREATE TABLE `stats_hood` (
 		`time` int(11) NOT NULL,
 		`hood` smallint(5) UNSIGNED NOT NULL,
 		`clients` mediumint(9) NOT NULL,
@@ -59,7 +59,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE stats_hood
+	ALTER TABLE `stats_hood`
 		ADD PRIMARY KEY (`time`,`hood`),
 		ADD KEY `hood` (`hood`)
 """)

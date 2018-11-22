@@ -9,21 +9,21 @@ from ffmap.mysqltools import FreifunkMySQL
 mysql = FreifunkMySQL()
 
 mysql.execute("""
-	CREATE TABLE hoods (
-		id smallint(6) UNSIGNED NOT NULL,
-		name varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+	CREATE TABLE `hoods` (
+		`id` smallint(6) UNSIGNED NOT NULL,
+		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
 mysql.execute("""
-	ALTER TABLE hoods
-		ADD PRIMARY KEY (id),
-		ADD UNIQUE KEY name (name)
+	ALTER TABLE `hoods`
+		ADD PRIMARY KEY (`id`),
+		ADD UNIQUE KEY `name` (`name`)
 """)
 
 mysql.execute("""
-	ALTER TABLE hoods
-		MODIFY id smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT
+	ALTER TABLE `hoods`
+		MODIFY `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT
 """)
 
 mysql.execute("""
@@ -36,7 +36,7 @@ mysql.execute("""
 """,(10000,NoCoordinates,))
 
 mysql.execute("""
-	CREATE TABLE hoodsv1 (
+	CREATE TABLE `hoodsv1` (
 		`id` int(11) NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
@@ -48,7 +48,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE hoodsv1
+	ALTER TABLE `hoodsv1`
 		ADD PRIMARY KEY (`id`),
 		ADD UNIQUE KEY `name` (`name`),
 		ADD KEY `lat` (`lat`),
@@ -58,7 +58,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	CREATE TABLE hoodsv2 (
+	CREATE TABLE `hoodsv2` (
 		`id` int(11) NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
@@ -68,7 +68,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE hoodsv2
+	ALTER TABLE `hoodsv2`
 		ADD PRIMARY KEY (`id`),
 		ADD UNIQUE KEY `name` (`name`),
 		ADD KEY `lat` (`lat`),

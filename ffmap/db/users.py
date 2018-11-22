@@ -18,8 +18,7 @@ mysql.execute("""
 		`created` datetime NOT NULL,
 		`admin` tinyint(1) NOT NULL DEFAULT '0',
 		`abuse` tinyint(1) NOT NULL DEFAULT '0'
-	)
-	ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
 mysql.execute("""
