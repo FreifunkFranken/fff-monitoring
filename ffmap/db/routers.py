@@ -144,7 +144,7 @@ mysql.execute("""
 		`quality` float NOT NULL,
 		`nexthop` bigint(20) UNSIGNED DEFAULT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
-		`gw_class` varchar(25) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`gw_class` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`selected` tinyint(1) NOT NULL DEFAULT '0'
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
