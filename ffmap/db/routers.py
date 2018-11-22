@@ -10,7 +10,7 @@ mysql = FreifunkMySQL()
 
 mysql.execute("""
 	CREATE TABLE banned (
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`added` datetime NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
@@ -22,7 +22,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE blocked (
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`added` datetime NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
@@ -140,9 +140,9 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE router_gw (
 		`router` mediumint(8) UNSIGNED NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`quality` float NOT NULL,
-		`nexthop` char(17) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`nexthop` bigint(20) UNSIGNED DEFAULT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`gw_class` varchar(25) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`selected` tinyint(1) NOT NULL DEFAULT '0'
@@ -170,7 +170,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE router_neighbor (
 		`router` mediumint(8) UNSIGNED NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`quality` float NOT NULL,
 		`type` varchar(10) COLLATE utf8_unicode_ci DEFAULT 'l2'
@@ -193,7 +193,7 @@ mysql.execute("""
 		`tx` int(10) UNSIGNED NOT NULL,
 		`fe80_addr` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
 		`ipv4_addr` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED DEFAULT NULL,
 		`wlan_channel` tinyint(3) UNSIGNED DEFAULT NULL,
 		`wlan_type` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`wlan_width` tinyint(3) UNSIGNED DEFAULT NULL,
@@ -237,7 +237,7 @@ mysql.execute("""
 	CREATE TABLE router_stats_gw (
 		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`quality` float NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
@@ -252,7 +252,7 @@ mysql.execute("""
 	CREATE TABLE router_stats_neighbor (
 		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`quality` float NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)

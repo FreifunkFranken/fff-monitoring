@@ -29,7 +29,7 @@ mysql.execute("""
 mysql.execute("""
 	CREATE TABLE stats_gw (
 		`time` int(11) NOT NULL,
-		`mac` char(17) COLLATE utf8_unicode_ci NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
 		`clients` mediumint(9) NOT NULL,
 		`online` smallint(6) NOT NULL,
 		`offline` smallint(6) NOT NULL,
