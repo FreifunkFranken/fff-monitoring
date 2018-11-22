@@ -9,7 +9,7 @@ from ffmap.mysqltools import FreifunkMySQL
 mysql = FreifunkMySQL()
 
 mysql.execute("""
-	CREATE TABLE banned (
+	CREATE TABLE `banned` (
 		`mac` bigint(20) UNSIGNED NOT NULL,
 		`added` datetime NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
@@ -21,37 +21,37 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	CREATE TABLE blocked (
+	CREATE TABLE `blocked` (
 		`mac` bigint(20) UNSIGNED NOT NULL,
 		`added` datetime NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
 mysql.execute("""
-	ALTER TABLE blocked
+	ALTER TABLE `blocked`
 		ADD PRIMARY KEY (`mac`)
 """)
 
 mysql.execute("""
-	CREATE TABLE netifs (
+	CREATE TABLE `netifs` (
 		`id` smallint(6) UNSIGNED NOT NULL,
 		`name` varchar(15) COLLATE utf8_unicode_ci NOT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 """)
 
 mysql.execute("""
-	ALTER TABLE netifs
+	ALTER TABLE `netifs`
 		ADD PRIMARY KEY (`id`),
 		ADD UNIQUE KEY `name` (`name`)
 """)
 
 mysql.execute("""
-	ALTER TABLE netifs
+	ALTER TABLE `netifs`
 		MODIFY `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT
 """)
 
 mysql.execute("""
-	CREATE TABLE router (
+	CREATE TABLE `router` (
 		`id` mediumint(8) UNSIGNED NOT NULL,
 		`status` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		`hostname` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
@@ -106,7 +106,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router
+	ALTER TABLE `router`
 		ADD PRIMARY KEY (`id`),
 		ADD KEY `created` (`created`),
 		ADD KEY `hostname` (`hostname`),
@@ -119,12 +119,12 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router
+	ALTER TABLE `router`
 		MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT
 """)
 
 mysql.execute("""
-	CREATE TABLE router_events (
+	CREATE TABLE `router_events` (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`time` datetime NOT NULL,
 		`type` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -133,12 +133,12 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_events
+	ALTER TABLE `router_events`
 		ADD PRIMARY KEY (`router`,`time`,`type`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_gw (
+	CREATE TABLE `router_gw` (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` bigint(20) UNSIGNED NOT NULL,
 		`quality` float NOT NULL,
@@ -150,12 +150,12 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_gw
+	ALTER TABLE `router_gw`
 		ADD PRIMARY KEY (`router`,`mac`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_ipv6 (
+	CREATE TABLE `router_ipv6` (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`ipv6` binary(16) NOT NULL
@@ -163,12 +163,12 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_ipv6
+	ALTER TABLE `router_ipv6`
 		ADD PRIMARY KEY (`router`,`netif`,`ipv6`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_neighbor (
+	CREATE TABLE `router_neighbor` (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` bigint(20) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
@@ -178,12 +178,12 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_neighbor
+	ALTER TABLE `router_neighbor`
 		ADD PRIMARY KEY (`router`,`mac`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_netif (
+	CREATE TABLE `router_netif` (
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		`mtu` smallint(6) NOT NULL,
@@ -203,13 +203,13 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_netif
+	ALTER TABLE `router_netif`
 		ADD PRIMARY KEY (`router`,`netif`),
 		ADD KEY `mac` (`mac`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_stats (
+	CREATE TABLE `router_stats` (
 		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`sys_proctot` smallint(6) NOT NULL,
@@ -228,13 +228,13 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_stats
+	ALTER TABLE `router_stats`
 		ADD PRIMARY KEY (`time`,`router`),
 		ADD KEY `router` (`router`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_stats_gw (
+	CREATE TABLE `router_stats_gw` (
 		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` bigint(20) UNSIGNED NOT NULL,
@@ -243,13 +243,13 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_stats_gw
+	ALTER TABLE `router_stats_gw`
 		ADD PRIMARY KEY (`time`,`router`,`mac`),
 		ADD KEY `router` (`router`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_stats_neighbor (
+	CREATE TABLE `router_stats_neighbor` (
 		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`mac` bigint(20) UNSIGNED NOT NULL,
@@ -258,13 +258,13 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_stats_neighbor
+	ALTER TABLE `router_stats_neighbor`
 		ADD PRIMARY KEY (`time`,`router`,`mac`),
 		ADD KEY `router` (`router`)
 """)
 
 mysql.execute("""
-	CREATE TABLE router_stats_netif (
+	CREATE TABLE `router_stats_netif` (
 		`time` int(11) NOT NULL,
 		`router` mediumint(8) UNSIGNED NOT NULL,
 		`netif` smallint(6) UNSIGNED NOT NULL,
@@ -275,7 +275,7 @@ mysql.execute("""
 """)
 
 mysql.execute("""
-	ALTER TABLE router_stats_netif
+	ALTER TABLE `router_stats_netif`
 		ADD PRIMARY KEY (`time`,`router`,`netif`),
 		ADD KEY `router` (`router`),
 		ADD KEY `deletebit` (`deletebit`)
