@@ -16,17 +16,20 @@ def import_gw_data(mysql, gw_data):
 	if "hostname" in gw_data and "netifs" in gw_data:
 		time = utcnow().strftime('%Y-%m-%d %H:%M:%S')
 		stats_page = gw_data.get("stats_page","")
+		version = gw_data.get("version","")
 
 		# Make None if empty (gw_data.get() only checks for existing key)
 		if not stats_page:
 			stats_page = None
+		if not version:
+			version = None
 		newid = mysql.findone("SELECT id FROM gw WHERE name = %s LIMIT 1",(gw_data["hostname"],),"id")
 		if newid:
 			mysql.execute("""
 				UPDATE gw
-				SET stats_page = %s, last_contact = %s
+				SET stats_page = %s, version = %s, last_contact = %s
 				WHERE id = %s
-			""",(stats_page,time,newid,))
+			""",(stats_page,version,time,newid,))
 			mysql.execute("""
 				UPDATE gw_netif
 				SET ipv4 = NULL, ipv6 = NULL, dhcpstart = NULL, dhcpend = NULL
@@ -34,9 +37,9 @@ def import_gw_data(mysql, gw_data):
 			""",(newid,))
 		else:
 			mysql.execute("""
-				INSERT INTO gw (name, stats_page, last_contact)
-				VALUES (%s, %s, %s)
-			""",(gw_data["hostname"],stats_page,time,))
+				INSERT INTO gw (name, stats_page, version, last_contact)
+				VALUES (%s, %s, %s, %s)
+			""",(gw_data["hostname"],stats_page,version,time,))
 			newid = mysql.cursor().lastrowid
 		
 		nmacs = {}
