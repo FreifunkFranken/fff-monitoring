@@ -33,11 +33,24 @@
 	<script src="{{ url_for('static', filename='js/map.js') }}"></script>
 	<script type="text/javascript">
 		if (window.location.search.match("^\\?mapcenter")) {
-			var maploc = window.location.search.replace("?mapcenter=", "").split(",");
+			var getargs = window.location.search.replace("?mapcenter=", "").split("&");
+			var maploc = getargs[0].split(",");
 			map.setView([maploc[0], maploc[1]], maploc[2]);
+			if (getargs.length > 1 && getargs[1].match("layers=")) {
+				var getlayers = getargs[1].replace("layers=", "").split(",");
+				if(getlayers[0]==1) { routers.addTo(map); }
+				if(getlayers[1]==1) { routers_v2.addTo(map); }
+				if(getlayers[2]==1) { routers_local.addTo(map); }
+				if(getlayers[3]==1) { hoods.addTo(map); }
+				if(getlayers[4]==1) { hoods_v2.addTo(map); }
+				if(getlayers[5]==1) { popuplayer.addTo(map); }
+			} else {
+				initialLayers();
+			}
 		}
 		else {
 			map.setView([49.45, 11.1], 10);
+			initialLayers();
 		}
 	</script>
 {% endblock %}
