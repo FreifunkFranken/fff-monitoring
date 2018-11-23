@@ -141,9 +141,8 @@ def alfred():
 	try:
 		start_time = time.time()
 		mysql = FreifunkMySQL()
-		#set_alfred_data = {65: "hallo", 66: "welt"}
-		set_alfred_data = {}
-		r = make_response(json.dumps(set_alfred_data))
+		r = make_response(json.dumps({}))
+		r.mimetype = 'application/json'
 		#import cProfile, pstats, io
 		#pr = cProfile.Profile()
 		#pr.enable()
@@ -162,8 +161,9 @@ def alfred():
 			except Exception as e:
 				writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
 				writefulllog("Warning: Error converting ALFRED data to JSON:\n__%s" % (request.get_data(True,True).replace("\n", "\n__")))
-				return
-			
+				r.headers['X-API-STATUS'] = "JSON parsing failed"
+				return r
+
 			if alfred_data:
 				# load router status xml data
 				i = 1
@@ -181,14 +181,14 @@ def alfred():
 		#ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 		#ps.print_stats()
 		#print(s.getvalue())
-		
+
 		writelog(CONFIG["debug_dir"] + "/apitime.txt", "%s - %.3f seconds" % (request.environ['REMOTE_ADDR'],time.time() - start_time))
-		
-		r.mimetype = 'application/json'
 		return r
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
 		writefulllog("Warning: Error while processing ALFRED data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
+		r.headers['X-API-STATUS'] = "ERROR processing ALFRED data"
+		return r
 
 # Read alfred data without surrounding {"64":"<data>"}, so just <data> can be sent
 @api.route('/alfred2', methods=['GET', 'POST'])
@@ -207,13 +207,15 @@ def alfred2():
 		hoodsdict = mysql.fetchdict("SELECT id, name FROM hoods",(),"name","id")
 
 		r = make_response(json.dumps({}))
+		r.mimetype = 'application/json'
 		if request.method == 'POST':
 			try:
 				alfred_data = request.get_json()
 			except Exception as e:
 				writelog(CONFIG["debug_dir"] + "/fail_alfred2.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
 				writefulllog("Warning: Error converting ALFRED2 data to JSON:\n__%s" % (request.get_data(True,True).replace("\n", "\n__")))
-				return
+				r.headers['X-API-STATUS'] = "JSON parsing failed"
+				return r
 
 			if alfred_data:
 				# load router status xml data
@@ -224,16 +226,16 @@ def alfred2():
 						mysql.commit()
 					i += 1
 				mysql.commit()
-				r.headers['X-API-STATUS'] = "ALFRED data imported"
+				r.headers['X-API-STATUS'] = "ALFRED2 data imported"
 		mysql.close()
 
 		writelog(CONFIG["debug_dir"] + "/apitime.txt", "%s - %.3f seconds (alfred2)" % (request.environ['REMOTE_ADDR'],time.time() - start_time))
-
-		r.mimetype = 'application/json'
 		return r
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
-		writefulllog("Warning: Error while processing ALFRED data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
+		writefulllog("Warning: Error while processing ALFRED2 data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
+		r.headers['X-API-STATUS'] = "ERROR processing ALFRED2 data"
+		return r
 
 @api.route('/gwinfo', methods=['GET', 'POST'])
 def gwinfo():
