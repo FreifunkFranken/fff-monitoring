@@ -26,9 +26,9 @@ var overlay_config = {
 	maximumAge: 1000*3600*24*10
 }
 
-var routers = new L.TileLayer(tileurls.routers + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
-var routers_v2 = new L.TileLayer(tileurls.routers_v2 + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
-var routers_local = new L.TileLayer(tileurls.routers_local + '/{z}/{x}/{y}.png', overlay_config).addTo(map);
+var routers = new L.TileLayer(tileurls.routers + '/{z}/{x}/{y}.png', overlay_config);
+var routers_v2 = new L.TileLayer(tileurls.routers_v2 + '/{z}/{x}/{y}.png', overlay_config);
+var routers_local = new L.TileLayer(tileurls.routers_local + '/{z}/{x}/{y}.png', overlay_config);
 var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
 var hoods_v2 = new L.TileLayer(tileurls.hoods_v2 + '/{z}/{x}/{y}.png', overlay_config);
 var popuplayer = new L.TileLayer('');
@@ -56,17 +56,27 @@ if (window.matchMedia("(min--moz-device-pixel-ratio: 1.5),(-o-min-device-pixel-r
 var popup;
 var popupopen = false;
 
-function update_mappos_permalink() {
+function update_permalink() {
 	if (typeof mapurl != 'undefined') {
 		var pos = map.getCenter();
 		var zoom = map.getZoom();
-		window.history.replaceState({}, document.title, mapurl + '?mapcenter='+pos.lat.toFixed(5)+','+pos.lng.toFixed(5)+','+zoom);
+		window.history.replaceState({}, document.title,
+			mapurl + '?mapcenter=' + pos.lat.toFixed(5) + ',' + pos.lng.toFixed(5) + ',' + zoom
+			+ '&layers=' + (map.hasLayer(routers)|0) + ',' + (map.hasLayer(routers_v2)|0) + ',' + (map.hasLayer(routers_local)|0) + ','
+			+ (map.hasLayer(hoods)|0) + ',' + (map.hasLayer(hoods_v2)|0) + ',' + (map.hasLayer(popuplayer)|0) );
 	}
 }
 
+function initialLayers() {
+	routers.addTo(map);
+	routers_v2.addTo(map);
+	routers_local.addTo(map);
+}
 
-map.on('moveend', update_mappos_permalink);
-map.on('zoomend', update_mappos_permalink);
+map.on('moveend', update_permalink);
+map.on('zoomend', update_permalink);
+map.on('overlayadd', update_permalink);
+map.on('overlayremove', update_permalink);
 
 map.on('click', function(pos) {
 	// height = width of world in px
