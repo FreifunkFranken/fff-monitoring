@@ -135,6 +135,7 @@ def get_router_by_mac(mac):
 	else:
 		return redirect(url_for("router_info", dbid=res_routers[0]["id"]))
 
+# Read alfred data WITH surrounding {"64":"<data>"}
 @api.route('/alfred', methods=['GET', 'POST'])
 def alfred():
 	try:
@@ -183,6 +184,51 @@ def alfred():
 		
 		writelog(CONFIG["debug_dir"] + "/apitime.txt", "%s - %.3f seconds" % (request.environ['REMOTE_ADDR'],time.time() - start_time))
 		
+		r.mimetype = 'application/json'
+		return r
+	except Exception as e:
+		writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
+		writefulllog("Warning: Error while processing ALFRED data: %s\n__%s" % (e, traceback.format_exc().replace("\n", "\n__")))
+
+# Read alfred data without surrounding {"64":"<data>"}, so just <data> can be sent
+@api.route('/alfred2', methods=['GET', 'POST'])
+def alfred2():
+	try:
+		start_time = time.time()
+		mysql = FreifunkMySQL()
+		banned = mysql.fetchall("""
+			SELECT mac FROM banned
+		""",(),"mac")
+		hoodsv2 = mysql.fetchall("""
+			SELECT name FROM hoodsv2
+		""",(),"name")
+		statstime = utcnow()
+		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
+		hoodsdict = mysql.fetchdict("SELECT id, name FROM hoods",(),"name","id")
+
+		r = make_response(json.dumps({}))
+		if request.method == 'POST':
+			try:
+				alfred_data = request.get_json()
+			except Exception as e:
+				writelog(CONFIG["debug_dir"] + "/fail_alfred2.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
+				writefulllog("Warning: Error converting ALFRED2 data to JSON:\n__%s" % (request.get_data(True,True).replace("\n", "\n__")))
+				return
+
+			if alfred_data:
+				# load router status xml data
+				i = 1
+				for mac, xml in alfred_data.items():
+					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
+					if (i%500 == 0):
+						mysql.commit()
+					i += 1
+				mysql.commit()
+				r.headers['X-API-STATUS'] = "ALFRED data imported"
+		mysql.close()
+
+		writelog(CONFIG["debug_dir"] + "/apitime.txt", "%s - %.3f seconds (alfred2)" % (request.environ['REMOTE_ADDR'],time.time() - start_time))
+
 		r.mimetype = 'application/json'
 		return r
 	except Exception as e:
