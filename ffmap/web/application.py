@@ -88,8 +88,7 @@ def v2_routers():
 			SELECT time, CAST(SUM(clients) AS SIGNED) clients, CAST(SUM(online) AS SIGNED) online, CAST(SUM(offline) AS SIGNED) offline, CAST(SUM(unknown) AS SIGNED) unknown, CAST(SUM(orphaned) AS SIGNED) orphaned, CAST(SUM(rx) AS SIGNED) rx, CAST(SUM(tx) AS SIGNED) tx
 			FROM stats_hood
 			INNER JOIN hoods ON hoods.id = stats_hood.hood
-			LEFT JOIN hoodsv1 ON hoodsv1.name = hoods.name
-			WHERE time > 1531612800 AND ( hoodsv1.name IS NOT NULL OR hoods.name IN ('ArnsteinV1','MuenchbergV1','MarktredwitzV1','BayreuthV1','AnsbachV1','FichtelbergV1','BambergV1','ForchheimV1','ErlangenV1','ErlangenWestV1','EbernV1','CoburgV1','HassbergeV1','LaufV1','RehauV1','AschaffenburgV1','WuerzburgV1','AdelsdorfV1','EbermannstadtV1','NuernbergV1','HassbergeSuedV1','FuerthV1','SchweinfurtV1','BGLV1') )
+			WHERE time > 1531612800 AND ( hoods.id > 9999 AND hoods.id < 11000 )
 			GROUP BY time
 		""")
 		mysql.close()
