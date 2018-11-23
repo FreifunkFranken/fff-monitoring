@@ -48,7 +48,7 @@
 				</td>
 				<td class="text-center" data-order="{{ router.status }}"><span class="{{ router.status|status2css }}">{{ router.status }}</span></td>
 				<td{%- if router.local %} class="hoodlocal"{%- elif router.v2 %} class="hoodv2"{%- endif %}>{{ router.hood }}</td>
-				<td>{{ router.nickname if router.nickname else "" }}</td>
+				<td>{%- if router.nickname %}{{ router.nickname }}{%- elif not router.contact %}<span style="color:#d90000">missing</span>{%- endif %}</td>
 				<td class="text-nowrap">{{ router.hardware }}</td>
 				<td class="text-nowrap">{{ router.created|utc2local|format_dt_date }}</td>
 				<td class="text-nowrap" data-order="{{ router.sys_uptime if router.status == "online" else 0 }}">{{ router.sys_uptime|format_ts_diff }}</td>
