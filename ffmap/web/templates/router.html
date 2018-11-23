@@ -153,6 +153,8 @@
 							{%- endif -%}
 							{%- if router.reset %}
 							<span style="color:#d90000">- Router has lost its position!</span>
+							{%- elif not router.lat and not router.lng %}
+							<span style="color:#d90000">- Router has no position!</span>
 							{%- endif -%}
 						</td></tr>
 						{%- endif %}

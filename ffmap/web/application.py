@@ -52,7 +52,7 @@ def router_list():
 	mysql = FreifunkMySQL()
 	
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, contact, nickname, hardware, router.created, sys_uptime, last_contact, clients, reset, blocked, v2, local
+		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, contact, nickname, hardware, router.created, sys_uptime, last_contact, clients, router.lat, router.lng, reset, blocked, v2, local
 		FROM router
 		INNER JOIN hoods ON router.hood = hoods.id
 		LEFT JOIN users ON router.contact = users.email
@@ -490,7 +490,7 @@ def user_info(nickname):
 			else:
 				flash("<b>You are not authorized to perform this action!</b>", "danger")
 	routers = mysql.fetchall("""
-		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, firmware, hardware, created, sys_uptime, clients, reset, blocked, v2, local
+		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, firmware, hardware, created, sys_uptime, clients, router.lat, router.lng, reset, blocked, v2, local
 		FROM router
 		INNER JOIN hoods ON router.hood = hoods.id
 		LEFT JOIN (
