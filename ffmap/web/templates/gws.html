@@ -67,7 +67,7 @@
 					<tbody>
 						{%- for gw, value in gws.items() %}
 						<tr>
-							<td class="firstrow"><p style="margin:0">{{ value["name"] }}</p></td>
+							<td class="firstrow"><p style="margin:0">{{ value["name"] }}{%- if value["version"] %} <span style="font-size:12px">({{ value["version"] }})</span>{%- endif %}</p></td>
 							<td class="success" data-order="{{ (value["selected"]["online"] or 0) + (value["others"]["online"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["online"] or 0 }}</span> / {{ value["others"]["online"] or 0 }}</td>
 							<td class="danger" data-order="{{ (value["selected"]["offline"] or 0) + (value["others"]["offline"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
 							<td class="warning" data-order="{{ (value["selected"]["unknown"] or 0) + (value["others"]["unknown"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>

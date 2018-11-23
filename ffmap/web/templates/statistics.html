@@ -206,6 +206,7 @@
 						{%- for a in gws_admin %}
 						<tr><th>Admin</th><td>{{ a }}</td></tr>
 						{%- endfor %}
+						<tr><th>gwinfo version</th><td>{{ gws_info[selectgwint]["version"] if gws_info[selectgwint]["version"] else "< 1.4 or custom" }}</td></tr>
 					</table>
 				</div>
 			</div>
