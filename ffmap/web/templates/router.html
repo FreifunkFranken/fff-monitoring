@@ -372,7 +372,7 @@
 							{%- else %}
 							<tr>
 							{%- endif %}
-								<td><a href="{{ url_for('router_list', q='selected:^%s$' % gw.mac|int2shortmac) }}">{{ gw.label }}</a></td>
+								<td><a href="{{ url_for('global_gwstatistics', selectgw='%s' % gw.mac|int2shortmac) }}">{{ gw.label }}</a></td>
 								<td>{{ gw.batX }}</td>
 								<td>{{ gw.quality }}</td>
 								<td>{{ gw.netif }}</td>

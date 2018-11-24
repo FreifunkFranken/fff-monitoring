@@ -64,33 +64,33 @@
 							<th class="warning" title="Unknown Routers">Unk.</th>
 							<th class="active" title="Total Routers">Sum</th>
 							<th class="info">User</th>
-							<th class="stats">Stat</th>
+							<th class="stats">List</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%- for hoodid, value in hoods|dictsort %}
 						<tr{%- if hoods_sum[hoodid]["local"] %} class="rowlocal"{%- elif hoods_sum[hoodid]["v2"] %} class="rowv2"{%- else %} class="rowv1"{%- endif %}>
-							<td class="firstrow{%- if hoods_sum[hoodid]["local"] %} hoodlocal{%- elif hoods_sum[hoodid]["v2"] %} hoodv2{%- endif %}"><a href="{{ url_for('router_list', q='hood:^%s$' % value['name'].replace(' ','_')) }}">{{ value['name'] }}</a></td>
+							<td class="firstrow{%- if hoods_sum[hoodid]["local"] %} hoodlocal{%- elif hoods_sum[hoodid]["v2"] %} hoodv2{%- endif %}"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hoodid) }}">{{ value['name'] }}</a></td>
 							<td class="stats">{{ hoods_gws[hoodid] or "-" }}</td>
 							<td class="success">{{ value["online"] or 0 }}</td>
 							<td class="danger" data-order="{{ value["offline"] or 0 }}">{{ value["offline"] or 0 }}{%- if value["orphaned"] %} ({{ value["orphaned"] or 0 }}){%- endif %}</td>
 							<td class="warning">{{ value["unknown"] or 0 }}</td>
 							<td class="active">{{ hoods_sum[hoodid]["routers"] }}</td>
 							<td class="info">{{ hoods_sum[hoodid]["clients"] }}</td>
-							<td class="stats"><a href="{{ url_for('global_hoodstatistics', selecthood='%s' % hoodid) }}">Stats</a></td>
+							<td class="stats"><a href="{{ url_for('router_list', q='hood:^%s$' % value['name'].replace(' ','_')) }}">List</a></td>
 						</tr>
 						{%- endfor %}
 					</tbody>
 					<tfoot>
 						<tr>
-							<th class="firstrow">Sum</th>
+							<th class="firstrow"><a href="{{ url_for('global_statistics') }}">All Hoods</a></th>
 							<td class="stats">&nbsp;</td>
 							<td class="success">{{ router_status.online or 0 }}</td>
 							<td class="danger">{{ router_status.offline or 0 }}</td>
 							<td class="warning">{{ router_status.unknown or 0 }}</td>
 							<td class="active">{{ router_status.sum or 0 }}</td>
 							<td class="info">{{ clients }}</td>
-							<td class="stats"><a href="{{ url_for('global_statistics') }}">Global</a></td>
+							<td class="stats">&nbsp;</td>
 						</tr>
 					</tfoot>
 					</table>
@@ -154,13 +154,13 @@
 							<th class="danger" title="Offline Routers">Off</th>
 							<th class="warning" title="Unknown Routers">Unk.</th>
 							<th class="active" title="Total Routers">Sum</th>
-							<th class="stats">Stat</th>
+							<th class="stats">List</th>
 						</tr>
 					</thead>
 					<tbody>
 						{%- for mac, value in gws.items() %}
 						<tr>
-							<td class="firstrow" data-order="{{ value["sort"] }}"><p style="margin:0"><a href="{{ url_for('router_list', q='selected:^%s$' % mac|int2shortmac) }}">{{ gws_info[mac]["label"] }}</a></p>
+							<td class="firstrow" data-order="{{ value["sort"] }}"><p style="margin:0"><a href="{{ url_for('global_gwstatistics', selectgw='%s' % mac|int2shortmac) }}">{{ gws_info[mac]["label"] }}</a></p>
 							{%- if gws_info[mac]["gw"] %}
 							<p style="margin:0;font-size:12px">{{ mac|int2mac }}
 							{%- if gws_info[mac]["batmac"] %}
@@ -173,7 +173,7 @@
 							<td class="danger" data-order="{{ (value["selected"]["offline"] or 0) + (value["others"]["offline"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["offline"] or 0 }}</span> / {{ value["others"]["offline"] or 0 }}</td>
 							<td class="warning" data-order="{{ (value["selected"]["unknown"] or 0) + (value["others"]["unknown"] or 0) }}"><span style="font-weight:bold">{{ value["selected"]["unknown"] or 0 }}</span> / {{ value["others"]["unknown"] or 0 }}</td>
 							<td class="active" data-order="{{ (value["selected"]|sumdict if value["selected"] else 0) + (value["others"]|sumdict if value["others"] else 0) }}"><span style="font-weight:bold">{{ gws_sum[mac]["routers"] if gws_sum[mac] else 0 }}</span> / {{ value["others"]|sumdict if value["others"] else 0 }}</td>
-							<td class="stats"><a href="{{ url_for('global_gwstatistics', selectgw='%s' % mac|int2shortmac) }}">Stats</a></td>
+							<td class="stats"><a href="{{ url_for('router_list', q='selected:^%s$' % mac|int2shortmac) }}">Sel</a>/<a href="{{ url_for('router_list', q='gw:^%s$' % mac|int2shortmac) }}">All</a></td>
 						</tr>
 						{%- endfor %}
 					</tbody>
