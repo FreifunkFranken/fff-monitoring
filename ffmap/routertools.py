@@ -64,7 +64,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 	try:
 		findrouter = mysql.findone("SELECT router FROM router_netif WHERE mac = %s LIMIT 1",(mac2int(mac),))
 		router_update = parse_nodewatcher_xml(xml,statstime)
-		router_update["local"] = bool(router_update["hood"] and not router_update["hood"] in hoodsv2)
+		router_update["local"] = bool(router_update["v2"] and router_update["hood"] and not router_update["hood"] in hoodsv2)
 		
 		# cancel if banned mac found
 		for n in router_update["netifs"]:
@@ -98,6 +98,8 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 				delete_router(mysql,router_id)
 
 		# keep hood up to date
+		if router_update["hood"] == "":
+			router_update["hood"] = "NoHood"
 		if not router_update["hood"]:
 			# router didn't send his hood in XML
 			lat = router_update.get("lat")
@@ -122,6 +124,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 						distance ASC
 					LIMIT 1
 				""",(lat,lng,lat,),"name")
+
 		if not router_update["hood"]:
 			router_update["hood"] = "DefaultV1"
 			if router_update["neighbours"] and not router_update["has_wan_uplink"]:
@@ -735,7 +738,7 @@ def parse_nodewatcher_xml(xml,statstime):
 			"description": evalxpath(tree,"/data/system_data/description/text()"),
 			"position_comment": evalxpath(tree,"/data/system_data/position_comment/text()"),
 			"community": evalxpath(tree,"/data/system_data/firmware_community/text()"),
-			"hood": evalxpath(tree,"/data/system_data/hood/text()"),
+			"hood": evalxpath(tree,"/data/system_data/hood/text()",None), # return None if not present and "" if empty => distinction between V1 and V2 with no hood
 			"status_text": evalxpath(tree,"/data/system_data/status_text/text()"),
 			"contact": evalxpath(tree,"/data/system_data/contact/text()"),
 			# system
@@ -779,7 +782,7 @@ def parse_nodewatcher_xml(xml,statstime):
 			"firmware_rev": evalxpath(tree,"/data/system_data/firmware_revision/text()"),
 		}
 
-		router_update["v2"] = bool(router_update["hood"])
+		router_update["v2"] = bool(router_update["hood"] is not None) # None = V1, "" or content = V2
 
 		loadavg = evalxpathfloat(tree,"/data/system_data/loadavg/text()",None)
 		if not loadavg == None:
