@@ -9,7 +9,7 @@ setup(
 	description='FF-MAP',
 	author='Dominik Heidler',
 	author_email='dominik@heidler.eu',
-	url='http://github.com/asdil12/ff-map',
+	url='https://github.com/FreifunkFranken/fff-monitoring',
 	#requires=['flask', 'flup'],
 	packages=['ffmap', 'ffmap.web'],
 	#scripts=['bin/aurbs'],
