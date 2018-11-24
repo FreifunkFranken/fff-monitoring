@@ -143,14 +143,15 @@
 						{%- if router.hoodname %}
 						<tr><th>Hood</th><td><span{%- if router.local %} class="hoodlocal"{%- elif router.v2 %} class="hoodv2"{%- endif %}><a href="{{ url_for('router_list', q='hood:^%s$' % router.hoodname) }}">{{ router.hoodname }}</a></span>
 							{%- if router.community and router.community != 'franken' %}
-							({{ router.community }})
+							({{ router.community }},
 							{%- elif router.local %}
-							(local hood)
+							(local hood,
 							{%- elif router.v2 %}
-							(V2)
+							(V2,
 							{%- else %}
-							(V1)
+							(V1,
 							{%- endif -%}
+							&nbsp;<a href="{{ url_for('global_hoodstatistics', selecthood='%s' % router.hoodid) }}">Hood-Stats</a>)
 							{%- if router.reset %}
 							<span style="color:#d90000">- Router has lost its position!</span>
 							{%- elif not router.lat and not router.lng %}
