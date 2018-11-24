@@ -173,7 +173,7 @@
 						{%- endif -%}
 						{%- endif -%}
 						</td></tr>
-						<tr><th>Hardware</th><td><span title="{{ router.chipset }}">{{ router.hardware }}</span></td></tr>
+						<tr><th>Hardware</th><td><span title="{{ router.chipset }}"><a href="{{ url_for('router_list', q='hardware:^%s$' % router.hardware|format_query) }}">{{ router.hardware }}</a></span></td></tr>
 						<tr><th>WAN Uplink</th><td><span class="{{ "glyphicon glyphicon-ok" if router.wan_uplink else "glyphicon glyphicon-remove" }}"></span>
 						{%- if router.blocked and not router.v2 %}
 						<span style="color:#d90000"> &nbsp; - &nbsp; Router BLOCKED by KeyXchange!</span>
@@ -205,11 +205,11 @@
 				<div class="panel-heading">Software</div>
 				<div class="panel-body">
 					<table class="table table-condensed">
-						<tr><th>Firmware</th><td><span title="{{ router.firmware_rev }}">{{ router.firmware }}</span></td></tr>
-						<tr><th>Operating&nbsp;System</th><td>{{ router.os }}</td></tr>
-						<tr><th>Kernel</th><td>{{ router.kernel }}</td></tr>
-						<tr><th>B.A.T.M.A.N. adv</th><td>{{ router.batman }}{%- if router.routing_protocol -%}&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;Routing: {{ router.routing_protocol }}{%- endif -%}</td></tr>
-						<tr><th>Nodewatcher</th><td>{{ router.nodewatcher }}</td></tr>
+						<tr><th>Firmware</th><td><span title="{{ router.firmware_rev }}"><a href="{{ url_for('router_list', q='firmware:^%s$' % router.firmware|format_query) }}">{{ router.firmware }}</a></span></td></tr>
+						<tr><th>Operating&nbsp;System</th><td><a href="{{ url_for('router_list', q='os:^%s$' % router.os|format_query) }}">{{ router.os }}</a></td></tr>
+						<tr><th>Kernel</th><td><a href="{{ url_for('router_list', q='kernel:^%s$' % router.kernel|format_query) }}">{{ router.kernel }}</a></td></tr>
+						<tr><th>B.A.T.M.A.N. adv</th><td><a href="{{ url_for('router_list', q='batman:^%s$' % router.batman|format_query) }}">{{ router.batman }}</a>{%- if router.routing_protocol -%}&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;Routing: {{ router.routing_protocol }}{%- endif -%}</td></tr>
+						<tr><th>Nodewatcher</th><td><a href="{{ url_for('router_list', q='nodewatcher:^%s$' % router.nodewatcher|format_query) }}">{{ router.nodewatcher }}</a></td></tr>
 					</table>
 				</div>
 			</div>
