@@ -90,6 +90,7 @@
 					</script>
 					<script src="{{ url_for('static', filename='js/map.js') }}"></script>
 					<script type="text/javascript">
+						initialMap();
 						initialLayers();
 						{%- if router.lng and router.lat %}
 						var router_pos = [{{ router.lat }}, {{ router.lng }}];

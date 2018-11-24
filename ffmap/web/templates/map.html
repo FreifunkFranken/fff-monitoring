@@ -36,21 +36,28 @@
 			var getargs = window.location.search.replace("?mapcenter=", "").split("&");
 			var maploc = getargs[0].split(",");
 			map.setView([maploc[0], maploc[1]], maploc[2]);
-			if (getargs.length > 1 && getargs[1].match("layers=")) {
-				var getlayers = getargs[1].replace("layers=", "").split(",");
-				if(getlayers[0]==1) { routers.addTo(map); }
-				if(getlayers[1]==1) { routers_v2.addTo(map); }
-				if(getlayers[2]==1) { routers_local.addTo(map); }
-				if(getlayers[3]==1) { hoods.addTo(map); }
-				if(getlayers[4]==1) { hoods_v2.addTo(map); }
-				if(getlayers[5]==1) { hoods_poly.addTo(map); }
-				if(getlayers[6]==1) { popuplayer.addTo(map); }
+			if (getargs.length > 1 && getargs[1].match("source=")) {
+				setupMap(getargs[1]);
+				if (getargs.length > 2 && getargs[2].match("layers=")) {
+					setupLayers(getargs[2]);
+				} else {
+					initialLayers();
+				}
+			} else if (getargs.length > 1 && getargs[1].match("layers=")) {
+				setupLayers(getargs[1]);
+				if (getargs.length > 2 && getargs[2].match("source=")) {
+					setupMap(getargs[2]);
+				} else {
+					initialMap();
+				}
 			} else {
+				initialMap();
 				initialLayers();
 			}
 		}
 		else {
 			map.setView([49.824, 10.786], 9);
+			initialMap();
 			initialLayers();
 		}
 	</script>

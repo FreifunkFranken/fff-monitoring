@@ -5,7 +5,6 @@ var tilesosmorg = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y
 	maxNativeZoom: 19,
 	maxZoom: 22
 });
-map.addLayer(tilesosmorg);
 var tilesosmde = new L.TileLayer('https://{s}.osm.rrze.fau.de/osmde/{z}/{x}/{y}.png', {
 	attribution: '<a href="https://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
 	maxNativeZoom: 19,
@@ -64,6 +63,7 @@ function update_permalink() {
 		var zoom = map.getZoom();
 		window.history.replaceState({}, document.title,
 			mapurl + '?mapcenter=' + pos.lat.toFixed(5) + ',' + pos.lng.toFixed(5) + ',' + zoom
+			+ '&source=' + (map.hasLayer(tilesosmorg) ? 1 : (map.hasLayer(tilesosmde) ? 2 : 3))
 			+ '&layers=' + (map.hasLayer(routers)|0) + ','
 			+ (map.hasLayer(routers_v2)|0) + ','
 			+ (map.hasLayer(routers_local)|0) + ','
@@ -75,16 +75,36 @@ function update_permalink() {
 	}
 }
 
+function initialMap() {
+	map.addLayer(tilesosmorg);
+}
 function initialLayers() {
 	routers.addTo(map);
 	routers_v2.addTo(map);
 	routers_local.addTo(map);
+}
+function setupMap(getargs) {
+	var getsrc = getargs.replace("source=", "");
+	if(getsrc==2) { map.addLayer(tilesosmde); }
+	else if(getsrc==3) { map.addLayer(tilestfod); }
+	else { map.addLayer(tilesosmorg); }
+}
+function setupLayers(getargs) {
+	var getlayers = getargs.replace("layers=", "").split(",");
+	if(getlayers[0]==1) { routers.addTo(map); }
+	if(getlayers[1]==1) { routers_v2.addTo(map); }
+	if(getlayers[2]==1) { routers_local.addTo(map); }
+	if(getlayers[3]==1) { hoods.addTo(map); }
+	if(getlayers[4]==1) { hoods_v2.addTo(map); }
+	if(getlayers[5]==1) { hoods_poly.addTo(map); }
+	if(getlayers[6]==1) { popuplayer.addTo(map); }
 }
 
 map.on('moveend', update_permalink);
 map.on('zoomend', update_permalink);
 map.on('overlayadd', update_permalink);
 map.on('overlayremove', update_permalink);
+map.on('baselayerchange', update_permalink);
 
 map.on('click', function(pos) {
 	// height = width of world in px
