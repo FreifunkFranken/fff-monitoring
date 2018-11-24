@@ -256,3 +256,7 @@ def webui_addr(router_netifs):
 @filters.app_template_filter('format_airtime')
 def format_airtime(airtime):
 	return "%.0f %%" % (airtime*100)
+
+@filters.app_template_filter('format_query')
+def format_query(query):
+	return query.replace(" ","_").replace(".","\.").replace("(","\(").replace(")","\)")

@@ -32,6 +32,10 @@ allowed_filters = (
 	'bat',
 	'batselected',
 	'network',
+	'os',
+	'batman',
+	'kernel',
+	'nodewatcher',
 )
 
 def parse_router_list_search_query(args):
@@ -123,6 +127,9 @@ def parse_router_list_search_query(args):
 				k = no + " router.v2 = FALSE"
 			else:
 				continue
+		elif key in ('os','batman','kernel','nodewatcher',):
+			k = key + " {} REGEXP %s".format(no)
+			t.append(value.replace("_","."))
 		else:
 			k = no + key + " = %s"
 			t.append(value)
