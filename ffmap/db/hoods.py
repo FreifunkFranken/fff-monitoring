@@ -37,7 +37,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE `hoodsv1` (
-		`id` int(11) NOT NULL,
+		`id` int(10) UNSIGNED NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
 		`lat` double DEFAULT NULL,
@@ -59,7 +59,7 @@ mysql.execute("""
 
 mysql.execute("""
 	CREATE TABLE `hoodsv2` (
-		`id` int(11) NOT NULL,
+		`id` int(10) UNSIGNED NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
 		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
 		`lat` double DEFAULT NULL,
