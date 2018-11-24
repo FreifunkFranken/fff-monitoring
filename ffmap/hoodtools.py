@@ -41,6 +41,33 @@ def update_hoods_v2(mysql):
 	except urllib.error.HTTPError as e:
 		return
 
+def update_hoods_poly(mysql):
+	try:
+		#with urllib.request.urlopen("http://keyserver.freifunk-franken.de/v2/hoods.php") as url:
+		with urllib.request.urlopen("https://lauch.org/keyxchange/hoods.php") as url:
+			hoodskx = json.loads(url.read().decode())
+
+		mysql.execute("DELETE FROM polygons",())
+		mysql.execute("DELETE FROM polyhoods",())
+
+		for kx in hoodskx:
+			for polygon in kx.get("polygons",()):
+				mysql.execute("""
+					INSERT INTO polyhoods (hoodid)
+					VALUES (%s)
+				""",(kx["id"],))
+				newid = mysql.cursor().lastrowid
+				vertices = []
+				for p in polygon:
+					vertices.append((newid,p["lat"],p["lon"],))
+				mysql.executemany("""
+					INSERT INTO polygons (polyid, lat, lon)
+					VALUES (%s, %s, %s)
+				""",vertices)
+
+	except urllib.error.HTTPError as e:
+		return
+
 def update_hoods_v1(mysql):
 	try:
 		with urllib.request.urlopen("http://keyserver.freifunk-franken.de/fff/hoods.php") as url:

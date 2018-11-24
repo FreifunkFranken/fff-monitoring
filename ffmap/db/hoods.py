@@ -75,6 +75,43 @@ mysql.execute("""
 		ADD KEY `lng` (`lng`)
 """)
 
+mysql.execute("""
+	CREATE TABLE `polygons` (
+		`id` int(10) UNSIGNED NOT NULL,
+		`polyid` int(10) UNSIGNED NOT NULL,
+		`lat` double NOT NULL,
+		`lon` double NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE `polygons`
+		ADD PRIMARY KEY (`id`),
+		ADD KEY `polyid` (`polyid`)
+""")
+
+mysql.execute("""
+	ALTER TABLE `polygons`
+		MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT
+""")
+
+mysql.execute("""
+	CREATE TABLE `polyhoods` (
+		`polyid` int(10) UNSIGNED NOT NULL,
+		`hoodid` int(10) UNSIGNED NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE `polyhoods`
+		ADD PRIMARY KEY (`polyid`)
+""")
+
+mysql.execute("""
+	ALTER TABLE `polyhoods`
+		MODIFY `polyid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT
+""")
+
 mysql.commit()
 
 mysql.close()
