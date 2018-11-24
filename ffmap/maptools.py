@@ -10,6 +10,7 @@ from ffmap.config import CONFIG
 import math
 import numpy as np
 from scipy.spatial import Voronoi
+import urllib.request, urllib.error, json
 
 EARTH_RADIUS = 6378137.0
 
@@ -259,9 +260,43 @@ def update_mapnik_csv(mysql):
 			hoods.append([x, y])
 		draw_voronoi_lines(csv, hoods)
 
+	# Poly-Hoods
+	with urllib.request.urlopen("http://keyserver.freifunk-franken.de/v2/hoods.php") as url:
+		dbhoodspoly = json.loads(url.read().decode())
+	with open(os.path.join(CONFIG["csv_dir"], "hood-points-poly.csv"), "w", encoding="UTF-8") as csv:
+		csv.write("lng,lat,name\n")
+		for hood in dbhoodspoly:
+			for polygon in hood.get("polygons",()):
+				avlon = 0
+				avlat = 0
+				for p in polygon:
+					avlon += p["lon"]
+					avlat += p["lat"]
+				avlon /= len(polygon)
+				avlat /= len(polygon)
+				csv.write("%f,%f,\"%s\"\n" % (
+					avlon,
+					avlat,
+					hood["name"]
+				))
+
+	with open(os.path.join(CONFIG["csv_dir"], "hoods_poly.csv"), "w") as csv:
+		csv.write("WKT\n")
+		for hood in dbhoodspoly:
+			for polygon in hood.get("polygons",()):
+				oldlon = None
+				oldlat = None
+				for p in polygon:
+					if oldlon and oldlat:
+						csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % (oldlon, oldlat, p["lon"], p["lat"]))
+					oldlon = p["lon"]
+					oldlat = p["lat"]
+				csv.write("\"LINESTRING (%f %f,%f %f)\"\n" % (oldlon, oldlat, polygon[0]["lon"], polygon[0]["lat"]))
+
 	# touch mapnik XML files to trigger tilelite watcher
 	touch("/usr/share/ffmap/hoods.xml")
 	touch("/usr/share/ffmap/hoods_v2.xml")
+	touch("/usr/share/ffmap/hoods_poly.xml")
 	touch("/usr/share/ffmap/routers.xml")
 	touch("/usr/share/ffmap/routers_v2.xml")
 	touch("/usr/share/ffmap/routers_local.xml")

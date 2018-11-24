@@ -5,9 +5,9 @@ mkdir -vp /var/lib/ffmap/csv
 chown -R www-data:www-data /var/lib/ffmap
 
 mkdir -vp /usr/share/ffmap
-cp -v ffmap/mapnik/{hoods,hoods_v2,routers,routers_v2,routers_local}.xml /usr/share/ffmap
-sed -i -e 's#>csv/#>/var/lib/ffmap/csv/#' /usr/share/ffmap/{hoods,hoods_v2,routers,routers_v2,routers_local}.xml
-chown www-data:www-data /usr/share/ffmap/{hoods,hoods_v2,routers,routers_v2,routers_local}.xml
+cp -v ffmap/mapnik/{hoods,hoods_v2,hoods_poly,routers,routers_v2,routers_local}.xml /usr/share/ffmap
+sed -i -e 's#>csv/#>/var/lib/ffmap/csv/#' /usr/share/ffmap/{hoods,hoods_v2,hoods_poly,routers,routers_v2,routers_local}.xml
+chown www-data:www-data /usr/share/ffmap/{hoods,hoods_v2,hoods_poly,routers,routers_v2,routers_local}.xml
 
 cp -v ffmap/mapnik/tilestache.cfg /usr/share/ffmap
 cp -rv ffmap/web/static /usr/share/ffmap
