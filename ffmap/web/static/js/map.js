@@ -31,6 +31,7 @@ var routers_v2 = new L.TileLayer(tileurls.routers_v2 + '/{z}/{x}/{y}.png', overl
 var routers_local = new L.TileLayer(tileurls.routers_local + '/{z}/{x}/{y}.png', overlay_config);
 var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
 var hoods_v2 = new L.TileLayer(tileurls.hoods_v2 + '/{z}/{x}/{y}.png', overlay_config);
+var hoods_poly = new L.TileLayer(tileurls.hoods_poly + '/{z}/{x}/{y}.png', overlay_config);
 var popuplayer = new L.TileLayer('');
 layersControl = new L.Control.Layers({
 	"openstreetmap.org": tilesosmorg,
@@ -42,6 +43,7 @@ layersControl = new L.Control.Layers({
 	"Local Routers": routers_local,
 	"Hoods V1": hoods,
 	"Hoods V2": hoods_v2,
+	"Poly-Hoods": hoods_poly,
 	"Position-Popup": popuplayer
 });
 map.addControl(layersControl);
@@ -62,8 +64,14 @@ function update_permalink() {
 		var zoom = map.getZoom();
 		window.history.replaceState({}, document.title,
 			mapurl + '?mapcenter=' + pos.lat.toFixed(5) + ',' + pos.lng.toFixed(5) + ',' + zoom
-			+ '&layers=' + (map.hasLayer(routers)|0) + ',' + (map.hasLayer(routers_v2)|0) + ',' + (map.hasLayer(routers_local)|0) + ','
-			+ (map.hasLayer(hoods)|0) + ',' + (map.hasLayer(hoods_v2)|0) + ',' + (map.hasLayer(popuplayer)|0) );
+			+ '&layers=' + (map.hasLayer(routers)|0) + ','
+			+ (map.hasLayer(routers_v2)|0) + ','
+			+ (map.hasLayer(routers_local)|0) + ','
+			+ (map.hasLayer(hoods)|0) + ','
+			+ (map.hasLayer(hoods_v2)|0) + ','
+			+ (map.hasLayer(hoods_poly)|0) + ','
+			+ (map.hasLayer(popuplayer)|0)
+			);
 	}
 }
 
