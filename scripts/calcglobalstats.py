@@ -21,7 +21,6 @@ detect_orphaned_routers(mysql)
 delete_orphaned_routers(mysql)
 #delete_old_stats(mysql) # Only execute once daily, takes 2 minutes
 update_hoods_v2(mysql)
-update_hoods_v1(mysql)
 record_global_stats(mysql)
 record_hood_stats(mysql)
 record_gw_stats(mysql)

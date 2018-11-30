@@ -136,7 +136,7 @@ def defrag_table(mysql,table,sleep):
 	print("--- Defragmented table %s: %.3f seconds ---" % (table,end_time - start_time))
 
 def defrag_all(mysql,doall=False):
-	alltables = ('gw','gw_admin','gw_netif','hoods','hoodsv1','hoodsv2','netifs','router','router_events','router_gw','router_ipv6','router_neighbor','router_netif','users')
+	alltables = ('gw','gw_admin','gw_netif','hoods','hoodsv2','netifs','router','router_events','router_gw','router_ipv6','router_neighbor','router_netif','users')
 	stattables = ('router_stats','router_stats_gw','router_stats_neighbor','router_stats_netif','stats_global','stats_gw','stats_hood')
 
 	for t in alltables:

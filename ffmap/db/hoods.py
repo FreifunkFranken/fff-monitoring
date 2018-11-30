@@ -36,28 +36,6 @@ mysql.execute("""
 """,(10100,Legacy,))
 
 mysql.execute("""
-	CREATE TABLE `hoodsv1` (
-		`id` int(10) UNSIGNED NOT NULL,
-		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
-		`lat` double DEFAULT NULL,
-		`lng` double DEFAULT NULL,
-		`cos_lat` double DEFAULT NULL,
-		`sin_lat` double DEFAULT NULL
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-""")
-
-mysql.execute("""
-	ALTER TABLE `hoodsv1`
-		ADD PRIMARY KEY (`id`),
-		ADD UNIQUE KEY `name` (`name`),
-		ADD KEY `lat` (`lat`),
-		ADD KEY `lng` (`lng`),
-		ADD KEY `cos_lat` (`cos_lat`),
-		ADD KEY `sin_lat` (`sin_lat`)
-""")
-
-mysql.execute("""
 	CREATE TABLE `hoodsv2` (
 		`id` int(10) UNSIGNED NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
