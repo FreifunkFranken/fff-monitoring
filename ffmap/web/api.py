@@ -525,7 +525,7 @@ def get_routers_by_keyxchange_id(keyxchange_id):
 	mysql = FreifunkMySQL()
 	hood = mysql.findone("""
 		SELECT name
-		FROM hoodsv1
+		FROM hoodsv2
 		WHERE id = %s
 		LIMIT 1
 	""",(int(keyxchange_id),),"name")
