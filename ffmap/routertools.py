@@ -87,17 +87,21 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 			""",(router_id,))
 			if olddata:
 				uptime = olddata["sys_uptime"]
-				
+
 				# Filter old data (Alfred keeps data for 10 min.; old and new can mix if gateways do not sync)
 				# We only use data where system time is bigger than before (last entry) or more than 1 hour smaller (to catch cases without timeserver)
 				newtime = router_update["sys_time"].timestamp()
 				oldtime = olddata["sys_time"].timestamp()
 				if not (newtime > oldtime or newtime < (oldtime - 3600)):
 					return
+
+				# Keep hood if not set (V2 only, "" != None)
+				if router_update["hood"] == "":
+					router_update["hood"] = olddata["hood"]
 			else:
 				delete_router(mysql,router_id)
 
-		# keep hood up to date
+		# keep hood up to date (extremely rare case where no olddata but no hood)
 		if router_update["hood"] == "":
 			router_update["hood"] = "NoHood"
 		if not router_update["hood"]:
