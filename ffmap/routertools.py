@@ -105,34 +105,9 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 		if router_update["hood"] == "":
 			router_update["hood"] = "NoHood"
 		if not router_update["hood"]:
-			# router didn't send his hood in XML
-			lat = router_update.get("lat")
-			lng = router_update.get("lng")
-			#if olddata and not lat and not lng:
-			#	# hoods might change as well
-			#	lat = olddata.get("lat")
-			#	lng = olddata.get("lng")
-			if lat and lng:
-				router_update["hood"] = mysql.findone("""
-					SELECT name,
-						( acos(  cos( radians(%s) )
-									  * cos_lat
-									  * cos( radians( lng ) - radians(%s) )
-									  + sin( radians(%s) ) * sin_lat
-									 )
-						) AS distance
-					FROM
-						hoodsv1
-					WHERE lat IS NOT NULL AND lng IS NOT NULL
-					ORDER BY
-						distance ASC
-					LIMIT 1
-				""",(lat,lng,lat,),"name")
+			# V1 Router
+			router_update["hood"] = "Legacy"
 
-		if not router_update["hood"]:
-			router_update["hood"] = "DefaultV1"
-			if router_update["neighbours"] and not router_update["has_wan_uplink"]:
-				router_update["hood"] = "NoCoordinates"
 		if not router_update['lat'] and not router_update['lng'] and olddata and olddata['lat'] and olddata['lng']:
 			# Enable reset state; do before variable fallback
 			reset = True
