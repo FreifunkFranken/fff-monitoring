@@ -33,7 +33,7 @@ mysql.execute("""
 mysql.execute("""
 	INSERT INTO hoods (id, name)
 	VALUES (%s, %s)
-""",(10000,NoCoordinates,))
+""",(10100,Legacy,))
 
 mysql.execute("""
 	CREATE TABLE `hoodsv1` (
