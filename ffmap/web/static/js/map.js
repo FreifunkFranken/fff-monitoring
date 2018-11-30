@@ -28,7 +28,6 @@ var overlay_config = {
 var routers = new L.TileLayer(tileurls.routers + '/{z}/{x}/{y}.png', overlay_config);
 var routers_v2 = new L.TileLayer(tileurls.routers_v2 + '/{z}/{x}/{y}.png', overlay_config);
 var routers_local = new L.TileLayer(tileurls.routers_local + '/{z}/{x}/{y}.png', overlay_config);
-var hoods = new L.TileLayer(tileurls.hoods + '/{z}/{x}/{y}.png', overlay_config);
 var hoods_v2 = new L.TileLayer(tileurls.hoods_v2 + '/{z}/{x}/{y}.png', overlay_config);
 var hoods_poly = new L.TileLayer(tileurls.hoods_poly + '/{z}/{x}/{y}.png', overlay_config);
 var popuplayer = new L.TileLayer('');
@@ -40,7 +39,6 @@ layersControl = new L.Control.Layers({
 	"Routers V1": routers,
 	"Routers V2": routers_v2,
 	"Local Routers": routers_local,
-	"Hoods V1": hoods,
 	"Hoods V2": hoods_v2,
 	"Poly-Hoods": hoods_poly,
 	"Position-Popup": popuplayer
@@ -67,7 +65,7 @@ function update_permalink() {
 			+ '&layers=' + (map.hasLayer(routers)|0) + ','
 			+ (map.hasLayer(routers_v2)|0) + ','
 			+ (map.hasLayer(routers_local)|0) + ','
-			+ (map.hasLayer(hoods)|0) + ','
+			+ '0,'
 			+ (map.hasLayer(hoods_v2)|0) + ','
 			+ (map.hasLayer(hoods_poly)|0) + ','
 			+ (map.hasLayer(popuplayer)|0)
@@ -94,7 +92,7 @@ function setupLayers(getargs) {
 	if(getlayers[0]==1) { routers.addTo(map); }
 	if(getlayers[1]==1) { routers_v2.addTo(map); }
 	if(getlayers[2]==1) { routers_local.addTo(map); }
-	if(getlayers[3]==1) { hoods.addTo(map); }
+	// getlayers[3] former hoods_v1 unused
 	if(getlayers[4]==1) { hoods_v2.addTo(map); }
 	if(getlayers[5]==1) { hoods_poly.addTo(map); }
 	if(getlayers[6]==1) { popuplayer.addTo(map); }

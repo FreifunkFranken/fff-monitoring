@@ -30,7 +30,6 @@ tileurls = {
 	"routers": "/tiles/routers",
 	"routers_v2": "/tiles/routers_v2",
 	"routers_local": "/tiles/routers_local",
-	"hoods": "/tiles/hoods",
 	"hoods_v2": "/tiles/hoods_v2",
 	"hoods_poly": "/tiles/hoods_poly"
 }
