@@ -10,7 +10,7 @@ from ffmap.routertools import *
 from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
 from ffmap.stattools import record_global_stats, record_hood_stats, record_gw_stats
-from ffmap.hoodtools import update_hoods_v2, update_hoods_v1
+from ffmap.hoodtools import update_hoods_v2
 
 import time
 start_time = time.time()
