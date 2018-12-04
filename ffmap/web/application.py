@@ -80,8 +80,8 @@ def v2_routers():
 			SELECT time, CAST(SUM(clients) AS SIGNED) clients, CAST(SUM(online) AS SIGNED) online, CAST(SUM(offline) AS SIGNED) offline, CAST(SUM(unknown) AS SIGNED) unknown, CAST(SUM(orphaned) AS SIGNED) orphaned, CAST(SUM(rx) AS SIGNED) rx, CAST(SUM(tx) AS SIGNED) tx
 			FROM stats_hood
 			INNER JOIN hoods ON hoods.id = stats_hood.hood
-			INNER JOIN hoodsv2 ON hoodsv2.name = hoods.name
-			WHERE time > 1531612800
+			LEFT JOIN hoodsv2 ON hoodsv2.name = hoods.name
+			WHERE time > 1531612800 AND ( hoodsv2.id IS NOT NULL OR hoods.name REGEXP '[vV]2$' )
 			GROUP BY time
 		""")
 		statsv1 = mysql.fetchall("""
