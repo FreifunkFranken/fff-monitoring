@@ -812,7 +812,7 @@ def parse_nodewatcher_xml(xml,statstime):
 			interface["ipv6_addrs"] = []
 			if len(netif.xpath("ipv6_addr/text()")) > 0:
 				for ipv6_addr in netif.xpath("ipv6_addr/text()"):
-					interface["ipv6_addrs"].append(ipv6tobin(ipv6_addr.split("/")[0]))
+					interface["ipv6_addrs"].append(ipv6tobinmasked(ipv6_addr.split("/")[0]))
 
 			router_update["netifs"].append(interface)
 

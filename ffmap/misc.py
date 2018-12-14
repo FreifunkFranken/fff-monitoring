@@ -7,6 +7,8 @@ from ffmap.config import CONFIG
 #from socket import inet_pton, inet_ntop, AF_INET6
 from ipaddress import IPv4Address, IPv6Address
 
+ipv6local = IPv6Address('fc00::')
+
 def utcnow():
 	return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
@@ -58,6 +60,20 @@ def ipv6tobin(data):
 		#return inet_pton(AF_INET6,data)
 	else:
 		return None
+
+def ipv6tobinmasked(data):
+	if data:
+		ip = IPv6Address(data)
+		if ip >= ipv6local:
+			return ip.packed
+		else:
+			li = list(ip.packed)
+			# mask 1234:1234:ffff:ffff:ffff:ffff:ffff:ff34
+			li[4:15] = [255,255,255,255,255,255,255,255,255,255,255]
+		return IPv6Address(bytes(li)).packed
+	else:
+		return None
+
 def bintoipv6(data):
 	if data:
 		return IPv6Address(data).compressed
