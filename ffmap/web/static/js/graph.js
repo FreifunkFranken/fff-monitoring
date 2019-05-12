@@ -105,10 +105,12 @@ function neighbour_graph(neigh_label) {
 	
 	for (var j in neigh_stats) {
 		var dataset = neigh_stats[j];
-		var label = j;
+		var label;
 		var data = [];
 		if(j in neigh_label) {
 			label = neigh_label[j];
+		} else {
+			label = int2mac(j);
 		}
 		for (len=dataset.length, i=0; i<len; i++) {
 			try {
