@@ -251,7 +251,7 @@ def router_info(dbid):
 						color = cwan
 					else:
 						# Second port of Nanostation M2
-						desc = "Ethernet Multi-Port"
+						desc = "Ethernet Port"
 				elif netif == "eth0":
 					if any(item.startswith("eth1.") for item in netifs):
 						# already known from above: no switch
@@ -259,7 +259,7 @@ def router_info(dbid):
 						color = cwan
 					else:
 						# First port of Nanostation M2 or ONE-Port
-						desc = "Ethernet Multi-Port"
+						desc = "Ethernet Port"
 				n["description"] = desc
 				n["color"] = color
 
