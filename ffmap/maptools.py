@@ -144,6 +144,9 @@ def update_mapnik_csv(mysql):
 			else:
 				linksl3.append(tmp)
 		else:
+			# Filter broken links (quality=0 will be used for ethernet later)
+			if row["quality"]==0:
+				continue
 			# Check for duplicate
 			if row["nid"] in dictl2.keys() and row["rid"] in dictl2[row["nid"]].keys():
 				oldqual = dictl2[row["nid"]][row["rid"]]["data"][4]
