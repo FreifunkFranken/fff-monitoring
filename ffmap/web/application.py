@@ -204,7 +204,9 @@ def router_info(dbid):
 				desc = None
 				color = None
 				if netif == 'br-mesh':
-					desc = "Bridge"
+					desc = "Client Bridge"
+				elif netif == 'br-ethmesh':
+					desc = "Ethernet Mesh Bridge"
 				elif netif.endswith('.1'):
 					desc = "Clients via Ethernet"
 					color = cclient

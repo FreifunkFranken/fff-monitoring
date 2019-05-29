@@ -167,7 +167,7 @@ def update_mapnik_csv(mysql):
 			if not row["rid"] in dictl2.keys():
 				dictl2[row["rid"]] = {}
 			# Check for ethernet
-			if row["netif"].startswith("eth"):
+			if row["netif"].startswith("eth") or row["netif"] == "br-ethmesh":
 				row["quality"] = 0
 			
 			tmp = (
