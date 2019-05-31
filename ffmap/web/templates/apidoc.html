@@ -133,5 +133,155 @@
 			</td>
 		</tr>
 		</table>
+
+		<h1 style="margin-top:40px;margin-bottom:20px">Alfred API syntax guide</h1>
+		<p>This is an example of a dataset which might be sent through the alfred2 API. For every XML node, the explanation of the content is given as well as an example value in brackets.</p>
+		<p>The type of brackets indicates how the field is processed:</p>
+		<p style="margin-left:12px">() field is mandatory</p>
+		<p style="margin-left:12px">[] field is optional</p>
+		<p style="margin-left:12px">{} field is not evaluated, but included in the nodewatcher data for future/other use</p>
+
+		<pre style="margin-top:20px">
+{
+"aa:bb:cc:dd:ee:ff": " # Must match one of the device's MAC addresses
+&lt;?xml version='1.0' standalone='yes'?&gt;
+  &lt;data&gt;
+    &lt;system_data&gt;
+      &lt;status&gt;Status [online]&lt;/status&gt;
+      &lt;hostname&gt;Hostname [MeinFreifunkRouter]&lt;/hostname&gt;
+      &lt;description&gt;Some additional info [powered by Freifunk Entenhausen]&lt;/description&gt;
+      &lt;status_text&gt;Some additional info [3 reboots since FW upgrade]&lt;/status_text&gt;
+      &lt;geo&gt;
+        &lt;lat&gt;Latitude [49.92367351]&lt;/lat&gt;
+        &lt;lng&gt;Longitude [11.59524053]&lt;/lng&gt;
+      &lt;/geo&gt;
+      &lt;position_comment&gt;Some additional info [1. Stock, Raum 102]&lt;/position_comment&gt;
+      &lt;contact&gt;Contact e-mail address [freifunk@example.com]&lt;/contact&gt;
+      &lt;hood&gt;Name of the hood [testhood]&lt;/hood&gt; # Hood name needs to be EMPTY (but not removed) if disconnected
+      &lt;hoodid&gt;ID of the hood if from KeyXchange {1000}&lt;/hoodid&gt; # Already implemented for future use
+      &lt;distname&gt;Linux distribution [OpenWrt]&lt;/distname&gt;
+      &lt;distversion&gt;Distribution version [18.06-SNAPSHOT]&lt;/distversion&gt;
+      &lt;chipset&gt;Chipset [Freescale P1014]&lt;/chipset&gt;
+      &lt;cpu&gt;CPU [TP-Link TL-WDR4900 v1]&lt;/cpu&gt;
+      &lt;model&gt;Device model [TP-Link TL-WDR4900 v1]&lt;/model&gt;
+      &lt;memory_total&gt;Total memory in kiB {125120}&lt;/memory_total&gt;
+      &lt;memory_free&gt;Free memory in kiB [82012]&lt;/memory_free&gt;
+      &lt;memory_buffering&gt;Buffer memory in kiB [2876]&lt;/memory_buffering&gt;
+      &lt;memory_caching&gt;Cache memory in kiB [12572]&lt;/memory_caching&gt;
+      &lt;loadavg&gt;load average [0.06]&lt;/loadavg&gt; # if specified, this will be used for Monitoring; if not, loadavg5 will be used
+      &lt;loadavg1&gt;1-minute load average {0.00}&lt;/loadavg1&gt;
+      &lt;loadavg5&gt;5-minute load average [0.06]&lt;/loadavg5&gt;
+      &lt;loadavg15&gt;15-minute load average {0.03}&lt;/loadavg15&gt;
+      &lt;processes&gt;Runnable processes/total processes (1/63)&lt;/processes&gt; # mandatory due to unfixed bug
+      &lt;uptime&gt;Uptime in seconds (410831.18)&lt;/uptime&gt; # Needs to increase, otherwise reboots will be logged
+      &lt;idletime&gt;Idle time in seconds {389207.19}&lt;/idletime&gt;
+      &lt;local_time&gt;Local router time as timestamp (1559214924)&lt;/local_time&gt; # Needs to increase, otherwise router won't be updated
+      &lt;batman_advanced_version&gt;batman-adv version [openwrt-2018.1-6]&lt;/batman_advanced_version&gt;
+      &lt;rt_protocol&gt;routing protocol [???]&lt;/rt_protocol&gt;
+      &lt;kernel_version&gt;Linux kernel version [4.9.170]&lt;/kernel_version&gt;
+      &lt;nodewatcher_version&gt;Nodewatcher version [52.4]&lt;/nodewatcher_version&gt;
+      &lt;firmware_version&gt;Custom firmware version [gw_20190525]&lt;/firmware_version&gt;
+      &lt;firmware_revision&gt;Additional data on firmware version [build date: Sat May 25 14:42:20 CEST 2019]&lt;/firmware_revision&gt;
+      &lt;openwrt_core_revision&gt;OpenWrt Git revision {e0505cc0182acf569cdd7b849189c134684160f8}&lt;/openwrt_core_revision&gt;
+      &lt;openwrt_feeds_packages_revision&gt;OpenWrt packages feed revision {3ca88ff6df67f72a12b6f3f7565783376db589de}&lt;/openwrt_feeds_packages_revision&gt;
+      &lt;vpn_active&gt;WAN-Uplink status, 0 or 1 [0]&lt;/vpn_active&gt;
+    &lt;/system_data&gt;
+    &lt;interface_data&gt; # List of interfaces with interface name as node name; one interface with mac address is required for identification of device
+      &lt;br-mesh&gt; # Example br-mesh device
+        &lt;name&gt;netif name [br-mesh]&lt;/name&gt;
+        &lt;mtu&gt;MTU [1500]&lt;/mtu&gt;
+        &lt;mac_addr&gt;netif MAC address [aa:bb:cc:dd:ee:f1]&lt;/mac_addr&gt;
+        &lt;ipv4_addr&gt;Device's IPv4 address in FFF network [10.83.999.1]&lt;/ipv4_addr&gt;
+        &lt;ipv6_addr&gt;Device's IPv6 address in FFF network [fd43:5602:29bd:xxxx::aabb:ccdd:eef1/64]&lt;/ipv6_addr&gt;
+        &lt;ipv6_addr&gt;Another IPv6 address in FFF network [bbbb:cccc:dddd:eeee::1/64]&lt;/ipv6_addr&gt;
+        &lt;ipv6_link_local_addr&gt;Device's link-local address [fe80::a8bb:ccff:fedd:eef1/64]&lt;/ipv6_link_local_addr&gt;
+        &lt;traffic_rx&gt;Total RX traffic bytes [1033114334]&lt;/traffic_rx&gt;
+        &lt;traffic_tx&gt;Total TX traffic bytes [30814227528]&lt;/traffic_tx&gt;
+      &lt;/br-mesh&gt;
+      &lt;eth0.1&gt; # Example VLAN device
+        &lt;name&gt;netif name [eth0.1]&lt;/name&gt;
+        &lt;mtu&gt;MTU [1500]&lt;/mtu&gt;
+        &lt;mac_addr&gt;netif MAC address [aa:bb:cc:dd:ee:f2]&lt;/mac_addr&gt;
+        &lt;traffic_rx&gt;Total RX traffic bytes [1033114334]&lt;/traffic_rx&gt;
+        &lt;traffic_tx&gt;Total TX traffic bytes [30814227528]&lt;/traffic_tx&gt;
+      &lt;/eth0.1&gt;
+      &lt;w2ap&gt; # Example WiFi device
+        &lt;name&gt;netif name [w2ap]&lt;/name&gt;
+        &lt;mtu&gt;MTU [1500]&lt;/mtu&gt;
+        &lt;mac_addr&gt;netif MAC address [aa:bb:cc:dd:ee:f3]&lt;/mac_addr&gt;
+        &lt;traffic_rx&gt;Total RX traffic bytes [1033114334]&lt;/traffic_rx&gt;
+        &lt;traffic_tx&gt;Total TX traffic bytes [30814227528]&lt;/traffic_tx&gt;
+        &lt;wlan_mode&gt;Mode of WiFi interface {Master}&lt;/wlan_mode&gt;
+        &lt;wlan_tx_power&gt;TX power without antenna gain [18 dBm]&lt;/wlan_tx_power&gt;
+        &lt;wlan_ssid&gt;netif SSID [test.freifunk]&lt;/wlan_ssid&gt;
+        &lt;wlan_type&gt;Type of WiFi interface [AP]&lt;/wlan_type&gt;
+        &lt;wlan_channel&gt;WiFi channel [13]&lt;/wlan_channel&gt;
+        &lt;wlan_width&gt;Channel width [20]&lt;/wlan_width&gt;
+      &lt;/w2ap&gt;
+    &lt;/interface_data&gt;
+    &lt;batman_adv_interfaces&gt; # List of batman-adv interfaces with interface name as node name
+      &lt;eth0.3&gt;
+        &lt;name&gt;Interface name {eth0.3}&lt;/name&gt;
+        &lt;status&gt;Interface status {active}&lt;/status&gt;
+      &lt;/eth0.3&gt;
+      &lt;w2mesh&gt;
+        &lt;name&gt;Interface name {w2mesh}&lt;/name&gt;
+        &lt;status&gt;Interface status {active}&lt;/status&gt;
+      &lt;/w2mesh&gt;
+    &lt;/batman_adv_interfaces&gt;
+    &lt;batman_adv_originators&gt; # List of batman-adv neighbors (TBD originator id)
+      &lt;originator_1&gt;
+        &lt;originator&gt;Neighbor MAC address [bb:aa:cc:dd:ee:ff]&lt;/originator&gt;
+        &lt;link_quality&gt;Neigbor link quality, 0-255 [242]&lt;/link_quality&gt;
+        &lt;nexthop&gt;Nexthop to neighbor MAC address [bb:aa:dd:cc:ee:ff]&lt;/nexthop&gt;
+        &lt;last_seen&gt;Last contact to neighbor {0.552s]&lt;/last_seen&gt;
+        &lt;outgoing_interface&gt;Interface providing link to neighbor [w2mesh]&lt;/outgoing_interface&gt;
+      &lt;/originator_1&gt;
+    &lt;/batman_adv_originators&gt;
+    &lt;batman_adv_gateway_mode&gt;Batman-adv mode of device {server (announced bw: 10.0/2.0 MBit)}&lt;/batman_adv_gateway_mode&gt;
+    &lt;batman_adv_gateway_list&gt; # List of batman-adv gateways (TBD gateway id)
+      &lt;gateway_1&gt;
+        &lt;selected&gt;Selected gateway, true or false [true]&lt;/selected&gt;
+        &lt;gateway&gt;Gateway MAC address [bb:aa:cc:dd:ff:ee]&lt;/gateway&gt;
+        &lt;link_quality&gt;Link quality, 0-255, -1 for undefined [250]&lt;/link_quality&gt;
+        &lt;nexthop&gt;Nexthop to gateway MAC address [bb:aa:dd:cc:ee:ff]&lt;/nexthop&gt;
+        &lt;outgoing_interface&gt;Interface providing link to gateway [fffVPN]&lt;/outgoing_interface&gt;
+        &lt;gw_class&gt;Gateway announce [100.0/20.0 MBit ]&lt;/gw_class&gt;
+      &lt;/gateway_1&gt;
+    &lt;/batman_adv_gateway_list&gt;
+    &lt;babel_neighbours&gt; # List of layer-3 neighbors
+      &lt;neighbour&gt;
+        &lt;ip&gt;Neighbor's link-local address [fe80::a8bb:ccff:fedd:eeff]&lt;/ip&gt;
+        &lt;outgoing_interface&gt;Name of interface connecting to neighbor (wireuplink)&lt;/outgoing_interface&gt;
+        &lt;link_cost&gt;Babel link cost [113]&lt;/link_cost&gt;
+      &lt;/neighbour&gt;
+    &lt;/babel_neighbours&gt;
+    &lt;client_count&gt;Total number of connected clients [4]&lt;/client_count&gt;
+    &lt;clients&gt; # Clients per netif
+      &lt;eth0.1&gt;Number of clients on eth0.1 [1]&lt;/eth0.1&gt; # Name is matched by eth*
+      &lt;w2ap&gt;Number of clients on w2ap [0]&lt;/w2ap&gt; # Name is hard-coded
+      &lt;w5ap&gt;Number of clients on w5ap [3]&lt;/w5ap&gt; # Name is hard-coded
+    &lt;/clients&gt;
+    &lt;airtime2&gt; # Airtime 2.4 GHz device
+      &lt;active&gt;Active time of device [409448579]&lt;/active&gt;
+      &lt;busy&gt;Busy time of device [73206324]&lt;/busy&gt;
+    &lt;/airtime2&gt;
+    &lt;airtime5&gt; # Airtime 5 GHz device
+      &lt;active&gt;Active time of device [409466858]&lt;/active&gt;
+      &lt;busy&gt;Busy time of device [4445704]&lt;/busy&gt;
+    &lt;/airtime5&gt;
+    &lt;traffic_control&gt; # Traffic control settings
+      &lt;wan&gt; # Traffic-limited netif
+        &lt;enabled&gt;TC enabled, 0 or 1 [1]&lt;/enabled&gt;
+        &lt;in&gt;Incoming traffic limit, kBit/s [2000]&lt;/in&gt;
+        &lt;out&gt;Outgoing traffic limit, kBit/s [1000]&lt;/out&gt;
+      &lt;/wan&gt;
+    &lt;/traffic_control&gt;
+  &lt;/data&gt;
+",
+"f0:9f:c2:dc:c3:38": "&lt;?xml version='1.0' standalone='yes'?&gt;&lt;data&gt;another XML&lt;/data&gt;"
+}
+		</pre>
+
 	</div>
 {% endblock %}
