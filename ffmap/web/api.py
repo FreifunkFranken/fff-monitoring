@@ -213,7 +213,7 @@ def alfred2():
 				alfred_data = request.get_json()
 			except Exception as e:
 				writelog(CONFIG["debug_dir"] + "/fail_alfred2.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
-				writefulllog("Warning: Error converting ALFRED2 data to JSON:\n__%s" % (request.get_data(True,True).replace("\n", "\n__")))
+				writefulllog("Warning: Error converting ALFRED2 data to JSON:\n__%s\n__%s" % (e, request.get_data(True,True).replace("\n", "\n__")))
 				r.headers['X-API-STATUS'] = "JSON parsing failed"
 				return r
 
