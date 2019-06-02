@@ -728,10 +728,6 @@ def parse_nodewatcher_xml(xml,statstime):
 				"buffering": evalxpathint(tree,"/data/system_data/memory_buffering/text()"),
 				"caching": evalxpathint(tree,"/data/system_data/memory_caching/text()"),
 			},
-			"processes": {
-				"runnable": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[0]),
-				"total": int(evalxpath(tree,"/data/system_data/processes/text()").split("/")[1]),
-			},
 			"clients": evalxpathint(tree,"/data/client_count/text()"),
 			"clients_eth": evalxpathint(tree,"/data/clients/*[starts-with(name(), 'eth')]/text()",None),
 			"clients_w2": evalxpathint(tree,"/data/clients/w2ap/text()",None),
@@ -769,6 +765,14 @@ def parse_nodewatcher_xml(xml,statstime):
 		else:
 			router_update["sys_loadavg"] = evalxpathfloat(tree,"/data/system_data/loadavg5/text()")
 
+		processboth = evalxpath(tree,"/data/system_data/processes/text()")
+		router_update["processes"] = {}
+		if processboth:
+			router_update["processes"]["runnable"] = int(processboth.split("/")[0])
+			router_update["processes"]["total"] = int(processboth.split("/")[1])
+		else:
+			router_update["processes"]["runnable"] = 0
+			router_update["processes"]["total"] = 0
 
 		try:
 			lng = evalxpathfloat(tree,"/data/system_data/geo/lng/text()")
