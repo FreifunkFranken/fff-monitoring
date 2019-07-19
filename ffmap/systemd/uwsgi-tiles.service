@@ -3,7 +3,7 @@ Description=FF-MAP Tiles
 After=syslog.target
 
 [Service]
-ExecStart=/usr/bin/uwsgi_python3 -s 127.0.0.1:3032 --eval 'import TileStache; application = TileStache.WSGITileServer("/usr/share/ffmap/tilestache.cfg")' --master --processes 4 --uid www-data --gid www-data --enable-threads --disable-logging --log-4xx --log-5xx
+ExecStart=uwsgi --plugin python3 -s 127.0.0.1:3032 --eval 'import TileStache; application = TileStache.WSGITileServer("/usr/share/ffmap/tilestache.cfg")' --master --processes 4 --uid www-data --gid www-data --enable-threads --disable-logging --log-4xx --log-5xx
 Restart=always
 KillSignal=SIGQUIT
 Type=notify

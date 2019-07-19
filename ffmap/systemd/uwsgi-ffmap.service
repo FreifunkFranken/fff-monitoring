@@ -3,7 +3,7 @@ Description=FF-MAP Web UI
 After=syslog.target
 
 [Service]
-ExecStart=/usr/bin/uwsgi_python3 -s 127.0.0.1:3031 -w ffmap.web.application:app --master --processes 4 --enable-threads --uid www-data --gid www-data --catch-exceptions --disable-logging --log-4xx --log-5xx
+ExecStart=uwsgi --plugin python3 -s 127.0.0.1:3031 -w ffmap.web.application:app --master --processes 4 --enable-threads --uid www-data --gid www-data --catch-exceptions --disable-logging --log-4xx --log-5xx
 Restart=always
 KillSignal=SIGQUIT
 Type=notify
