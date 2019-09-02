@@ -516,20 +516,23 @@ def user_info(nickname):
 @app.route('/statistics')
 def global_statistics():
 	mysql = FreifunkMySQL()
-	stats = mysql.fetchall("SELECT * FROM stats_global")
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_show_days"])).timestamp()
+	stats = mysql.fetchall("SELECT * FROM stats_global WHERE time > %s",(threshold,))
 	return helper_statistics(mysql,stats,None,None)
 
 @app.route('/hoodstatistics/<selecthood>')
 def global_hoodstatistics(selecthood):
 	selecthood = int(selecthood)
 	mysql = FreifunkMySQL()
-	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s",(selecthood,))
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_show_days"])).timestamp()
+	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s AND time > %s",(selecthood,threshold,))
 	return helper_statistics(mysql,stats,selecthood,None)
 
 @app.route('/gwstatistics/<selectgw>')
 def global_gwstatistics(selectgw):
 	mysql = FreifunkMySQL()
-	stats = mysql.fetchall("SELECT * FROM stats_gw WHERE mac = %s",(mac2int(selectgw),))
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_show_days"])).timestamp()
+	stats = mysql.fetchall("SELECT * FROM stats_gw WHERE mac = %s AND time > %s",(mac2int(selectgw),threshold,))
 	selectgw = shortmac2mac(selectgw)
 	return helper_statistics(mysql,stats,None,selectgw)
 
