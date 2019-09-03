@@ -1,6 +1,6 @@
 var map = L.map('map');
 
-var tilesosmorg = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+var tilesosmorg = new L.tileLayer('https://{s}.osm.rrze.fau.de/tiles/{z}/{x}/{y}.png', {
 	attribution: '<a href="https://www.openstreetmap.org/copyright">&copy; Openstreetmap Contributors</a>',
 	maxNativeZoom: 19,
 	maxZoom: 22
