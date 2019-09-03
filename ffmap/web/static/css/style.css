@@ -8,6 +8,9 @@
 	cursor: grabbing;
 }
 
+.leaflet-popup-content-wrapper {
+	border-radius: 6px;
+}
 .popup-headline {
 	font-size: 150%;
 }
