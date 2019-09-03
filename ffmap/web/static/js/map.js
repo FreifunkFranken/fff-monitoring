@@ -10,8 +10,8 @@ var tilesosmde = new L.TileLayer('https://{s}.osm.rrze.fau.de/osmde/{z}/{x}/{y}.
 	maxNativeZoom: 19,
 	maxZoom: 22
 });
-var tilestfod = new L.TileLayer('https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png', {
-	attribution: 'Maps &copy; <a href="http://www.thunderforest.com">Thunderforest</a>, Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+var tileswiki = new L.TileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+	attribution: 'Maps &copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a>, Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
 	maxNativeZoom: 22,
 	maxZoom: 22
 });
@@ -34,7 +34,7 @@ var popuplayer = new L.TileLayer('');
 layersControl = new L.Control.Layers({
 	"openstreetmap.org": tilesosmorg,
 	"openstreetmap.de": tilesosmde,
-	"Thunderforest Outdoors": tilestfod
+	"Wikimedia": tileswiki
 }, {
 	"Routers V1": routers,
 	"Routers V2": routers_v2,
@@ -84,7 +84,7 @@ function initialLayers() {
 function setupMap(getargs) {
 	var getsrc = getargs.replace("source=", "");
 	if(getsrc==2) { map.addLayer(tilesosmde); }
-	else if(getsrc==3) { map.addLayer(tilestfod); }
+	else if(getsrc==3) { map.addLayer(tileswiki); }
 	else { map.addLayer(tilesosmorg); }
 }
 function setupLayers(getargs) {
