@@ -598,6 +598,7 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statsti
 				if name in netifdict.keys():
 					ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
 				else:
+					writelog(CONFIG["debug_dir"] + "/test_yellow.txt", "{}".format(name))
 					nkeys.append((name,))
 		
 		# 99.9 % of the routers will NOT enter this, so the doubled code is not a problem
