@@ -663,7 +663,8 @@ def calculate_network_io(mysql, router_id, uptime, router_update):
 				if rx_diff >= 0 and tx_diff >= 0:
 					netif_update["traffic"]["rx"] = int(rx_diff / timediff)
 					netif_update["traffic"]["tx"] = int(tx_diff / timediff)
-		else:
+		# prevent division-by-zero error
+		elif router_update["sys_uptime"] > 0:
 			for row in results:
 				netif_update = next(filter(lambda n: n["name"] == row["netif"], router_update["netifs"]))
 				netif_update["traffic"]["rx"] = int(netif_update["traffic"]["rx_bytes"] / router_update["sys_uptime"])
