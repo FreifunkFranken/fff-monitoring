@@ -160,8 +160,8 @@ def alfred():
 				alfred_data = request.get_json()
 				# send data to christiand to test grafana/influxdb
 				try:
-					rcd = requests.post(url = "http://homeserver.dresel.it/freifunkgrafanaold.php", data = alfred_data, timeout=3)
-					writelog(CONFIG["debug_dir"] + "/chrisd.txt", "%s" % (rcd.text))
+					rcd = requests.post(url = "http://homeserver.dresel.it/freifunkgrafana.php", data = alfred_data.get("64", {}), timeout=3)
+					writelog(CONFIG["debug_dir"] + "/chrisd.txt", "alfred: %s" % (rcd.text))
 				except requests.Timeout:
 					pass
 				except requests.ConnectionError:
@@ -222,7 +222,7 @@ def alfred2():
 				# send data to christiand to test grafana/influxdb
 				try:
 					rcd = requests.post(url = "http://homeserver.dresel.it/freifunkgrafana.php", data = alfred_data, timeout=3)
-					writelog(CONFIG["debug_dir"] + "/chrisd.txt", "%s" % (rcd.text))
+					writelog(CONFIG["debug_dir"] + "/chrisd.txt", "alfred2: %s" % (rcd.text))
 				except requests.Timeout:
 					pass
 				except requests.ConnectionError:
