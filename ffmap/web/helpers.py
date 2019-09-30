@@ -33,6 +33,7 @@ allowed_filters = (
 	'batselected',
 	'network',
 	'os',
+	'babel',
 	'batman',
 	'kernel',
 	'nodewatcher',
@@ -127,6 +128,9 @@ def parse_router_list_search_query(args):
 				k = no + " router.v2 = FALSE"
 			else:
 				continue
+		elif key == 'babel':
+			k = "babel_version {} REGEXP %s".format(no)
+			t.append(value.replace("_","."))
 		elif key in ('os','batman','kernel','nodewatcher',):
 			k = key + " {} REGEXP %s".format(no)
 			t.append(value.replace("_","."))

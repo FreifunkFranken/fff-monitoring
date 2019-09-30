@@ -210,7 +210,12 @@
 						<tr><th>Firmware</th><td><span title="{{ router.firmware_rev }}"><a href="{{ url_for('router_list', q='firmware:^%s$' % router.firmware|format_query) }}">{{ router.firmware }}</a></span></td></tr>
 						<tr><th>Operating&nbsp;System</th><td><a href="{{ url_for('router_list', q='os:^%s$' % router.os|format_query) }}">{{ router.os }}</a></td></tr>
 						<tr><th>Kernel</th><td><a href="{{ url_for('router_list', q='kernel:^%s$' % router.kernel|format_query) }}">{{ router.kernel }}</a></td></tr>
+						{%- if router.babel_version -%}
+						<tr><th>Babel version</th><td><a href="{{ url_for('router_list', q='babel:^%s$' % router.babel_version|format_query) }}">{{ router.babel_version }}</a></td></tr>
+						{%- endif -%}
+						{%- if router.batman -%}
 						<tr><th>B.A.T.M.A.N. adv</th><td><a href="{{ url_for('router_list', q='batman:^%s$' % router.batman|format_query) }}">{{ router.batman }}</a>{%- if router.routing_protocol -%}&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;Routing: {{ router.routing_protocol }}{%- endif -%}</td></tr>
+						{%- endif -%}
 						<tr><th>Nodewatcher</th><td><a href="{{ url_for('router_list', q='nodewatcher:^%s$' % router.nodewatcher|format_query) }}">{{ router.nodewatcher }}</a></td></tr>
 					</table>
 				</div>

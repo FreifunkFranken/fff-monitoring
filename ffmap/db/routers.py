@@ -83,6 +83,7 @@ mysql.execute("""
 		`chipset` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`hardware` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`os` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+		`babel_version` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`batman` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
 		`routing_protocol` varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL,
 		`kernel` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
