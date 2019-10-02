@@ -240,7 +240,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 				cpu, chipset, hardware, os, babel_version,
 				batman, routing_protocol, kernel, nodewatcher, firmware, firmware_rev, description, position_comment, community, hood, v2, local, gateway,
 				status_text, contact, lng, lat, neighbors)
-				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 			""",(
 				ru["status"],ru["hostname"],created,ru["last_contact"],ru["sys_time"].strftime('%Y-%m-%d %H:%M:%S'),ru["sys_uptime"],ru["memory"]["free"],ru["memory"]["buffering"],ru["memory"]["caching"],
 				ru["sys_loadavg"],ru["processes"]["runnable"],ru["processes"]["total"],ru["clients"],ru["clients_eth"],ru["clients_w2"],ru["clients_w5"],
