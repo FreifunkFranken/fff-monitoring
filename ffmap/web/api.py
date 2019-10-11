@@ -138,11 +138,11 @@ def get_router_by_mac(mac):
 # Read alfred data WITH surrounding {"64":"<data>"}
 @api.route('/alfred', methods=['GET', 'POST'])
 def alfred():
+	r = make_response(json.dumps({}))
+	r.mimetype = 'application/json'
 	try:
 		start_time = time.time()
 		mysql = FreifunkMySQL()
-		r = make_response(json.dumps({}))
-		r.mimetype = 'application/json'
 		#import cProfile, pstats, io
 		#pr = cProfile.Profile()
 		#pr.enable()
@@ -201,6 +201,8 @@ def alfred():
 # Read alfred data without surrounding {"64":"<data>"}, so just <data> can be sent
 @api.route('/alfred2', methods=['GET', 'POST'])
 def alfred2():
+	r = make_response(json.dumps({}))
+	r.mimetype = 'application/json'
 	try:
 		start_time = time.time()
 		mysql = FreifunkMySQL()
@@ -214,8 +216,6 @@ def alfred2():
 		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
 		hoodsdict = mysql.fetchdict("SELECT id, name FROM hoods",(),"name","id")
 
-		r = make_response(json.dumps({}))
-		r.mimetype = 'application/json'
 		if request.method == 'POST':
 			try:
 				alfred_data = request.get_json()
@@ -255,12 +255,11 @@ def alfred2():
 
 @api.route('/gwinfo', methods=['GET', 'POST'])
 def gwinfo():
+	r = make_response(json.dumps({}))
+	r.mimetype = 'application/json'
 	try:
 		start_time = time.time()
 		mysql = FreifunkMySQL()
-		#set_data = {65: "hallo", 66: "welt"}
-		set_data = {}
-		r = make_response(json.dumps(set_data))
 		if request.method == 'POST':
 			try:
 				gw_data = request.get_json()
@@ -274,10 +273,9 @@ def gwinfo():
 				mysql.commit()
 				r.headers['X-API-STATUS'] = "GW data imported"
 		mysql.close()
-		
+
 		writelog(CONFIG["debug_dir"] + "/gwtime.txt", "%s - %.3f seconds" % (request.environ['REMOTE_ADDR'],time.time() - start_time))
-		
-		r.mimetype = 'application/json'
+
 		return r
 	except Exception as e:
 		writelog(CONFIG["debug_dir"] + "/fail_gwinfo.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],str(e)))
