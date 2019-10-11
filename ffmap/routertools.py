@@ -434,7 +434,7 @@ def delete_orphaned_routers(mysql):
 def delete_unlinked_routers(mysql):
 	# Delete entries in router_* tables without corresponding router in master table
 	
-	tables = ["router_events","router_gw","router_ipv6","router_neighbor","router_netif","router_stats","router_stats_gw","router_stats_neighbor","router_stats_netif"]
+	tables = ["router_events","router_gw","router_ipv6","router_neighbor","router_netif","router_stats","router_stats_gw","router_stats_neighbor","router_stats_netif","router_stats_old","router_stats_old_gw","router_stats_old_neighbor","router_stats_old_netif"]
 	
 	for t in tables:
 		start_time = time.time()
@@ -443,6 +443,7 @@ def delete_unlinked_routers(mysql):
 			LEFT JOIN router AS r ON r.id = d.router
 			WHERE r.id IS NULL
 		""".format(t))
+		mysql.commit()
 		#mysql.execute("""
 		#	DELETE FROM {}
 		#	WHERE {}.router NOT IN (
@@ -450,7 +451,7 @@ def delete_unlinked_routers(mysql):
 		#	)
 		#""".format(t,t))
 		print("--- Deleted %i rows from %s: %.3f seconds ---" % (mysql.cursor().rowcount,t,time.time() - start_time))
-	mysql.commit()
+		time.sleep(1)
 
 def delete_stats_helper(mysql,label,query,tuple):
 	minustime=0
