@@ -483,7 +483,7 @@ def record_hood_stats(mysql):
 	mysql.commit()
 
 def record_gw_stats(mysql):
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_gwstat_days"])).timestamp()
 	time = mysql.utctimestamp()
 	status = router_status_gw(mysql)
 	clients = total_clients_gw(mysql)
