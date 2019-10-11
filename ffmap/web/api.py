@@ -25,12 +25,22 @@ api = Blueprint("api", __name__)
 def load_netif_stats(dbid):
 	netif = request.args.get("netif","")
 	mysql = FreifunkMySQL()
+
+	threshold = mysql.findone("SELECT time FROM router_stats_netif WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
+
 	netiffetch = mysql.fetchall("""
-		SELECT netifs.name AS netif, rx, tx, time
+		(SELECT netifs.name AS netif, rx, tx, time
+		FROM router_stats_old_netif
+		INNER JOIN netifs ON router_stats_old_netif.netif = netifs.id
+		WHERE router = %s AND netifs.name = %s AND time < %s
+		ORDER BY time ASC)
+		UNION
+		(SELECT netifs.name AS netif, rx, tx, time
 		FROM router_stats_netif
 		INNER JOIN netifs ON router_stats_netif.netif = netifs.id
 		WHERE router = %s AND netifs.name = %s
-	""",(dbid,netif,))
+		ORDER BY time ASC)
+	""",(dbid,netif,threshold,dbid,netif,))
 	mysql.close()
 
 	for ns in netiffetch:
@@ -44,9 +54,13 @@ def load_netif_stats(dbid):
 @api.route('/load_neighbor_stats/<dbid>')
 def load_neighbor_stats(dbid):
 	mysql = FreifunkMySQL()
+
+	threshold = mysql.findone("SELECT time FROM router_stats_neighbor WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
+
 	neighfetch = mysql.fetchall("""
-		SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s
-	""",(dbid,))
+		(SELECT quality, mac, time FROM router_stats_old_neighbor WHERE router = %s AND time < %s ORDER BY time ASC)
+		UNION (SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s ORDER BY time ASC)
+	""",(dbid,threshold,dbid,))
 	mysql.close()
 
 	neighdata = {}

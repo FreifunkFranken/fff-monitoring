@@ -282,6 +282,79 @@ mysql.execute("""
 		ADD KEY `deletebit` (`deletebit`)
 """)
 
+mysql.execute("""
+	CREATE TABLE `router_stats_old` (
+		`time` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
+		`sys_proctot` smallint(6) NOT NULL,
+		`sys_procrun` smallint(6) NOT NULL,
+		`sys_memcache` int(11) NOT NULL,
+		`sys_membuff` int(11) NOT NULL,
+		`sys_memfree` int(11) NOT NULL,
+		`loadavg` float NOT NULL,
+		`clients` smallint(6) NOT NULL,
+		`clients_eth` smallint(6) DEFAULT NULL,
+		`clients_w2` smallint(6) DEFAULT NULL,
+		`clients_w5` smallint(6) DEFAULT NULL,
+		`airtime_w2` float DEFAULT NULL,
+		`airtime_w5` float DEFAULT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE `router_stats_old`
+		ADD PRIMARY KEY (`time`,`router`),
+		ADD KEY `router` (`router`)
+""")
+
+mysql.execute("""
+	CREATE TABLE `router_stats_old_gw` (
+		`time` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
+		`quality` float NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE `router_stats_old_gw`
+		ADD PRIMARY KEY (`time`,`router`,`mac`),
+		ADD KEY `router` (`router`)
+""")
+
+mysql.execute("""
+	CREATE TABLE `router_stats_old_neighbor` (
+		`time` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
+		`mac` bigint(20) UNSIGNED NOT NULL,
+		`quality` float NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE `router_stats_old_neighbor`
+		ADD PRIMARY KEY (`time`,`router`,`mac`),
+		ADD KEY `router` (`router`)
+""")
+
+mysql.execute("""
+	CREATE TABLE `router_stats_old_netif` (
+		`time` int(11) NOT NULL,
+		`router` mediumint(8) UNSIGNED NOT NULL,
+		`netif` smallint(6) UNSIGNED NOT NULL,
+		`rx` int(10) UNSIGNED NOT NULL,
+		`tx` int(10) UNSIGNED NOT NULL,
+		`deletebit` tinyint(1) NOT NULL DEFAULT '0'
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+""")
+
+mysql.execute("""
+	ALTER TABLE `router_stats_old_netif`
+		ADD PRIMARY KEY (`time`,`router`,`netif`),
+		ADD KEY `router` (`router`),
+		ADD KEY `deletebit` (`deletebit`)
+""")
+
 mysql.commit()
 
 mysql.close()

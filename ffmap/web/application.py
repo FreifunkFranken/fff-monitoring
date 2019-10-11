@@ -267,13 +267,17 @@ def router_info(dbid):
 			for n in router["neighbours"]:
 				n["color"] = neighbor_color(n["quality"],n["netif"],router["routing_protocol"])
 
-			router["stats"] = mysql.fetchall("""SELECT * FROM router_stats WHERE router = %s""",(dbid,))
+			statsthreshold = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
+			router["stats"] = mysql.fetchall("""
+				(SELECT * FROM router_stats_old WHERE router = %s AND time < %s ORDER BY time ASC)
+				UNION (SELECT * FROM router_stats WHERE router = %s ORDER BY time ASC)
+			""",(dbid,statsthreshold,dbid,))
 			for s in router["stats"]:
 				s["time"] = mysql.utcawareint(s["time"])
 
 			threshold_neighstats = (utcnow() - datetime.timedelta(hours=24)).timestamp()
 			neighfetch = mysql.fetchall("""
-				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s AND time > %s
+				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s AND time > %s ORDER BY time ASC
 			""",(dbid,threshold_neighstats,))
 
 			neighdata = {}
@@ -305,9 +309,11 @@ def router_info(dbid):
 						append = ""
 				neighlabel[ni["mac"]] = label + append
 
+			gwthreshold = mysql.findone("SELECT time FROM router_stats_gw WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
 			gwfetch = mysql.fetchall("""
-				SELECT quality, mac, time FROM router_stats_gw WHERE router = %s
-			""",(dbid,))
+				(SELECT quality, mac, time FROM router_stats_old_gw WHERE router = %s AND time < %s ORDER BY time ASC)
+				UNION (SELECT quality, mac, time FROM router_stats_gw WHERE router = %s ORDER BY time ASC)
+			""",(dbid,gwthreshold,dbid,))
 			
 			for ns in gwfetch:
 				ns["time"] = mysql.utcawareint(ns["time"])

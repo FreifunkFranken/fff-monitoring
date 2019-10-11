@@ -8,12 +8,17 @@ CONFIG = {
 	"orphan_threshold_days": 10,			# Router switches to orphaned state after X days
 	"delete_threshold_days": 180,		# Router is deleted after X days
 	"gw_netif_threshold_hours": 48,		# Hours which outdated netif from gwinfo is preserved for statistics
-	"router_stat_days": 30,				# Router stats are collected for X days
-	"router_stat_netif": 10,			# Router stats for netifs are collected for X days
+	"router_stat_days": 10,				# Router stats are collected for X days
+	"router_stat_netif": 3,			# Router stats for netifs are collected for X days
 	"router_stat_gw": 1,				# Router stats for gw are collected for X days
+	"router_oldstat_days": 30,
+	"router_oldstat_netif": 15,
+	"router_oldstat_gw": 7,
 	"router_stat_mindiff_secs": 10,		# Time difference (uptime) in seconds required for a new entry in router stats
 	"router_stat_mindiff_default": 270,	# Time difference (router stats tables) in seconds required for a new entry in router stats
 	"router_stat_mindiff_netif": 270,	# Time difference (router netif stats) in seconds required for a new entry in router stats
+	"router_oldstat_mindiff_default": 30*59,	# Time difference (router old stats tables) in seconds required for a new entry in router stats
+	"router_oldstat_mindiff_netif": 30*59,		# Time difference (router old netif stats) in seconds required for a new entry in router stats
 	"event_num_entries": 300,			# Number of events stored per router
 	"global_stat_days": 365,			# Global/hood stats are collected for X days
 	"global_stat_show_days": 60,			# Global/hood stats are shown for X days
