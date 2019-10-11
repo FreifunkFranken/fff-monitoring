@@ -537,7 +537,7 @@ def global_hoodstatistics(selecthood):
 @app.route('/gwstatistics/<selectgw>')
 def global_gwstatistics(selectgw):
 	mysql = FreifunkMySQL()
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_show_days"])).timestamp()
+	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_gwstat_show_days"])).timestamp()
 	stats = mysql.fetchall("SELECT * FROM stats_gw WHERE mac = %s AND time > %s",(mac2int(selectgw),threshold,))
 	selectgw = shortmac2mac(selectgw)
 	return helper_statistics(mysql,stats,None,selectgw)
