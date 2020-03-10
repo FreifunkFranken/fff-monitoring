@@ -13,9 +13,6 @@ cp -v ffmap/mapnik/tilestache.cfg /usr/share/ffmap
 cp -rv ffmap/web/static /usr/share/ffmap
 cp -rv ffmap/web/templates /usr/share/ffmap
 
-mkdir -vp /var/cache/ffmap/tiles/
-chown -R www-data:www-data /var/cache/ffmap/tiles/
-
 cp -v ffmap/systemd/*.service /etc/systemd/system/
 systemctl daemon-reload
 
