@@ -385,6 +385,23 @@ def wifianalhelper(router_data, headline):
 	
 	return Response(s,mimetype='text/plain')
 
+@api.route('/ssidclient')
+def ssidclient():
+	mysql = FreifunkMySQL()
+	ssid_data = mysql.fetchall("""
+		SELECT wlan_ssid
+		FROM router_netif
+		WHERE wlan_ssid IS NOT NULL
+		GROUP BY wlan_ssid
+	""",())
+	mysql.close()
+
+	s = ""
+	for entry in ssid_data:
+		s += entry["wlan_ssid"] + "\n"
+
+	return Response(s,mimetype='text/plain')
+
 @api.route('/dnslist')
 def dnslist():
 	mysql = FreifunkMySQL()
