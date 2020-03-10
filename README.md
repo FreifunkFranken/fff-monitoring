@@ -24,7 +24,7 @@ pip3 uninstall uuid
 * Datenbank in MySQL anlegen
 * Git vorbereiten:
 ```bash
-git clone https://github.com/asdil12/fff-monitoring
+git clone https://github.com/FreifunkFranken/fff-monitoring
 git clone https://github.com/TileStache/TileStache
 cd fff-monitoring
 cp ffmap/mysqlconfig.example.py ffmap/mysqlconfig.py
