@@ -13,10 +13,7 @@ import time
 start_time = time.time()
 
 mysql = FreifunkMySQL()
-if(len(sys.argv)>1):
-	defrag_all(mysql,sys.argv[1])
-else:
-	defrag_all(mysql,False)
+defrag_all(mysql)
 mysql.close()
 
 print("--- Total defrag duration: %.3f seconds ---" % (time.time() - start_time))

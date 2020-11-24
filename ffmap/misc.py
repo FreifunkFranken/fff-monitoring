@@ -151,15 +151,10 @@ def defrag_table(mysql,table,sleep):
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Defragmented table %s: %.3f seconds" % (table,end_time - start_time))
 	print("--- Defragmented table %s: %.3f seconds ---" % (table,end_time - start_time))
 
-def defrag_all(mysql,doall=False):
-	alltables = ('gw','gw_admin','gw_netif','hoods','hoodsv2','netifs','router','router_events','router_gw','router_ipv6','router_neighbor','router_netif','users')
-	stattables = ('router_stats','router_stats_gw','router_stats_neighbor','router_stats_netif','stats_global','stats_gw','stats_hood')
+def defrag_all(mysql):
+	alltables = ('gw','gw_admin','gw_netif','hoods','hoodsv2','router','router_events','router_gw','router_ipv6','router_neighbor','router_netif','users')
 
 	for t in alltables:
 		defrag_table(mysql,t,1)
-
-	if doall:
-		for t in stattables:
-			defrag_table(mysql,t,60)
 
 	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "-------")
