@@ -154,14 +154,6 @@ def alfred():
 		if request.method == 'POST':
 			try:
 				alfred_data = request.get_json()
-				# send data to christiand to test grafana/influxdb
-				try:
-					rcd = requests.post(url = "http://homeserver.dresel.it/freifunkgrafana.php", data = alfred_data.get("64", {}), timeout=3)
-					writelog(CONFIG["debug_dir"] + "/chrisd.txt", "alfred: %s" % (rcd.text))
-				except requests.Timeout:
-					pass
-				except requests.ConnectionError:
-					pass
 			except Exception as e:
 				writelog(CONFIG["debug_dir"] + "/fail_alfred.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
 				writefulllog("Warning: Error converting ALFRED data to JSON:\n__%s" % (request.get_data(True,True).replace("\n", "\n__")))
@@ -215,14 +207,6 @@ def alfred2():
 		if request.method == 'POST':
 			try:
 				alfred_data = request.get_json()
-				# send data to christiand to test grafana/influxdb
-				try:
-					rcd = requests.post(url = "http://homeserver.dresel.it/freifunkgrafana.php", data = alfred_data, timeout=3)
-					writelog(CONFIG["debug_dir"] + "/chrisd.txt", "alfred2: %s" % (rcd.text))
-				except requests.Timeout:
-					pass
-				except requests.ConnectionError:
-					pass
 			except Exception as e:
 				writelog(CONFIG["debug_dir"] + "/fail_alfred2.txt", "{} - {}".format(request.environ['REMOTE_ADDR'],'JSON parsing failed'))
 				writefulllog("Warning: Error converting ALFRED2 data to JSON:\n__%s\n__%s" % (e, request.get_data(True,True).replace("\n", "\n__")))
