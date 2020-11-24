@@ -162,12 +162,8 @@ def alfred():
 
 			if alfred_data:
 				# load router status xml data
-				i = 1
 				for mac, xml in alfred_data.get("64", {}).items():
 					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
-					if (i%500 == 0):
-						mysql.commit()
-					i += 1
 				mysql.commit()
 				r.headers['X-API-STATUS'] = "ALFRED data imported"
 		mysql.close()
@@ -215,12 +211,8 @@ def alfred2():
 
 			if alfred_data:
 				# load router status xml data
-				i = 1
 				for mac, xml in alfred_data.items():
 					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
-					if (i%500 == 0):
-						mysql.commit()
-					i += 1
 				mysql.commit()
 				r.headers['X-API-STATUS'] = "ALFRED2 data imported"
 		mysql.close()
