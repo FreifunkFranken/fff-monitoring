@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from ffmap.web.api import api
 from ffmap.web.filters import filters
 from ffmap.mysqltools import FreifunkMySQL
+from ffmap.influxtools import FreifunkInflux
 from ffmap import stattools
 from ffmap.usertools import *
 from ffmap.routertools import delete_router, ban_router
@@ -127,6 +128,8 @@ def router_mac(mac):
 def router_info(dbid):
 	try:
 		mysql = FreifunkMySQL()
+		influ = FreifunkInflux()
+
 		router = mysql.findone("""
 			SELECT router.*, hoods.id AS hoodid, hoods.name AS hoodname FROM router
 			INNER JOIN hoods ON router.hood = hoods.id
@@ -267,54 +270,53 @@ def router_info(dbid):
 			for n in router["neighbours"]:
 				n["color"] = neighbor_color(n["quality"],n["netif"],router["routing_protocol"])
 
-			statsthreshold = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
-			router["stats"] = mysql.fetchall("""
-				(SELECT * FROM router_stats_old WHERE router = %s AND time < %s ORDER BY time ASC)
-				UNION (SELECT * FROM router_stats WHERE router = %s ORDER BY time ASC)
-			""",(dbid,statsthreshold,dbid,))
+			router["stats"] = influ.fetchlist('SELECT * FROM router_default.stat WHERE router = $router ORDER BY time ASC',{"router": dbid})
 			for s in router["stats"]:
 				s["time"] = mysql.utcawareint(s["time"])
 
-			threshold_neighstats = (utcnow() - datetime.timedelta(hours=24)).timestamp()
-			neighfetch = mysql.fetchall("""
-				SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s AND time > %s ORDER BY time ASC
-			""",(dbid,threshold_neighstats,))
+			neighfetch = influ.fetchlist('SELECT quality, mac, time FROM router_neighbor.stat WHERE router = $router AND time > now() - 24h ORDER BY time ASC',{"router": dbid})
 
 			neighdata = {}
+			neighmacint = []
 			for ns in neighfetch:
 				ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
 				if not ns["mac"] in neighdata:
 					neighdata[ns["mac"]] = []
+					neighmacint.append(mac2int(ns["mac"]))
 				neighdata[ns["mac"]].append(ns)
 
-			neighident = mysql.fetchall("""
-				SELECT snb.mac, r.hostname, n.netif
-				FROM router_stats_neighbor AS snb
-				INNER JOIN router_netif AS n ON snb.mac = n.mac
-				INNER JOIN router AS r ON n.router = r.id
-				WHERE snb.router = %s AND n.netif <> 'w2ap' AND n.netif <> 'w5ap'
-				GROUP BY snb.mac, r.hostname, n.netif
-			""",(dbid,))
+			#neighident = mysql.fetchall("""
+			#	SELECT snb.mac, r.hostname, n.netif
+			#	FROM router_stats_neighbor AS snb
+			#	INNER JOIN router_netif AS n ON snb.mac = n.mac
+			#	INNER JOIN router AS r ON n.router = r.id
+			#	WHERE snb.router = %s AND n.netif <> 'w2ap' AND n.netif <> 'w5ap'
+			#	GROUP BY snb.mac, r.hostname, n.netif
+			#""",(dbid,))
 			neighlabel = {}
-			for ni in neighident:
-				label = ni["hostname"]
-				# add network interface when there are multiple links to same node
-				for ni2 in neighident:
-					if label == ni2["hostname"] and ni["mac"] != ni2["mac"]:
-						# This shows the NEIGHBOR'S interface name
-						label += "@" + ni["netif"]
-				append = " (old)"
-				for nnn in router["neighbours"]:
-					if nnn["mac"] == ni["mac"]:
-						append = ""
-				neighlabel[ni["mac"]] = label + append
+			if neighmacint:
+				format_macs = ','.join(['%s'] * len(neighmacint))
+				neighident = mysql.fetchall("""
+					SELECT n.mac, r.hostname, n.netif
+					FROM router_netif AS n
+					INNER JOIN router AS r ON n.router = r.id
+					WHERE n.netif <> 'w2ap' AND n.netif <> 'w5ap' AND n.mac IN ({})
+					GROUP BY n.mac, r.hostname, n.netif
+				""".format(format_macs),tuple(neighmacint))
+				for ni in neighident:
+					label = ni["hostname"]
+					# add network interface when there are multiple links to same node
+					for ni2 in neighident:
+						if label == ni2["hostname"] and ni["mac"] != ni2["mac"]:
+							# This shows the NEIGHBOR'S interface name
+							label += "@" + ni["netif"]
+					append = " (old)"
+					for nnn in router["neighbours"]:
+						if nnn["mac"] == ni["mac"]:
+							append = ""
+					neighlabel[int2shortmac(ni["mac"])] = label + append
 
-			gwthreshold = mysql.findone("SELECT time FROM router_stats_gw WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
-			gwfetch = mysql.fetchall("""
-				(SELECT quality, mac, time FROM router_stats_old_gw WHERE router = %s AND time < %s ORDER BY time ASC)
-				UNION (SELECT quality, mac, time FROM router_stats_gw WHERE router = %s ORDER BY time ASC)
-			""",(dbid,gwthreshold,dbid,))
-			
+			gwfetch = influ.fetchlist('SELECT quality, mac, time FROM router_gw.stat WHERE router = $router ORDER BY time ASC',{"router": dbid})
 			for ns in gwfetch:
 				ns["time"] = mysql.utcawareint(ns["time"])
 
@@ -521,55 +523,53 @@ def user_info(nickname):
 
 @app.route('/statistics')
 def global_statistics():
-	mysql = FreifunkMySQL()
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_show_days"])).timestamp()
-	stats = mysql.fetchall("SELECT * FROM stats_global WHERE time > %s",(threshold,))
-	return helper_statistics(mysql,stats,None,None)
+	influ = FreifunkInflux()
+	stats = influ.fetchlist('SELECT * FROM global_default.stat WHERE time > now() - {}d'.format(CONFIG["global_stat_show_days"]))
+	return helper_statistics(stats,None,None)
 
 @app.route('/hoodstatistics/<selecthood>')
 def global_hoodstatistics(selecthood):
 	selecthood = int(selecthood)
-	mysql = FreifunkMySQL()
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_show_days"])).timestamp()
-	stats = mysql.fetchall("SELECT * FROM stats_hood WHERE hood = %s AND time > %s",(selecthood,threshold,))
-	return helper_statistics(mysql,stats,selecthood,None)
+	influ = FreifunkInflux()
+	stats = influ.fetchlist('SELECT * FROM global_hoods.stat  WHERE hood = $hood AND time > now() - {}d'.format(CONFIG["global_stat_show_days"]),{"hood": str(selecthood)})
+	return helper_statistics(stats,selecthood,None)
 
 @app.route('/gwstatistics/<selectgw>')
 def global_gwstatistics(selectgw):
-	mysql = FreifunkMySQL()
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_gwstat_show_days"])).timestamp()
-	stats = mysql.fetchall("SELECT * FROM stats_gw WHERE mac = %s AND time > %s",(mac2int(selectgw),threshold,))
+	influ = FreifunkInflux()
+	stats = influ.fetchlist('SELECT * FROM global_gw.stat WHERE mac = $mac AND time > now() - {}d'.format(CONFIG["global_gwstat_show_days"]),{"mac": selectgw})
 	selectgw = shortmac2mac(selectgw)
-	return helper_statistics(mysql,stats,None,selectgw)
+	return helper_statistics(stats,None,selectgw)
 
-def helper_statistics(mysql,stats,selecthood,selectgw):
+def helper_statistics(stats,selecthood,selectgw):
 	try:
+		mysql = FreifunkMySQL()
 		hoods = stattools.hoods(mysql,selectgw)
 		gws = stattools.gws_ifs(mysql,selecthood)
-		
+
 		if selecthood:
 			selecthoodname = mysql.findone("SELECT name FROM hoods WHERE id = %s",(selecthood,),'name')
 		else:
 			selecthoodname = None
-		
+
 		if selectgw:
 			selectgwint = mac2int(selectgw)
 		else:
 			selectgwint = None
-		
+
 		if selecthood and not selecthoodname:
 			mysql.close()
 			return "Hood not found"
 		if selectgw and not selectgwint in gws:
 			mysql.close()
 			return "Gateway not found"
-		
+
 		stats = mysql.utcawaretupleint(stats,"time")
-		
+
 		numnew = len(hoods)-27
 		if numnew < 1:
 			numnew = 1
-		
+
 		if selectgw:
 			newest_routers = mysql.fetchall("""
 				SELECT router.id, hostname, hoods.id AS hoodid, hoods.name AS hood, created
@@ -596,7 +596,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 				LIMIT %s
 			""".format(where),tup)
 		newest_routers = mysql.utcawaretuple(newest_routers,"created")
-		
+
 		clients = stattools.total_clients(mysql)
 		router_status = stattools.router_status(mysql)
 		router_models = stattools.router_models(mysql,selecthood,selectgw)
@@ -607,7 +607,7 @@ def helper_statistics(mysql,stats,selecthood,selectgw):
 		gws_info = stattools.gws_info(mysql,selecthood)
 		gws_admin = stattools.gws_admin(mysql,selectgw)
 		mysql.close()
-		
+
 		return render_template("statistics.html",
 			selecthood = selecthood,
 			selecthoodname = selecthoodname,

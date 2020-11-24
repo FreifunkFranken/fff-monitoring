@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.mysqltools import FreifunkMySQL
+from ffmap.influxtools import FreifunkInflux
 from ffmap.gwtools import gw_name, gw_bat
 from ffmap.misc import *
 from ffmap.config import CONFIG
@@ -118,7 +119,7 @@ def router_traffic_hood(mysql):
 			dict[d["hood"]]["tx"] += d["tx"]
 	for h in allhoods:
 		if not h["hood"] in dict:
-			dict[h["hood"]] =  {"hood": h["hood"], "rx": 0, "tx": 0}
+			dict[h["hood"]] =  {"hood": h["hood"], "rx": int(0), "tx": int(0)}
 	return dict
 
 def total_clients_gw(mysql):
@@ -423,92 +424,83 @@ def gws_admin(mysql,selectgw):
 	""",(mac2int(selectgw),),"name")
 	return data
 
-def record_global_stats(mysql):
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
-	time = mysql.utctimestamp()
+def record_global_stats(influ,mysql):
+	#threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
+	time = influ.utctimestamp()
 	status = router_status(mysql)
 	traffic = router_traffic(mysql)
 
-	mysql.execute("""
-		INSERT INTO stats_global (time, clients, online, offline, unknown, orphaned, rx, tx)
-		VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-		ON DUPLICATE KEY UPDATE
-			clients=VALUES(clients),
-			online=VALUES(online),
-			offline=VALUES(offline),
-			unknown=VALUES(unknown),
-			orphaned=VALUES(orphaned),
-			rx=VALUES(rx),
-			tx=VALUES(tx)
-	""",(time,total_clients(mysql),status.get("online",0),status.get("offline",0),status.get("unknown",0),status.get("orphaned",0),traffic["rx"],traffic["tx"],))
+	stats_json = [{
+		"measurement": "stat",
+		"time": time,
+		"fields": {
+			"clients": int(total_clients(mysql)),
+			"online": int(status.get("online",0)),
+			"offline": int(status.get("offline",0)),
+			"unknown": int(status.get("unknown",0)),
+			"orphaned": int(status.get("orphaned",0)),
+			"rx": int(traffic["rx"]),
+			"tx": int(traffic["tx"])
+			}
+		}]
 
-	mysql.execute("""
-		DELETE FROM stats_global
-		WHERE time < %s
-	""",(threshold,))
+	influ.write(stats_json,"global_default")
 
-	mysql.commit()
-
-def record_hood_stats(mysql):
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
-	time = mysql.utctimestamp()
+def record_hood_stats(influ,mysql):
+	#threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_stat_days"])).timestamp()
+	time = influ.utctimestamp()
 	status = router_status_hood(mysql)
 	clients = total_clients_hood(mysql)
 	traffic = router_traffic_hood(mysql)
 
-	hdata = []
+	stats_json = []
 	for hood in clients.keys():
 		if not hood:
-			hood = "Default"
-		hdata.append((time,hood,clients[hood],status[hood].get("online",0),status[hood].get("offline",0),status[hood].get("unknown",0),status[hood].get("orphaned",0),traffic[hood]["rx"],traffic[hood]["tx"],))
+			hood = 1
 
-	mysql.executemany("""
-		INSERT INTO stats_hood (time, hood, clients, online, offline, unknown, orphaned, rx, tx)
-		VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-		ON DUPLICATE KEY UPDATE
-			clients=VALUES(clients),
-			online=VALUES(online),
-			offline=VALUES(offline),
-			unknown=VALUES(unknown),
-			orphaned=VALUES(orphaned),
-			rx=VALUES(rx),
-			tx=VALUES(tx)
-	""",hdata)
+		stats_json.append({
+			"measurement": "stat",
+			"tags": {
+				"hood": hood,
+				},
+			"time": time,
+			"fields": {
+				"clients": int(clients[hood]),
+				"online": int(status[hood].get("online",0)),
+				"offline": int(status[hood].get("offline",0)),
+				"unknown": int(status[hood].get("unknown",0)),
+				"orphaned": int(status[hood].get("orphaned",0)),
+				"rx": int(traffic[hood]["rx"]),
+				"tx": int(traffic[hood]["tx"])
+				}
+			})
 
-	mysql.execute("""
-		DELETE FROM stats_hood
-		WHERE time < %s
-	""",(threshold,))
+	influ.write(stats_json,"global_hoods")
 
-	mysql.commit()
-
-def record_gw_stats(mysql):
-	threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_gwstat_days"])).timestamp()
-	time = mysql.utctimestamp()
+def record_gw_stats(influ,mysql):
+	#threshold=(utcnow() - datetime.timedelta(days=CONFIG["global_gwstat_days"])).timestamp()
+	time = influ.utctimestamp()
 	status = router_status_gw(mysql)
 	clients = total_clients_gw(mysql)
-	
-	gdata = []
+
+	stats_json = []
 	for mac in clients.keys():
-		gdata.append((time,mac,clients[mac],status[mac].get("online",0),status[mac].get("offline",0),status[mac].get("unknown",0),status[mac].get("orphaned",0),))
+		stats_json.append({
+			"measurement": "stat",
+			"tags": {
+				"mac": int2shortmac(mac),
+				},
+			"time": time,
+			"fields": {
+				"clients": int(clients[mac]),
+				"online": int(status[mac].get("online",0)),
+				"offline": int(status[mac].get("offline",0)),
+				"unknown": int(status[mac].get("unknown",0)),
+				"orphaned": int(status[mac].get("orphaned",0))
+				}
+			})
 
-	mysql.executemany("""
-		INSERT INTO stats_gw (time, mac, clients, online, offline, unknown, orphaned)
-		VALUES (%s, %s, %s, %s, %s, %s, %s)
-		ON DUPLICATE KEY UPDATE
-			clients=VALUES(clients),
-			online=VALUES(online),
-			offline=VALUES(offline),
-			unknown=VALUES(unknown),
-			orphaned=VALUES(orphaned)
-	""",gdata)
-	
-	mysql.execute("""
-		DELETE FROM stats_gw
-		WHERE time < %s
-	""",(threshold,))
-
-	mysql.commit()
+	influ.write(stats_json,"global_gw")
 
 def router_user_sum(mysql):
 	data = mysql.fetchall("""

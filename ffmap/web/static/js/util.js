@@ -4,3 +4,8 @@ function int2mac(input) {
 			.match( /.{1,2}/g )		// ["4a", "89", "26", "c4", "45", "78"]
 			.join( ':' )			// "78:45:c4:26:89:4a"
 }
+
+function shortmac2mac(input) {
+	return input.match( /.{1,2}/g )		// ["4a", "89", "26", "c4", "45", "78"]
+			.join( ':' )			// "78:45:c4:26:89:4a"
+}

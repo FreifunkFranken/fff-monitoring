@@ -110,7 +110,7 @@ function neighbour_graph(neigh_label) {
 		if(j in neigh_label) {
 			label = neigh_label[j];
 		} else {
-			label = int2mac(j);
+			label = shortmac2mac(j);
 		}
 		for (len=dataset.length, i=0; i<len; i++) {
 			try {

@@ -4,6 +4,7 @@ from ffmap.routertools import *
 from ffmap.gwtools import *
 from ffmap.maptools import *
 from ffmap.mysqltools import FreifunkMySQL
+from ffmap.influxtools import FreifunkInflux
 from ffmap.stattools import record_global_stats, record_hood_stats
 from ffmap.config import CONFIG
 from ffmap.misc import *
@@ -24,49 +25,29 @@ api = Blueprint("api", __name__)
 @api.route('/load_netif_stats/<dbid>')
 def load_netif_stats(dbid):
 	netif = request.args.get("netif","")
-	mysql = FreifunkMySQL()
+	influ = FreifunkInflux()
 
-	threshold = mysql.findone("SELECT time FROM router_stats_netif WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
-
-	netiffetch = mysql.fetchall("""
-		(SELECT netifs.name AS netif, rx, tx, time
-		FROM router_stats_old_netif
-		INNER JOIN netifs ON router_stats_old_netif.netif = netifs.id
-		WHERE router = %s AND netifs.name = %s AND time < %s
-		ORDER BY time ASC)
-		UNION
-		(SELECT netifs.name AS netif, rx, tx, time
-		FROM router_stats_netif
-		INNER JOIN netifs ON router_stats_netif.netif = netifs.id
-		WHERE router = %s AND netifs.name = %s
-		ORDER BY time ASC)
-	""",(dbid,netif,threshold,dbid,netif,))
-	mysql.close()
+	netiffetch = influ.fetchlist('SELECT netif, rx, tx, time FROM router_netif.stat WHERE router = $router AND netif = $netif ORDER BY time ASC',{"router": dbid, "netif": netif})
 
 	for ns in netiffetch:
-		ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
+		ns["time"] = {"$date": int(influ.utcawareint(ns["time"]).timestamp()*1000)}
 
 	r = make_response(json.dumps(netiffetch))
 	r.mimetype = 'application/json'
 	return r
+	#return make_response(json.dumps({}))
 
 # Load router neighbor statistics
 @api.route('/load_neighbor_stats/<dbid>')
 def load_neighbor_stats(dbid):
-	mysql = FreifunkMySQL()
+	influ = FreifunkInflux()
 
-	threshold = mysql.findone("SELECT time FROM router_stats_neighbor WHERE router = %s ORDER BY time ASC LIMIT 1",(dbid,),"time")
-
-	neighfetch = mysql.fetchall("""
-		(SELECT quality, mac, time FROM router_stats_old_neighbor WHERE router = %s AND time < %s ORDER BY time ASC)
-		UNION (SELECT quality, mac, time FROM router_stats_neighbor WHERE router = %s ORDER BY time ASC)
-	""",(dbid,threshold,dbid,))
-	mysql.close()
+	neighfetch = influ.fetchlist('SELECT quality, mac, time FROM router_neighbor.stat WHERE router = $router ORDER BY time ASC',{"router": dbid})
 
 	neighdata = {}
 
 	for ns in neighfetch:
-		ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
+		ns["time"] = {"$date": int(influ.utcawareint(ns["time"]).timestamp()*1000)}
 		if not ns["mac"] in neighdata:
 			neighdata[ns["mac"]] = []
 		neighdata[ns["mac"]].append(ns)
@@ -74,6 +55,7 @@ def load_neighbor_stats(dbid):
 	r = make_response(json.dumps(neighdata))
 	r.mimetype = 'application/json'
 	return r
+	#return make_response(json.dumps({}))
 
 # map ajax
 @api.route('/get_nearest_router')

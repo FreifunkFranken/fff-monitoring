@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
 from ffmap.mysqltools import FreifunkMySQL
+from ffmap.influxtools import FreifunkInflux
 from ffmap.misc import *
 from ffmap.config import CONFIG
 import MySQLdb as my
@@ -26,10 +27,6 @@ def delete_router(mysql,dbid):
 	mysql.execute("DELETE FROM router_neighbor WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_gw WHERE router = %s",(dbid,))
 	mysql.execute("DELETE FROM router_events WHERE router = %s",(dbid,))
-	mysql.execute("DELETE FROM router_stats WHERE router = %s",(dbid,))
-	mysql.execute("DELETE FROM router_stats_neighbor WHERE router = %s",(dbid,))
-	mysql.execute("DELETE FROM router_stats_netif WHERE router = %s",(dbid,))
-	mysql.execute("DELETE FROM router_stats_gw WHERE router = %s",(dbid,))
 	mysql.commit()
 
 def ban_router(mysql,dbid):
@@ -145,7 +142,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 				if diff_active:
 					router_update["w2_airtime"] = diff_busy / diff_active # auto float-division in Python3
 				else:
-					router_update["w2_airtime"] = 0
+					router_update["w2_airtime"] = 0.0
 			fields_w5 = (router_update["w5_active"], router_update["w5_busy"], olddata["w5_busy"], olddata["w5_active"],)
 			if not any(w == None for w in fields_w5):
 				diff_active = router_update["w5_active"] - olddata["w5_active"]
@@ -153,7 +150,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 				if diff_active:
 					router_update["w5_airtime"] = diff_busy / diff_active # auto float-division in Python3
 				else:
-					router_update["w5_airtime"] = 0
+					router_update["w5_airtime"] = 0.0
 		
 		if olddata:
 			# statistics
@@ -429,9 +426,9 @@ def delete_orphaned_routers(mysql):
 
 def delete_unlinked_routers(mysql):
 	# Delete entries in router_* tables without corresponding router in master table
-	
-	tables = ["router_events","router_gw","router_ipv6","router_neighbor","router_netif","router_stats","router_stats_gw","router_stats_neighbor","router_stats_netif","router_stats_old","router_stats_old_gw","router_stats_old_neighbor","router_stats_old_netif"]
-	
+
+	tables = ["router_events","router_gw","router_ipv6","router_neighbor","router_netif"]
+
 	for t in tables:
 		start_time = time.time()
 		mysql.execute("""
@@ -449,104 +446,8 @@ def delete_unlinked_routers(mysql):
 		print("--- Deleted %i rows from %s: %.3f seconds ---" % (mysql.cursor().rowcount,t,time.time() - start_time))
 		time.sleep(1)
 
-def delete_stats_helper(mysql,label,query,tuple):
-	minustime=0
-	rowsaffected=1
-	allrows=0
-	start_time = time.time()
-	while rowsaffected > 0:
-		try:
-			rowsaffected = mysql.execute(query,tuple)
-			mysql.commit()
-			allrows += rowsaffected
-		except my.OperationalError:
-			rowsaffected = 1
-		time.sleep(10)
-		minustime += 10
-	end_time = time.time()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from %s stats: %.3f seconds" % (allrows,label,end_time - start_time - minustime))
-	print("--- Deleted %i rows from %s stats: %.3f seconds ---" % (allrows,label,end_time - start_time - minustime))
-
 def delete_old_stats(mysql):
-	threshold			= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_days"])).timestamp()
-	threshold_netif		= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_netif"])).timestamp()
-	threshold_gw		= (utcnow() - datetime.timedelta(days=CONFIG["router_stat_gw"])).timestamp()
 	threshold_gw_netif	= mysql.formatdt(utcnow() - datetime.timedelta(hours=CONFIG["gw_netif_threshold_hours"]))
-	old					= (utcnow() - datetime.timedelta(days=CONFIG["router_oldstat_days"])).timestamp()
-	old_netif			= (utcnow() - datetime.timedelta(days=CONFIG["router_oldstat_netif"])).timestamp()
-	old_gw				= (utcnow() - datetime.timedelta(days=CONFIG["router_oldstat_gw"])).timestamp()
-
-	limit = "100000"
-	limit = "500000"
-
-	start_time = time.time()
-	rowsaffected = mysql.execute("""
-		DELETE s FROM router_stats AS s
-		LEFT JOIN router AS r ON s.router = r.id
-		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
-	""",(threshold,))
-	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from stats: %.3f seconds" % (rowsaffected,time.time() - start_time))
-	print("--- Deleted %i rows from stats: %.3f seconds ---" % (rowsaffected,time.time() - start_time))
-
-	time.sleep(10)
-	start_time = time.time()
-	rowsaffected = mysql.execute("""
-		DELETE s FROM router_stats_old AS s
-		LEFT JOIN router AS r ON s.router = r.id
-		WHERE s.time < %s AND (r.status = 'online' OR r.status IS NULL)
-	""",(old,))
-	mysql.commit()
-	writelog(CONFIG["debug_dir"] + "/deletetime.txt", "Deleted %i rows from stats (old): %.3f seconds" % (rowsaffected,time.time() - start_time))
-	print("--- Deleted %i rows from stats (old): %.3f seconds ---" % (rowsaffected,time.time() - start_time))
-
-	time.sleep(10)
-	query = """
-				DELETE FROM router_stats_gw
-				WHERE time < %s
-				LIMIT """+limit+"""
-			"""
-	delete_stats_helper(mysql,"gw-stats",query,(threshold_gw,))
-
-	time.sleep(10)
-	query = """
-				DELETE FROM router_stats_old_gw
-				WHERE time < %s
-				LIMIT """+limit+"""
-			"""
-	delete_stats_helper(mysql,"gw-stats (old)",query,(old_gw,))
-
-	time.sleep(30)
-	query = """
-				DELETE FROM router_stats_neighbor
-				WHERE time < %s
-				LIMIT """+limit+"""
-			"""
-	delete_stats_helper(mysql,"neighbor-stats",query,(threshold,))
-
-	time.sleep(30)
-	query = """
-				DELETE FROM router_stats_old_neighbor
-				WHERE time < %s
-				LIMIT """+limit+"""
-			"""
-	delete_stats_helper(mysql,"neighbor-stats (old)",query,(old,))
-
-	time.sleep(30)
-	query = """
-				DELETE FROM router_stats_netif
-				WHERE time < %s
-				LIMIT """+limit+"""
-			"""
-	delete_stats_helper(mysql,"netif-stats",query,(threshold_netif,))
-
-	time.sleep(30)
-	query = """
-				DELETE FROM router_stats_old_netif
-				WHERE time < %s
-				LIMIT """+limit+"""
-			"""
-	delete_stats_helper(mysql,"netif-stats (old)",query,(old_netif,))
 
 	start_time = time.time()
 	allrows = mysql.execute("DELETE FROM gw_netif WHERE last_contact < %s",(threshold_gw_netif,))
@@ -561,7 +462,7 @@ def delete_old_stats(mysql):
 		SELECT router, COUNT(time) AS count FROM router_events
 		GROUP BY router
 	""")
-	
+
 	for e in events:
 		delnum = int(e["count"] - CONFIG["event_num_entries"])
 		if delnum > 0:
@@ -599,122 +500,93 @@ def set_status(mysql,router_id,status):
 def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statstime):
 	#if not (uptime + CONFIG["router_stat_mindiff_secs"]) < router_update["sys_uptime"]:
 	#	return
-	time = mysql.formattimestamp(statstime)
+	#time = mysql.formattimestamp(statstime)
 
-	stattime = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
-	oldstattime = mysql.findone("SELECT time FROM router_stats_old WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
+	influ = FreifunkInflux()
 
-	routerdata = (
-		time,
-		router_id,
-		router_update["memory"]['free'],
-		router_update["memory"]['buffering'],
-		router_update["memory"]['caching'],
-		router_update["sys_loadavg"],
-		router_update["processes"]['runnable'],
-		router_update["processes"]['total'],
-		router_update["clients"],
-		router_update["clients_eth"],
-		router_update["clients_w2"],
-		router_update["clients_w5"],
-		router_update["w2_airtime"],
-		router_update["w5_airtime"],
-		)
+	#stattime = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
+	#oldstattime = mysql.findone("SELECT time FROM router_stats_old WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
 
-	if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
-		mysql.execute("""
-			INSERT INTO router_stats (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot,
-			clients, clients_eth, clients_w2, clients_w5, airtime_w2, airtime_w5)
-			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",routerdata)
-	if not oldstattime or (oldstattime + CONFIG["router_oldstat_mindiff_default"]) < time:
-		mysql.execute("""
-			INSERT INTO router_stats_old (time, router, sys_memfree, sys_membuff, sys_memcache, loadavg, sys_procrun, sys_proctot,
-			clients, clients_eth, clients_w2, clients_w5, airtime_w2, airtime_w5)
-			VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",routerdata)
-	
-	netiftime = mysql.findone("SELECT time FROM router_stats_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
-	oldnetiftime = mysql.findone("SELECT time FROM router_stats_old_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
+	stats_json = [{
+		"measurement": "stat",
+		"tags": {
+			"router": router_id,
+			},
+		"time": statstime,
+		"fields": {
+			"sys_memfree": router_update["memory"]['free'],
+			"sys_membuff": router_update["memory"]['buffering'],
+			"sys_memcache": router_update["memory"]['caching'],
+			"loadavg": router_update["sys_loadavg"],
+			"sys_procrun": router_update["processes"]['runnable'],
+			"sys_proctot": router_update["processes"]['total'],
+			"clients": router_update["clients"],
+			"clients_eth": router_update["clients_eth"],
+			"clients_w2": router_update["clients_w2"],
+			"clients_w5": router_update["clients_w5"],
+			"airtime_w2": router_update["w2_airtime"],
+			"airtime_w5": router_update["w5_airtime"]
+			}
+		}]
+	influ.write(stats_json,"router_default")
 
-	ndata = []
-	nkeys = []
+	#if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
+
+	#netiftime = mysql.findone("SELECT time FROM router_stats_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
+	#oldnetiftime = mysql.findone("SELECT time FROM router_stats_old_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
+
+	stats_json = []
 	for netif in router_update["netifs"]:
 		# sanitize name
 		name = netif["name"].replace(".", "").replace("$", "")
 		with suppress(KeyError):
-			if name in netifdict.keys():
-				ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
-			else:
-				writelog(CONFIG["debug_dir"] + "/test_yellow.txt", "{}".format(name))
-				nkeys.append((name,))
-
-	# 99.9 % of the routers will NOT enter this, so the doubled code is not a problem
-	if nkeys:
-		mysql.executemany("""
-			INSERT INTO netifs (name)
-			VALUES (%s)
-			ON DUPLICATE KEY UPDATE name=name
-		""",nkeys)
-		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
-
-		ndata = []
-		for netif in router_update["netifs"]:
-			# sanitize name
-			name = netif["name"].replace(".", "").replace("$", "")
-			with suppress(KeyError):
-				ndata.append((time,router_id,netifdict[name],netif["traffic"]["rx"],netif["traffic"]["tx"],))
-
-	if not netiftime or (netiftime + CONFIG["router_stat_mindiff_netif"]) < time:
-		mysql.executemany("""
-			INSERT INTO router_stats_netif (time, router, netif, rx, tx)
-			VALUES (%s, %s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",ndata)
-	if not oldnetiftime or (oldnetiftime + CONFIG["router_oldstat_mindiff_netif"]) < time:
-		mysql.executemany("""
-			INSERT INTO router_stats_old_netif (time, router, netif, rx, tx)
-			VALUES (%s, %s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",ndata)
+			stats_json.append({
+				"measurement": "stat",
+				"tags": {
+					"router": router_id,
+					"netif": name,
+					},
+				"time": statstime,
+				"fields": {
+					"rx": int(netif["traffic"]["rx"]),
+					"tx": int(netif["traffic"]["tx"])
+					}
+				})
+	influ.write(stats_json,"router_netif")
 
 	# reuse timestamp from router_stats to avoid additional queries
-	nbdata = []
+	stats_json = []
 	for neighbour in router_update["neighbours"]:
 		with suppress(KeyError):
-			nbdata.append((time,router_id,neighbour["mac"],neighbour["quality"],))
-	if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
-		mysql.executemany("""
-			INSERT INTO router_stats_neighbor (time, router, mac, quality)
-			VALUES (%s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",nbdata)
-	if not oldstattime or (oldstattime + CONFIG["router_oldstat_mindiff_default"]) < time:
-		 mysql.executemany("""
-			INSERT INTO router_stats_old_neighbor (time, router, mac, quality)
-			VALUES (%s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",nbdata)
+			stats_json.append({
+				"measurement": "stat",
+				"tags": {
+					"router": router_id,
+					"mac": int2shortmac(neighbour["mac"]),
+					},
+				"time": statstime,
+				"fields": {
+					"quality": float(neighbour["quality"])
+					}
+				})
+	influ.write(stats_json,"router_neighbor")
 
 	# reuse timestamp from router_stats to avoid additional queries
-	gwdata = []
+	stats_json = []
 	for gw in router_update["gws"]:
 		with suppress(KeyError):
-			gwdata.append((time,router_id,gw["mac"],gw["quality"],))
-	if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
-		mysql.executemany("""
-			INSERT INTO router_stats_gw (time, router, mac, quality)
-			VALUES (%s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",gwdata)
-	if not oldstattime or (oldstattime + CONFIG["router_oldstat_mindiff_default"]) < time:
-		mysql.executemany("""
-			INSERT INTO router_stats_old_gw (time, router, mac, quality)
-			VALUES (%s, %s, %s, %s)
-			ON DUPLICATE KEY UPDATE time=time
-		""",gwdata)
+			stats_json.append({
+				"measurement": "stat",
+				"tags": {
+					"router": router_id,
+					"mac": gw["mac"],
+					},
+				"time": statstime,
+				"fields": {
+					"quality": float(gw["quality"])
+					}
+				})
+	influ.write(stats_json,"router_gw")
 
 def calculate_network_io(mysql, router_id, uptime, router_update):
 	"""
@@ -843,8 +715,8 @@ def parse_nodewatcher_xml(xml,statstime):
 			router_update["processes"]["runnable"] = int(processboth.split("/")[0])
 			router_update["processes"]["total"] = int(processboth.split("/")[1])
 		else:
-			router_update["processes"]["runnable"] = 0
-			router_update["processes"]["total"] = 0
+			router_update["processes"]["runnable"] = int(0)
+			router_update["processes"]["total"] = int(0)
 
 		try:
 			lng = evalxpathfloat(tree,"/data/system_data/geo/lng/text()")
@@ -871,8 +743,8 @@ def parse_nodewatcher_xml(xml,statstime):
 				"traffic": {
 					"rx_bytes": evalxpathint(netif,"traffic_rx/text()"),
 					"tx_bytes": evalxpathint(netif,"traffic_tx/text()"),
-					"rx": 0,
-					"tx": 0,
+					"rx": int(0),
+					"tx": int(0),
 				},
 				"ipv4_addr": ipv4toint(evalxpath(netif,"ipv4_addr/text()")),
 				"mac": mac2int(evalxpath(netif,"mac_addr/text()")),
