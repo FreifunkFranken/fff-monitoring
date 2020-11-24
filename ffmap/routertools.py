@@ -517,7 +517,7 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statsti
 			"sys_memfree": router_update["memory"]['free'],
 			"sys_membuff": router_update["memory"]['buffering'],
 			"sys_memcache": router_update["memory"]['caching'],
-			"loadavg": router_update["sys_loadavg"],
+			"loadavg": float(router_update["sys_loadavg"]),
 			"sys_procrun": router_update["processes"]['runnable'],
 			"sys_proctot": router_update["processes"]['total'],
 			"clients": router_update["clients"],
