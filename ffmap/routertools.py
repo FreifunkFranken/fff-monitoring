@@ -422,12 +422,8 @@ def delete_orphaned_routers(mysql):
 	threshold=mysql.formatdt(utcnow() - datetime.timedelta(days=CONFIG["delete_threshold_days"]))
 	
 	mysql.execute("""
-		DELETE r, e, i, nb, net FROM router AS r
-		INNER JOIN router_events AS e ON r.id = e.router
-		INNER JOIN router_ipv6 AS i ON r.id = i.router
-		INNER JOIN router_neighbor AS nb ON r.id = nb.router
-		INNER JOIN router_netif AS net ON r.id = net.router
-		WHERE r.last_contact < %s AND r.status <> 'offline'
+		DELETE FROM router
+		WHERE last_contact < %s AND status <> 'offline'
 	""",(threshold,))
 	mysql.commit()
 
