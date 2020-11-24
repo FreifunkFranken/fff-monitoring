@@ -465,7 +465,7 @@ function global_router_firmwares_graph() {
 		tooltip: {show: true, content: "<b>%s</b>: %p.1%", shifts: {x: 15, y: 5}, defaultTheme: true},
 		series: {pie: {
 			show: true, radius: 99/100, label: {show: true, formatter: labelFormatter, radius: 0.5, threshold: 0.10},
-			combine: {threshold: 0.005}
+			combine: {threshold: 0.010}
 		}}
 	});
 	placeholder.bind("plotclick", function(event, pos, obj) {
