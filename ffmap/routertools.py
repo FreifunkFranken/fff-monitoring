@@ -476,6 +476,9 @@ def delete_old_stats(mysql):
 	old_netif			= (utcnow() - datetime.timedelta(days=CONFIG["router_oldstat_netif"])).timestamp()
 	old_gw				= (utcnow() - datetime.timedelta(days=CONFIG["router_oldstat_gw"])).timestamp()
 
+	limit = "100000"
+	limit = "500000"
+
 	start_time = time.time()
 	rowsaffected = mysql.execute("""
 		DELETE s FROM router_stats AS s
@@ -501,7 +504,7 @@ def delete_old_stats(mysql):
 	query = """
 				DELETE FROM router_stats_gw
 				WHERE time < %s
-				LIMIT 100000
+				LIMIT """+limit+"""
 			"""
 	delete_stats_helper(mysql,"gw-stats",query,(threshold_gw,))
 
@@ -509,7 +512,7 @@ def delete_old_stats(mysql):
 	query = """
 				DELETE FROM router_stats_old_gw
 				WHERE time < %s
-				LIMIT 100000
+				LIMIT """+limit+"""
 			"""
 	delete_stats_helper(mysql,"gw-stats (old)",query,(old_gw,))
 
@@ -517,7 +520,7 @@ def delete_old_stats(mysql):
 	query = """
 				DELETE FROM router_stats_neighbor
 				WHERE time < %s
-				LIMIT 100000
+				LIMIT """+limit+"""
 			"""
 	delete_stats_helper(mysql,"neighbor-stats",query,(threshold,))
 
@@ -525,7 +528,7 @@ def delete_old_stats(mysql):
 	query = """
 				DELETE FROM router_stats_old_neighbor
 				WHERE time < %s
-				LIMIT 100000
+				LIMIT """+limit+"""
 			"""
 	delete_stats_helper(mysql,"neighbor-stats (old)",query,(old,))
 
@@ -533,7 +536,7 @@ def delete_old_stats(mysql):
 	query = """
 				DELETE FROM router_stats_netif
 				WHERE time < %s
-				LIMIT 100000
+				LIMIT """+limit+"""
 			"""
 	delete_stats_helper(mysql,"netif-stats",query,(threshold_netif,))
 
@@ -541,7 +544,7 @@ def delete_old_stats(mysql):
 	query = """
 				DELETE FROM router_stats_old_netif
 				WHERE time < %s
-				LIMIT 100000
+				LIMIT """+limit+"""
 			"""
 	delete_stats_helper(mysql,"netif-stats (old)",query,(old_netif,))
 
