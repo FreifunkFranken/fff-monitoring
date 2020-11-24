@@ -18,7 +18,7 @@ def update_hoods_v2(mysql):
 		kx_data = []
 		for kx in hoodskx:
 			kx_keys.append(kx["id"])
-			kx_data.append((kx["id"],kx["name"],kx["net"],kx.get("lat",None),kx.get("lon",None),))
+			kx_data.append((kx["id"],kx["name"],kx.get("lat",None),kx.get("lon",None),))
 
 		# Delete entries in DB where hood is missing in KeyXchange
 		db_keys = mysql.fetchall("SELECT id FROM hoodsv2",(),"id")
@@ -29,11 +29,10 @@ def update_hoods_v2(mysql):
 
 		# Create/update entries from KeyXchange to DB
 		mysql.executemany("""
-			INSERT INTO hoodsv2 (id, name, net, lat, lng)
-			VALUES (%s, %s, %s, %s, %s)
+			INSERT INTO hoodsv2 (id, name, lat, lng)
+			VALUES (%s, %s, %s, %s)
 			ON DUPLICATE KEY UPDATE
 				name=VALUES(name),
-				net=VALUES(net),
 				lat=VALUES(lat),
 				lng=VALUES(lng)
 		""",kx_data)

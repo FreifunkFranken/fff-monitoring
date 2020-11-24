@@ -39,7 +39,6 @@ mysql.execute("""
 	CREATE TABLE `hoodsv2` (
 		`id` int(10) UNSIGNED NOT NULL,
 		`name` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-		`net` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
 		`lat` double DEFAULT NULL,
 		`lng` double DEFAULT NULL
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
