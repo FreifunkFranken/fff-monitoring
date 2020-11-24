@@ -40,7 +40,7 @@ def ban_router(mysql,dbid):
 		mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added,))
 		mysql.commit()
 
-def import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime):
+def import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, hoodsdict, statstime):
 	#global router_rate_limit_list
 
 	#if mac in router_rate_limit_list:
@@ -312,7 +312,7 @@ def import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, netifdict,
 		""",gwdata)
 		
 		if router_id:
-			new_router_stats(infdict, router_id, uptime, router_update, netifdict, statstime)
+			new_router_stats(infdict, router_id, uptime, router_update, statstime)
 		
 	except ValueError as e:
 		import traceback
@@ -497,7 +497,7 @@ def set_status(mysql,router_id,status):
 		mysql.utcnow(),
 		router_id,))
 
-def new_router_stats(infdict, router_id, uptime, router_update, netifdict, statstime):
+def new_router_stats(infdict, router_id, uptime, router_update, statstime):
 	#if not (uptime + CONFIG["router_stat_mindiff_secs"]) < router_update["sys_uptime"]:
 	#	return
 	#time = mysql.formattimestamp(statstime)

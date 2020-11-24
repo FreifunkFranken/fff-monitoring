@@ -149,7 +149,6 @@ def alfred():
 			SELECT name FROM hoodsv2
 		""",(),"name")
 		statstime = utcnow()
-		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
 		hoodsdict = mysql.fetchdict("SELECT id, name FROM hoods",(),"name","id")
 		if request.method == 'POST':
 			try:
@@ -171,7 +170,7 @@ def alfred():
 
 				# load router status xml data
 				for mac, xml in alfred_data.get("64", {}).items():
-					import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
+					import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, hoodsdict, statstime)
 
 				mysql.commit()
 
@@ -211,7 +210,6 @@ def alfred2():
 			SELECT name FROM hoodsv2
 		""",(),"name")
 		statstime = utcnow()
-		netifdict = mysql.fetchdict("SELECT id, name FROM netifs",(),"name","id")
 		hoodsdict = mysql.fetchdict("SELECT id, name FROM hoods",(),"name","id")
 
 		if request.method == 'POST':
@@ -234,7 +232,7 @@ def alfred2():
 
 				# load router status xml data
 				for mac, xml in alfred_data.items():
-					import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
+					import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, hoodsdict, statstime)
 
 				mysql.commit()
 
