@@ -40,7 +40,7 @@ def ban_router(mysql,dbid):
 		mysql.execute("INSERT INTO banned (mac, added) VALUES (%s, %s)",(mac,added,))
 		mysql.commit()
 
-def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime):
+def import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime):
 	#global router_rate_limit_list
 
 	#if mac in router_rate_limit_list:
@@ -312,7 +312,7 @@ def import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdic
 		""",gwdata)
 		
 		if router_id:
-			new_router_stats(mysql, router_id, uptime, router_update, netifdict, statstime)
+			new_router_stats(infdict, router_id, uptime, router_update, netifdict, statstime)
 		
 	except ValueError as e:
 		import traceback
@@ -497,17 +497,15 @@ def set_status(mysql,router_id,status):
 		mysql.utcnow(),
 		router_id,))
 
-def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statstime):
+def new_router_stats(infdict, router_id, uptime, router_update, netifdict, statstime):
 	#if not (uptime + CONFIG["router_stat_mindiff_secs"]) < router_update["sys_uptime"]:
 	#	return
 	#time = mysql.formattimestamp(statstime)
 
-	influ = FreifunkInflux()
-
 	#stattime = mysql.findone("SELECT time FROM router_stats WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
 	#oldstattime = mysql.findone("SELECT time FROM router_stats_old WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
 
-	stats_json = [{
+	infdict["router_default"].append({
 		"measurement": "stat",
 		"tags": {
 			"router": router_id,
@@ -527,20 +525,18 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statsti
 			"airtime_w2": router_update["w2_airtime"],
 			"airtime_w5": router_update["w5_airtime"]
 			}
-		}]
-	influ.write(stats_json,"router_default")
+		})
 
 	#if not stattime or (stattime + CONFIG["router_stat_mindiff_default"]) < time:
 
 	#netiftime = mysql.findone("SELECT time FROM router_stats_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
 	#oldnetiftime = mysql.findone("SELECT time FROM router_stats_old_netif WHERE router = %s ORDER BY time DESC LIMIT 1",(router_id,),"time")
 
-	stats_json = []
 	for netif in router_update["netifs"]:
 		# sanitize name
 		name = netif["name"].replace(".", "").replace("$", "")
 		with suppress(KeyError):
-			stats_json.append({
+			infdict["router_netif"].append({
 				"measurement": "stat",
 				"tags": {
 					"router": router_id,
@@ -552,13 +548,11 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statsti
 					"tx": int(netif["traffic"]["tx"])
 					}
 				})
-	influ.write(stats_json,"router_netif")
 
 	# reuse timestamp from router_stats to avoid additional queries
-	stats_json = []
 	for neighbour in router_update["neighbours"]:
 		with suppress(KeyError):
-			stats_json.append({
+			infdict["router_neighbor"].append({
 				"measurement": "stat",
 				"tags": {
 					"router": router_id,
@@ -569,13 +563,11 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statsti
 					"quality": float(neighbour["quality"])
 					}
 				})
-	influ.write(stats_json,"router_neighbor")
 
 	# reuse timestamp from router_stats to avoid additional queries
-	stats_json = []
 	for gw in router_update["gws"]:
 		with suppress(KeyError):
-			stats_json.append({
+			infdict["router_gw"].append({
 				"measurement": "stat",
 				"tags": {
 					"router": router_id,
@@ -586,7 +578,6 @@ def new_router_stats(mysql, router_id, uptime, router_update, netifdict, statsti
 					"quality": float(gw["quality"])
 					}
 				})
-	influ.write(stats_json,"router_gw")
 
 def calculate_network_io(mysql, router_id, uptime, router_update):
 	"""

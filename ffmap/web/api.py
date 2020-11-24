@@ -161,10 +161,24 @@ def alfred():
 				return r
 
 			if alfred_data:
+				# prepare influx
+				infdict = {
+					"router_default": [],
+					"router_neighbor": [],
+					"router_netif": [],
+					"router_gw": []
+					}
+
 				# load router status xml data
 				for mac, xml in alfred_data.get("64", {}).items():
-					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
+					import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
+
 				mysql.commit()
+
+				influ = FreifunkInflux()
+				for infret, infdata in infdict.items():
+					influ.write(infdata,infret)
+
 				r.headers['X-API-STATUS'] = "ALFRED data imported"
 		mysql.close()
 		#pr.disable()
@@ -210,10 +224,24 @@ def alfred2():
 				return r
 
 			if alfred_data:
+				# prepare influx
+				infdict = {
+					"router_default": [],
+					"router_neighbor": [],
+					"router_netif": [],
+					"router_gw": []
+					}
+
 				# load router status xml data
 				for mac, xml in alfred_data.items():
-					import_nodewatcher_xml(mysql, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
+					import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, netifdict, hoodsdict, statstime)
+
 				mysql.commit()
+
+				influ = FreifunkInflux()
+				for infret, infdata in infdict.items():
+					influ.write(infdata,infret)
+
 				r.headers['X-API-STATUS'] = "ALFRED2 data imported"
 		mysql.close()
 
