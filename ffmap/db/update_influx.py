@@ -12,6 +12,6 @@ policies = influ_policies()
 if len(sys.argv) > 1:
 	# read password for user input
 	pw = getpass()
-	influ_set_retention(False,policies,sys.argv[1],pw)
+	influ_set_retention(True,policies,sys.argv[1],pw)
 else:
-	influ_set_retention(False,policies)
+	influ_set_retention(True,policies)
