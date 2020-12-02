@@ -8,8 +8,8 @@
 
 ## Debian Dependencies
 ```bash
-apt-get install mysql-server memcached python3-memcache python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx
-pip3 install wheel pymongo pillow modestmaps simplejson werkzeug
+apt-get install mariadb-server memcached python3-memcache python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx git
+pip3 install wheel pymongo pillow modestmaps simplejson werkzeug tilestache
 ```
 
 ## Prerequisites
