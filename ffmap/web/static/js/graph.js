@@ -74,7 +74,7 @@ function network_graph(netif_stats, field, tx_label, rx_label) {
 		try {
 			var tx_value = netif_stats[i].tx;
 			var rx_value = netif_stats[i].rx;
-			var date_value = netif_stats[i].time.$date;
+			var date_value = netif_stats[i].t.$date;
 			if(tx_value != null && rx_value != null) {
 				tx.push([date_value, tx_value * 8]);
 				rx.push([date_value, rx_value * 8]);
@@ -114,8 +114,8 @@ function neighbour_graph(neigh_label) {
 		}
 		for (len=dataset.length, i=0; i<len; i++) {
 			try {
-				var quality = dataset[i].quality;
-				var date_value = dataset[i].time.$date;
+				var quality = dataset[i].q;
+				var date_value = dataset[i].t.$date;
 				if(quality == null) {
 					quality = 0;
 				}
@@ -157,10 +157,10 @@ function gw_graph(gws) {
 		var data = [];
 		var len, i;
 		for (len=gw_stats.length, i=0; i<len; i++) {
-			if (gw_stats[i].mac != mac) { continue; }
+			if (gw_stats[i].m != mac) { continue; }
 			try {
-				var quality = gw_stats[i].quality;
-				var date_value = gw_stats[i].time.$date;
+				var quality = gw_stats[i].q;
+				var date_value = gw_stats[i].t.$date;
 				if(quality == null) {
 					quality = 0;
 				}
@@ -188,10 +188,10 @@ function memory_graph() {
 	var len, i;
 	for (len=router_stats.length, i=0; i<len; i++) {
 		try {
-			var free_value = router_stats[i].sys_memfree*1024;
-			var caching_value = router_stats[i].sys_memcache*1024;
-			var buffering_value = router_stats[i].sys_membuff*1024;
-			var date_value = router_stats[i].time.$date;
+			var free_value = router_stats[i].mf*1024;
+			var caching_value = router_stats[i].mc*1024;
+			var buffering_value = router_stats[i].mb*1024;
+			var date_value = router_stats[i].t.$date;
 			if(free_value != null && caching_value != null && buffering_value != null) {
 				free.push([date_value, free_value]);
 				caching.push([date_value, caching_value]);
@@ -223,9 +223,9 @@ function process_graph() {
 		var len, i;
 		for (len=router_stats.length, i=0; i<len; i++) {
 			try {
-				var runnable_value = router_stats[i].sys_procrun;
-				var total_value = router_stats[i].sys_proctot;
-				var date_value = router_stats[i].time.$date;
+				var runnable_value = router_stats[i].pr;
+				var total_value = router_stats[i].pt;
+				var date_value = router_stats[i].t.$date;
 				if(runnable_value != null && total_value != null) {
 					runnable.push([date_value, runnable_value]);
 					total.push([date_value, total_value]);
@@ -255,11 +255,11 @@ function client_graph() {
 	var len, i;
 	for (len=router_stats.length, i=0; i<len; i++) {
 		try {
-			var client_value = router_stats[i].clients;
-			var client_eth = router_stats[i].clients_eth;
-			var client_w2 = router_stats[i].clients_w2;
-			var client_w5 = router_stats[i].clients_w5;
-			var date_value = router_stats[i].time.$date;
+			var client_value = router_stats[i].c;
+			var client_eth = router_stats[i].ce;
+			var client_w2 = router_stats[i].c2;
+			var client_w5 = router_stats[i].c5;
+			var date_value = router_stats[i].t.$date;
 			if(client_value != null) {
 				clients.push([date_value, client_value]);
 			}
@@ -313,8 +313,8 @@ function loadavg_graph() {
 	var len, i;
 	for (len=router_stats.length, i=0; i<len; i++) {
 		try {
-			var load_value = router_stats[i].loadavg;
-			var date_value = router_stats[i].time.$date;
+			var load_value = router_stats[i].l;
+			var date_value = router_stats[i].t.$date;
 			if(load_value != null) {
 				loadavg.push([date_value, load_value]);
 			}
@@ -343,9 +343,9 @@ function airtime_graph() {
 	var len, i;
 	for (len=router_stats.length, i=0; i<len; i++) {
 		try {
-			var air2_value = router_stats[i].airtime_w2;
-			var air5_value = router_stats[i].airtime_w5;
-			var date_value = router_stats[i].time.$date;
+			var air2_value = router_stats[i].a2;
+			var air5_value = router_stats[i].a5;
+			var date_value = router_stats[i].t.$date;
 			if(air2_value != null) {
 				airtime2.push([date_value, air2_value * 100]);
 			}

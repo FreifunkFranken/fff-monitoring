@@ -152,6 +152,12 @@ def statbson_to_json(bsn):
 		point["time"] = {"$date": int(point["time"].timestamp()*1000)}
 	return json.dumps(bsn)
 
+@filters.app_template_filter('shortbson2json')
+def shortbson_to_json(bsn):
+	for point in bsn:
+		point["t"] = {"$date": int(point["t"].timestamp()*1000)}
+	return json.dumps(bsn)
+
 @filters.app_template_filter('nbsp')
 def nbsp(txt):
 	return txt.replace(" ", "&nbsp;")

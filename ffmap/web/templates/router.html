@@ -434,11 +434,11 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		var router_stats = {{ router.stats|statbson2json|safe }};
+		var router_stats = {{ router.stats|shortbson2json|safe }};
 		var netif_stats = null;
 		var neigh_stats = {{ neighstats|safe }};
 		var neigh_label = {{ neighlabel|bson2json|safe }};
-		var gw_stats = {{ gwstats|statbson2json|safe }};
+		var gw_stats = {{ gwstats|shortbson2json|safe }};
 		var neighbours = [
 		{%- for neighbour in router.neighbours %}
 			{"name": "{{ neighbour.hostname or neighbour.mac|int2mac }}", "mac": "{{ neighbour.mac }}", "netif": "{{ neighbour.netif }}"},

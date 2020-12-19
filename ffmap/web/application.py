@@ -270,8 +270,24 @@ def router_info(dbid):
 			for n in router["neighbours"]:
 				n["color"] = neighbor_color(n["quality"],n["netif"],router["routing_protocol"])
 
-			router["stats"] = influ.fetchlist('SELECT * FROM router_default.stat WHERE router = $router ORDER BY time ASC',{"router": dbid})
-			for s in router["stats"]:
+			router_stats = influ.fetchlist('SELECT * FROM router_default.stat WHERE router = $router ORDER BY time ASC',{"router": dbid})
+			router["stats"] = []
+			for s in router_stats:
+				router["stats"].append({
+						"t": mysql.utcawareint(s["time"]),
+						"a2": s["airtime_w2"],
+						"a5": s["airtime_w5"],
+						"c": s["clients"],
+						"ce": s["clients_eth"],
+						"c2": s["clients_w2"],
+						"c5": s["clients_w5"],
+						"l": s["loadavg"],
+						"mb": s["sys_membuff"],
+						"mc": s["sys_memcache"],
+						"mf": s["sys_memfree"],
+						"pr": s["sys_procrun"],
+						"pt": s["sys_proctot"]
+					})
 				s["time"] = mysql.utcawareint(s["time"])
 
 			neighfetch = influ.fetchlist('SELECT quality, mac, time FROM router_neighbor.stat WHERE router = $router AND time > now() - 24h ORDER BY time ASC',{"router": dbid})
@@ -279,11 +295,13 @@ def router_info(dbid):
 			neighdata = {}
 			neighmacint = []
 			for ns in neighfetch:
-				ns["time"] = {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)}
 				if not ns["mac"] in neighdata:
 					neighdata[ns["mac"]] = []
 					neighmacint.append(mac2int(ns["mac"]))
-				neighdata[ns["mac"]].append(ns)
+				neighdata[ns["mac"]].append({
+					"t": {"$date": int(mysql.utcawareint(ns["time"]).timestamp()*1000)},
+					"q": ns["quality"]
+					})
 
 			#neighident = mysql.fetchall("""
 			#	SELECT snb.mac, r.hostname, n.netif
@@ -317,8 +335,13 @@ def router_info(dbid):
 					neighlabel[int2shortmac(ni["mac"])] = label + append
 
 			gwfetch = influ.fetchlist('SELECT quality, mac, time FROM router_gw.stat WHERE router = $router ORDER BY time ASC',{"router": dbid})
+			gwstats = []
 			for ns in gwfetch:
-				ns["time"] = mysql.utcawareint(ns["time"])
+				gwstats.append({
+					"t": mysql.utcawareint(ns["time"]),
+					"q": ns["quality"],
+					"m": ns["mac"]
+					})
 
 			if request.method == 'POST':
 				if request.form.get("act") == "delete":
@@ -394,7 +417,7 @@ def router_info(dbid):
 			tileurls = tileurls,
 			neighstats = neighdata,
 			neighlabel = neighlabel,
-			gwstats = gwfetch,
+			gwstats = gwstats,
 			authuser = is_authorized(router["user"], session),
 			authadmin = session.get('admin')
 			)

@@ -28,11 +28,16 @@ def load_netif_stats(dbid):
 	influ = FreifunkInflux()
 
 	netiffetch = influ.fetchlist('SELECT netif, rx, tx, time FROM router_netif.stat WHERE router = $router AND netif = $netif ORDER BY time ASC',{"router": dbid, "netif": netif})
+	netifstats = []
 
 	for ns in netiffetch:
-		ns["time"] = {"$date": int(influ.utcawareint(ns["time"]).timestamp()*1000)}
+		netifstats.append({
+			"t": {"$date": int(influ.utcawareint(ns["time"]).timestamp()*1000)},
+			"rx": ns["rx"],
+			"tx": ns["tx"]
+		})
 
-	r = make_response(json.dumps(netiffetch))
+	r = make_response(json.dumps(netifstats))
 	r.mimetype = 'application/json'
 	return r
 	#return make_response(json.dumps({}))
@@ -47,10 +52,12 @@ def load_neighbor_stats(dbid):
 	neighdata = {}
 
 	for ns in neighfetch:
-		ns["time"] = {"$date": int(influ.utcawareint(ns["time"]).timestamp()*1000)}
 		if not ns["mac"] in neighdata:
 			neighdata[ns["mac"]] = []
-		neighdata[ns["mac"]].append(ns)
+		neighdata[ns["mac"]].append({
+			"t": {"$date": int(influ.utcawareint(ns["time"]).timestamp()*1000)},
+			"q": ns["quality"]
+			})
 
 	r = make_response(json.dumps(neighdata))
 	r.mimetype = 'application/json'
