@@ -37,6 +37,8 @@ def update_hoods_v2(mysql):
 				lng=VALUES(lng)
 		""",kx_data)
 
+		mysql.commit()
+
 	except urllib.error.HTTPError as e:
 		return
 

@@ -26,6 +26,7 @@ record_global_stats(influ,mysql)
 record_hood_stats(influ,mysql)
 record_gw_stats(influ,mysql)
 update_mapnik_csv(mysql)
+mysql.commit()
 mysql.close()
 
 print("--- %.3f seconds ---" % (time.time() - start_time))
