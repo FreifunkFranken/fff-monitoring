@@ -232,7 +232,7 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		var global_stats = {{ stats|statbson2json|safe }};
+		var global_stats = {{ stats|shortbson2json|safe }};
 		var router_firmwares = {{ router_firmwares|tojson }};
 		var router_models = {{ router_models|tojson }};
 		var routers_page_url = "{{ url_for('router_list') }}";

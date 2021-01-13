@@ -384,8 +384,8 @@ function global_client_graph(indata,field) {
 	var len, i;
 	for (len=indata.length, i=0; i<len; i++) {
 		try {
-			var client_value = indata[i].clients;
-			var date_value = indata[i].time.$date;
+			var client_value = indata[i].c;
+			var date_value = indata[i].t.$date;
 			if(client_value != null) {
 				clients.push([date_value, client_value]);
 			}
@@ -414,11 +414,11 @@ function global_router_graph(indata,field) {
 	var len, i;
 	for (len=indata.length, i=0; i<len; i++) {
 		try {
-			var offline_value = indata[i].offline;
-			var online_value = indata[i].online;
-			var unknown_value = indata[i].unknown;
-			var orphaned_value = indata[i].orphaned;
-			var date_value = indata[i].time.$date;
+			var offline_value = indata[i].off;
+			var online_value = indata[i].on;
+			var unknown_value = indata[i].un;
+			var orphaned_value = indata[i].or;
+			var date_value = indata[i].t.$date;
 			if (offline_value == null) offline_value = 0;
 			if (online_value == null) online_value = 0;
 			if (unknown_value == null) unknown_value = 0;

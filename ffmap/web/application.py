@@ -547,20 +547,37 @@ def user_info(nickname):
 @app.route('/statistics')
 def global_statistics():
 	influ = FreifunkInflux()
-	stats = influ.fetchlist('SELECT * FROM global_default.stat WHERE time > now() - {}d'.format(CONFIG["global_stat_show_days"]))
+	stats = influ.fetchlist("""
+		SELECT time AS "t", clients AS "c", online AS "on", offline AS "off", unknown AS "un", orphaned AS "or", rx, tx
+		FROM global_default.stat
+		WHERE time > now() - {}d
+		""".format(CONFIG["global_stat_show_days"])
+		)
 	return helper_statistics(stats,None,None)
 
 @app.route('/hoodstatistics/<selecthood>')
 def global_hoodstatistics(selecthood):
 	selecthood = int(selecthood)
 	influ = FreifunkInflux()
-	stats = influ.fetchlist('SELECT * FROM global_hoods.stat  WHERE hood = $hood AND time > now() - {}d'.format(CONFIG["global_stat_show_days"]),{"hood": str(selecthood)})
+	stats = influ.fetchlist("""
+		SELECT time AS "t", clients AS "c", online AS "on", offline AS "off", unknown AS "un", orphaned AS "or", rx, tx
+		FROM global_hoods.stat
+		WHERE hood = $hood AND time > now() - {}d
+		""".format(CONFIG["global_stat_show_days"]),
+		{"hood": str(selecthood)}
+		)
 	return helper_statistics(stats,selecthood,None)
 
 @app.route('/gwstatistics/<selectgw>')
 def global_gwstatistics(selectgw):
 	influ = FreifunkInflux()
-	stats = influ.fetchlist('SELECT * FROM global_gw.stat WHERE mac = $mac AND time > now() - {}d'.format(CONFIG["global_gwstat_show_days"]),{"mac": selectgw})
+	stats = influ.fetchlist("""
+		SELECT time AS "t", clients AS "c", online AS "on", offline AS "off", unknown AS "un", orphaned AS "or", rx, tx
+		FROM global_gw.stat
+		WHERE mac = $mac AND time > now() - {}d
+		""".format(CONFIG["global_gwstat_show_days"]),
+		{"mac": selectgw}
+		)
 	selectgw = shortmac2mac(selectgw)
 	return helper_statistics(stats,None,selectgw)
 
@@ -587,7 +604,7 @@ def helper_statistics(stats,selecthood,selectgw):
 			mysql.close()
 			return "Gateway not found"
 
-		stats = mysql.utcawaretupleint(stats,"time")
+		stats = mysql.utcawaretupleint(stats,"t")
 
 		numnew = len(hoods)-27
 		if numnew < 1:
