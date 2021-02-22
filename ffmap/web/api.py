@@ -365,7 +365,7 @@ def wifianalhelper(router_data, headline):
 	for router in router_data:
 		if not router['mac']:
 			continue
-		if router["netif"] == 'br-mesh':
+		if router["netif"] == 'br-mesh' or router["netif"] == 'br-client':
 			s += int2mac(router["mac"]) + "|Mesh_" + router['hostname'] + "\n"
 		elif router["netif"] == 'w2ap':
 			s += int2mac(router["mac"]) + "|" + router['hostname'] + "\n"
@@ -432,7 +432,7 @@ def dnsentries():
 	return Response(s,mimetype='text/plain')
 
 def nodelist_helper(where = "",data=()):
-	# Suppresses routers without br-mesh
+	# Suppresses routers without br-client
 	mysql = FreifunkMySQL()
 	router_data = mysql.fetchall("""
 		SELECT router.id, hostname, status, hoods.id AS hoodid, hoods.name AS hood, contact, nickname, hardware, firmware, clients, lat, lng, last_contact, mac, sys_loadavg, fe80_addr
@@ -440,7 +440,7 @@ def nodelist_helper(where = "",data=()):
 		INNER JOIN hoods ON router.hood = hoods.id
 		INNER JOIN router_netif ON router.id = router_netif.router
 		LEFT JOIN users ON router.contact = users.email
-		WHERE netif = 'br-mesh' {}
+		WHERE (netif = 'br-mesh' OR netif = 'br-client') {}
 		ORDER BY hostname ASC
 	""".format(where),data)
 	router_data = mysql.utcawaretuple(router_data,"last_contact")
@@ -470,7 +470,7 @@ def nodelist_helper(where = "",data=()):
 					fastd += 1
 				elif netif.startswith('l2tp'):
 					l2tp += 1
-				#elif netif['netif'] == 'br-mesh' and 'mac' in netif:
+				#elif netif['netif'] in ('br-mesh','br-client') and 'mac' in netif:
 				#	mac = netif["mac"]
 		
 		if not router['mac']:
@@ -538,7 +538,7 @@ def no_position():
 
 @api.route('/routers')
 def routers():
-	# Suppresses routers without br-mesh
+	# Suppresses routers without br-client
 	return jsonify(nodelist_helper())
 
 @api.route('/routers_by_nickname/<nickname>')

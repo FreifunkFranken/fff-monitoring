@@ -246,7 +246,7 @@ def gravatar_url(email):
 
 @filters.app_template_filter('webui_addr')
 def webui_addr(router_netifs):
-	for br_mesh in filter(lambda n: n["netif"] == "br-mesh", router_netifs):
+	for br_mesh in filter(lambda n: n["netif"] in ("br-mesh","br-client"), router_netifs):
 		for ipv6 in br_mesh["ipv6_addrs"]:
 			ipv6 = bintoipv6(ipv6)
 			if not ipv6:

@@ -33,7 +33,7 @@ def ban_router(mysql,dbid):
 	mac = mysql.findone("""
 		SELECT mac
 		FROM router_netif
-		WHERE router = %s AND netif = 'br-mesh'
+		WHERE router = %s AND (netif = 'br-mesh' OR netif = 'br-client')
 	""",(dbid,),"mac")
 	added = mysql.utcnow()
 	if mac:
@@ -50,6 +50,8 @@ def import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, hoodsdict,
 
 	# The following values should stay available after router reset
 	keepvalues = ['lat','lng','description','position_comment','contact']
+
+	brifs = ('br-mesh','br-client')
 
 	router_id = None
 	olddata = False
@@ -180,7 +182,7 @@ def import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, hoodsdict,
 			akeys = []
 			for n in router_update["netifs"]:
 				nkeys.append(n["name"])
-				if n["name"]=='br-mesh': # Only br-mesh will normally have assigned IPv6 addresses
+				if n["name"] in brifs: # Only br-client will normally have assigned IPv6 addresses
 					akeys = n["ipv6_addrs"]
 			
 			if nkeys:
@@ -194,7 +196,7 @@ def import_nodewatcher_xml(mysql, infdict, mac, xml, banned, hoodsv2, hoodsdict,
 			if akeys:
 				adata = mysql.fetchall("SELECT netif, ipv6 FROM router_ipv6 WHERE router = %s",(router_id,))
 				for a in adata:
-					if a["netif"]=='br-mesh' and a["ipv6"] in akeys:
+					if a["netif"] in brifs and a["ipv6"] in akeys:
 						continue
 					mysql.execute("DELETE FROM router_ipv6 WHERE router = %s AND netif = %s AND ipv6 = %s",(router_id,a["netif"],a["ipv6"],))
 			else:

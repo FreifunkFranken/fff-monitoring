@@ -6,6 +6,9 @@
 #
 # designed for GATEWAY FIRMWARE
 #
+# v1.4.7 - 2021-02-22
+# - Use br-client instead of br-mesh
+#
 # v1.4.6 - 2018-10-17
 # - Fix IPv4/IPv6 sed (leading space in match pattern)
 #
@@ -47,6 +50,7 @@
 # Config
 api_urls="https://monitoring.freifunk-franken.de/api/gwinfo" # space-separated list of addresses (api_urls="url1 url2")
 batctlpath=/usr/sbin/batctl
+brif=br-client
 hostname="$(uci -q get system.@system[0].hostname)"
 statslink="$(uci -q get gateway.@gateway[0].statslink)"
 
@@ -67,10 +71,10 @@ for netif in $(ls /sys/class/net); do
 	dhcpstart=""
 	dhcpend=""
 	if [ "$netif" = "bat0" ]; then
-		ipv4="$(ip -4 addr show dev br-mesh | grep " 10\." | sed 's/.* \(10\.[^ ]*\/[^ ]*\) .*/\1/')"
-		ipv6="$(ip -6 addr show dev br-mesh | grep " fd43" | grep '::' | sed 's/.* \(fd43[^ ]*\) .*/\1/')"
+		ipv4="$(ip -4 addr show dev "$brif" | grep " 10\." | sed 's/.* \(10\.[^ ]*\/[^ ]*\) .*/\1/')"
+		ipv6="$(ip -6 addr show dev "$brif" | grep " fd43" | grep '::' | sed 's/.* \(fd43[^ ]*\) .*/\1/')"
 		[ "$(echo "$ipv6" | wc -l)" = "1" ] || ipv6=""
-		dhcpstart="$(uci -q get dhcp.mesh.start)"
+		dhcpstart="$(uci -q get dhcp.client.start)"
 	fi
 
 	echo "$comma{\"mac\":\"$mac\",\"netif\":\"$netif\",\"vpnif\":\"$batctl\",\"ipv4\":\"$ipv4\",\"ipv6\":\"$ipv6\",\"dhcpstart\":\"$dhcpstart\",\"dhcpend\":\"$dhcpend\"}" >> $tmp

@@ -60,7 +60,7 @@ def router_list():
 		LEFT JOIN (
 			SELECT router, blocked.mac AS blocked FROM router_netif
 			INNER JOIN blocked ON router_netif.mac = blocked.mac
-			WHERE netif = 'br-mesh'
+			WHERE netif = 'br-mesh' OR netif = 'br-client'
 		) AS b
 		ON router.id = b.router
 		{}
@@ -157,7 +157,7 @@ def router_info(dbid):
 			netifs = []
 			for n in router["netifs"]:
 				n["ipv6_addrs"] = mysql.fetchall("""SELECT ipv6 FROM router_ipv6 WHERE router = %s AND netif = %s""",(dbid,n["netif"],),"ipv6")
-				if n["netif"]=="br-mesh":
+				if n["netif"] in ("br-mesh","br-client"):
 					mac = n["mac"]
 				netifs.append(n["netif"])
 			
@@ -206,7 +206,7 @@ def router_info(dbid):
 				netif = n["netif"];
 				desc = None
 				color = None
-				if netif == 'br-mesh':
+				if netif in ('br-mesh','br-client'):
 					desc = "Client Bridge"
 				elif netif == 'br-ethmesh':
 					desc = "Ethernet Mesh Bridge"
@@ -362,7 +362,7 @@ def router_info(dbid):
 							mysql.close()
 							return redirect(url_for("index"))
 						else:
-							flash("<b>Router has no br-mesh and thus cannot be banned!</b>", "danger")
+							flash("<b>Router has no br-client/br-mesh and thus cannot be banned!</b>", "danger")
 					else:
 						flash("<b>You are not authorized to perform this action!</b>", "danger")
 				elif request.form.get("act") == "changeblocked" and mac:
@@ -407,7 +407,7 @@ def router_info(dbid):
 			SELECT blocked.mac
 			FROM router_netif AS n
 			LEFT JOIN blocked ON n.mac = blocked.mac
-			WHERE n.router = %s AND n.netif = 'br-mesh'
+			WHERE n.router = %s AND (n.netif = 'br-mesh' OR n.netif = 'br-client')
 		""",(dbid,),"mac")
 		mysql.close()
 		
@@ -528,7 +528,7 @@ def user_info(nickname):
 		LEFT JOIN (
 			SELECT router, blocked.mac AS blocked FROM router_netif
 			INNER JOIN blocked ON router_netif.mac = blocked.mac
-			WHERE netif = 'br-mesh'
+			WHERE netif = 'br-mesh' OR netif = 'br-client'
 		) AS b
 		ON router.id = b.router
 		WHERE contact = %s
