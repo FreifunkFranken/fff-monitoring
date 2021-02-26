@@ -285,6 +285,7 @@ def router_info(dbid):
 						"mb": s["sys_membuff"],
 						"mc": s["sys_memcache"],
 						"mf": s["sys_memfree"],
+						"ma": s["sys_memavail"],
 						"pr": s["sys_procrun"],
 						"pt": s["sys_proctot"]
 					})

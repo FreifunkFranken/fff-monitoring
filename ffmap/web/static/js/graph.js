@@ -20,6 +20,9 @@ function legendFormatter(label, series) {
 	return label;
 }
 
+function appendMiB(value, fixed=1) {
+	return " (" + (value/1024).toFixed(fixed) + " M)";
+}
 
 function setup_plot_zoom(plot, pdata, num_data_points) {
 	plot.getPlaceholder().bind("plotselected", function (event, ranges) {
@@ -184,18 +187,42 @@ function gw_graph(gws) {
 
 function memory_graph() {
 	var memstat = $("#memstat");
-	var free = [], caching = [], buffering = [];
+	var free = [], caching = [], buffering = [], available = [];
 	var len, i;
+	var label_free = "free";
+	var label_avail = "available";
+	var label_cache = "cache";
+	var label_buff = "buffer";
+
 	for (len=router_stats.length, i=0; i<len; i++) {
 		try {
-			var free_value = router_stats[i].mf*1024;
-			var caching_value = router_stats[i].mc*1024;
-			var buffering_value = router_stats[i].mb*1024;
+			var free_value = router_stats[i].mf;
+			var avail_value = router_stats[i].ma;
+			var caching_value = router_stats[i].mc;
+			var buffering_value = router_stats[i].mb;
 			var date_value = router_stats[i].t.$date;
 			if(free_value != null && caching_value != null && buffering_value != null) {
-				free.push([date_value, free_value]);
-				caching.push([date_value, caching_value]);
-				buffering.push([date_value, buffering_value]);
+				/* push bytes */
+				free.push([date_value, free_value*1024]);
+				caching.push([date_value, caching_value*1024]);
+				buffering.push([date_value, buffering_value*1024]);
+			}
+			if(avail_value != null) {
+				available.push([date_value, avail_value*1024]);
+			}
+			if(i == len-1) {
+				if(free_value) {
+					label_free += appendMiB(free_value);
+				}
+				if(caching_value) {
+					label_cache += appendMiB(caching_value);
+				}
+				if(buffering_value) {
+					label_buff += appendMiB(buffering_value);
+				}
+				if(avail_value) {
+					label_avail += appendMiB(avail_value);
+				}
 			}
 		}
 		catch(TypeError) {
@@ -203,15 +230,16 @@ function memory_graph() {
 		}
 	}
 	var pdata = [
-		{"label": "free", "data": free, "color": "#4DA74A"},
-		{"label": "caching", "data": caching, "color": "#EDC240"},
-		{"label": "buffering", "data": buffering, "color": "#8CACC6"}
+		{"label": label_free, "data": free, "color": "#4DA74A"},
+		{"label": label_avail, "data": available, "color": "#CB4B4B"},
+		{"label": label_cache, "data": caching, "color": "#EDC240"},
+		{"label": label_buff, "data": buffering, "color": "#8CACC6"}
 	];
 	var plot = $.plot(memstat, pdata, {
 		xaxis: {mode: "time", timezone: "browser"},
 		selection: {mode: "x"},
 		yaxis: {min: 0, mode: "byte", autoscaleMargin: 0.1},
-		legend: {noColumns: 3, hideable: true},
+		legend: {noColumns: 4, hideable: true},
 		series: {downsample: {threshold: Math.floor(memstat.width() * points_per_px)}}
 	});
 	setup_plot_zoom(plot, pdata, len);

@@ -515,6 +515,7 @@ def new_router_stats(infdict, router_id, uptime, router_update, statstime):
 		"time": statstime,
 		"fields": {
 			"sys_memfree": router_update["memory"]['free'],
+			"sys_memavail": router_update["memory"]['available'],
 			"sys_membuff": router_update["memory"]['buffering'],
 			"sys_memcache": router_update["memory"]['caching'],
 			"loadavg": float(router_update["sys_loadavg"]),
@@ -661,6 +662,7 @@ def parse_nodewatcher_xml(xml,statstime):
 			"sys_uptime": int(evalxpathfloat(tree,"/data/system_data/uptime/text()")),
 			"memory": {
 				"free": evalxpathint(tree,"/data/system_data/memory_free/text()"),
+				"available": evalxpathint(tree,"/data/system_data/memory_available/text()"),
 				"buffering": evalxpathint(tree,"/data/system_data/memory_buffering/text()"),
 				"caching": evalxpathint(tree,"/data/system_data/memory_caching/text()"),
 			},
