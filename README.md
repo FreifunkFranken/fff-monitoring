@@ -8,8 +8,8 @@
 
 ## Debian Dependencies
 ```bash
-apt-get install mysql-server memcached python3-memcache python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx
-pip3 install wheel pymongo pillow modestmaps simplejson werkzeug
+apt-get install mariadb-server memcached python3-memcache python3-mysqldb python python3 python3-requests python3-lxml python3-pip python3-flask python3-dateutil python3-numpy python3-scipy python3-mapnik python3-pip uwsgi-plugin-python3 nginx git influxdb curl
+pip3 install wheel pymongo pillow modestmaps simplejson werkzeug tilestache influxdb
 ```
 
 ## Prerequisites
@@ -23,6 +23,26 @@ cp ffmap/mysqlconfig.example.py ffmap/mysqlconfig.py
 ```
 * MySQL Zugangsdaten in mysqlconfig.py eintragen
 
+## InfluxDB
+```
+cp ffmap/influconfig.example.py ffmap/influconfig.py
+
+curl -X POST -G "http://localhost:8086/query?" --data-urlencode "q=CREATE DATABASE databasename"
+curl -X POST -G "http://localhost:8086/query?" --data-urlencode "q=CREATE USER username WITH PASSWORD 'password'"
+curl -X POST -G "http://localhost:8086/query?" --data-urlencode "q=GRANT ALL ON databasename TO username"
+```
+
+Bitte beachtet das in der Datei /ffmap/influxtools.py die Datenbank statisch angesprochen wird. Ihr sollten also, falls ihr einen anderen DB Namen als "fff-monitoring" nutzen wollt, hier entsprechend anpassen.
+
+Authentifizierung in Datei /etc/influxdb/influxdb.conf aktivieren
+
+```auth-enabled = true```
+
+Dienst neu starten
+
+```systemctl restart influxdb```
+
+Zugangsdaten in der Config hinterlegen
 
 ## Installation
 ```bash
@@ -33,7 +53,8 @@ systemctl enable uwsgi-tiles
 systemctl start uwsgi-ffmap
 systemctl start uwsgi-tiles
 cd ffmap/db/
-./init_db.py
+./init_mysql.py
+./init_influx.py
 # Then apply NGINX Config
 cd ../.. # go back to fff-monitoring root directory
 ./scripts/setupcron.sh
