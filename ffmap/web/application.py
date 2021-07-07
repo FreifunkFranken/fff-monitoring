@@ -447,10 +447,13 @@ def user_list():
 def user_info(nickname):
 	mysql = FreifunkMySQL()
 	user = mysql.findone("SELECT * FROM users WHERE nickname = %s LIMIT 1",(nickname,))
-	user["created"] = mysql.utcaware(user["created"])
+
 	if not user:
 		mysql.close()
 		return "User not found"
+
+	user["created"] = mysql.utcaware(user["created"])
+
 	if request.method == 'POST':
 		if request.form.get("action") == "changepw":
 			if is_authorized(user["nickname"], session):
