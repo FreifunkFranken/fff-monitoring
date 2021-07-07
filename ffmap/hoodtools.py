@@ -17,6 +17,9 @@ def update_hoods_v2(mysql):
 		kx_keys = []
 		kx_data = []
 		for kx in hoodskx:
+			if not int(kx["active"]):
+				continue
+
 			kx_keys.append(kx["id"])
 			kx_data.append((kx["id"],kx["name"],kx.get("lat",None),kx.get("lon",None),))
 
@@ -52,6 +55,9 @@ def update_hoods_poly(mysql):
 		mysql.execute("DELETE FROM polyhoods",())
 
 		for kx in hoodskx:
+			if not int(kx["active"]):
+				continue
+
 			for polygon in kx.get("polygons",()):
 				mysql.execute("""
 					INSERT INTO polyhoods (hoodid)

@@ -247,6 +247,9 @@ def update_mapnik_csv(mysql):
 	with open(os.path.join(CONFIG["csv_dir"], "hood-points-poly.csv"), "w", encoding="UTF-8") as csv:
 		csv.write("lng,lat,name\n")
 		for hood in dbhoodspoly:
+			if not int(hood["active"]):
+				continue
+
 			for polygon in hood.get("polygons",()):
 				avlon = 0
 				avlat = 0
