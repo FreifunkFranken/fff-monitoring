@@ -77,7 +77,6 @@ function initialMap() {
 	map.addLayer(tilesosmorg);
 }
 function initialLayers() {
-	routers.addTo(map);
 	routers_v2.addTo(map);
 	routers_local.addTo(map);
 }
